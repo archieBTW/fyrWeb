@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import '../models/config_model.dart';
 
 class ContactApp extends StatelessWidget {
   const ContactApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final config = context.watch<AppConfig>();
+    
     return Padding(
       padding: const EdgeInsets.all(48.0),
       child: Center(
@@ -28,16 +32,18 @@ class ContactApp extends StatelessWidget {
               style: GoogleFonts.inter(color: Colors.white70, fontSize: 18),
             ),
             const SizedBox(height: 48),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: [
-            //     _SocialButton(icon: FontAwesomeIcons.github, label: 'GitHub'),
-            //     const SizedBox(width: 24),
-            //     _SocialButton(icon: FontAwesomeIcons.linkedin, label: 'LinkedIn'),
-            //     const SizedBox(width: 24),
-            //     _SocialButton(icon: FontAwesomeIcons.twitter, label: 'Twitter'),
-            //   ],
-            // ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: config.socials.map((social) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: _SocialButton(
+                    icon: _getSocialIcon(social.icon),
+                    label: social.name,
+                  ),
+                );
+              }).toList(),
+            ),
             const SizedBox(height: 48),
             Container(
               constraints: const BoxConstraints(maxWidth: 500),
@@ -62,6 +68,27 @@ class ContactApp extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  dynamic _getSocialIcon(String iconName) {
+    switch (iconName) {
+      case 'github':
+        return FontAwesomeIcons.github;
+      case 'linkedin':
+        return FontAwesomeIcons.linkedin;
+      case 'twitter':
+        return FontAwesomeIcons.twitter;
+      case 'instagram':
+        return FontAwesomeIcons.instagram;
+      case 'facebook':
+        return FontAwesomeIcons.facebook;
+      case 'youtube':
+        return FontAwesomeIcons.youtube;
+      case 'tiktok':
+        return FontAwesomeIcons.tiktok;
+      default:
+        return FontAwesomeIcons.link;
+    }
   }
 }
 

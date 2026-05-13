@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:glass_kit/glass_kit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'app_data.dart';
+import 'package:provider/provider.dart';
+import 'models/config_model.dart';
 
 class Dock extends StatelessWidget {
   final Function(String, String, Widget?, dynamic, {String? url}) onOpenApp;
@@ -11,11 +13,13 @@ class Dock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final config = context.watch<AppConfig>();
+    final apps = getApps(config);
 
     return Center(
       child: GlassContainer.clearGlass(
         height: 70,
-        width: allApps.length * 55.0 + 20,
+        width: apps.length * 64.0 + 10,
         borderRadius: BorderRadius.circular(20),
         blur: 25,
         color: isDark
@@ -30,7 +34,7 @@ class Dock extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: allApps
+              children: apps
                   .map(
                     (app) => _DockIcon(
                       icon: app.icon,

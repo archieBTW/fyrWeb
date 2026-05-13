@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../models/config_model.dart';
 
 class AboutApp extends StatelessWidget {
   const AboutApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final config = context.watch<AppConfig>();
+    
     return SingleChildScrollView(
       padding: const EdgeInsets.all(32.0),
       child: Column(
@@ -24,8 +28,8 @@ class AboutApp extends StatelessWidget {
                     ).colorScheme.onSurface.withOpacity(0.1),
                     width: 4,
                   ),
-                  image: const DecorationImage(
-                    image: AssetImage('assets/face.jpg'),
+                  image: DecorationImage(
+                    image: AssetImage(config.profile.profilePic),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -36,7 +40,7 @@ class AboutApp extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'archie',
+                      config.profile.name,
                       style: GoogleFonts.outfit(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 42,
@@ -44,7 +48,7 @@ class AboutApp extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Software Engineer',
+                      config.profile.title,
                       style: GoogleFonts.inter(
                         color: Theme.of(
                           context,
@@ -68,7 +72,7 @@ class AboutApp extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            "I'm just a dev who likes to make cool things",
+            config.profile.about,
             style: GoogleFonts.inter(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               fontSize: 16,
@@ -88,21 +92,7 @@ class AboutApp extends StatelessWidget {
           Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: const [
-              _SkillChip(label: 'Flutter/Dart'),
-              _SkillChip(label: 'Go'),
-              _SkillChip(label: 'Typescript'),
-              _SkillChip(label: 'PHP'),
-              _SkillChip(label: 'C++'),
-              _SkillChip(label: 'Javascript'),
-              _SkillChip(label: 'Rust'),
-              _SkillChip(label: 'Java'),
-              _SkillChip(label: 'Kotlin'),
-              _SkillChip(label: 'Swift'),
-              _SkillChip(label: 'Python'),
-              _SkillChip(label: 'Bash'),
-              _SkillChip(label: 'Powershell'),
-            ],
+            children: config.skills.map((skill) => _SkillChip(label: skill)).toList(),
           ),
         ],
       ),

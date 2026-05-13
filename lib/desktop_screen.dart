@@ -10,6 +10,7 @@ import 'app_menu.dart';
 import 'quick_settings.dart';
 import 'system_controller.dart';
 import 'app_data.dart';
+import 'models/config_model.dart';
 import 'dart:convert';
 
 class DesktopScreen extends StatefulWidget {
@@ -28,6 +29,8 @@ class _DesktopScreenState extends State<DesktopScreen> {
     final settings = context.watch<SystemSettings>();
     final system = context.read<SystemController>();
     final windowManager = context.watch<WindowManager>();
+    final config = context.watch<AppConfig>();
+    final apps = getApps(config);
     final isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
@@ -72,6 +75,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
                   windowManager,
                   system,
                   focusedWindow,
+                  apps,
                 )
               else
                 _buildDesktopLayout(context, settings, windowManager, system),
@@ -153,12 +157,13 @@ class _DesktopScreenState extends State<DesktopScreen> {
     WindowManager windowManager,
     SystemController system,
     WindowData? focusedWindow,
+    List<AppInfo> apps,
   ) {
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
 
     return Stack(
       children: [
-        if (focusedWindow == null) _buildMobileHomeScreen(context, system),
+        if (focusedWindow == null) _buildMobileHomeScreen(context, system, apps),
 
         if (focusedWindow != null)
           Positioned.fill(
@@ -256,7 +261,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: allApps
+                children: apps
                     .take(4)
                     .map(
                       (app) => _buildMobileIcon(
@@ -274,7 +279,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
     );
   }
 
-  Widget _buildMobileHomeScreen(BuildContext context, SystemController system) {
+  Widget _buildMobileHomeScreen(BuildContext context, SystemController system, List<AppInfo> apps) {
     return Padding(
       padding: const EdgeInsets.only(top: 100, left: 30, right: 30),
       child: GridView.builder(
@@ -284,9 +289,9 @@ class _DesktopScreenState extends State<DesktopScreen> {
           crossAxisSpacing: 20,
           childAspectRatio: 0.8,
         ),
-        itemCount: allApps.length,
+        itemCount: apps.length,
         itemBuilder: (context, index) {
-          final app = allApps[index];
+          final app = apps[index];
           return _buildMobileIcon(app, system);
         },
       ),

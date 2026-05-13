@@ -5,6 +5,8 @@ import 'apps/contact_app.dart';
 import 'apps/terminal_app.dart';
 import 'apps/file_explorer_app.dart';
 import 'apps/settings_app.dart';
+import 'apps/resume_app.dart';
+import 'models/config_model.dart';
 
 class AppInfo {
   final String id;
@@ -24,89 +26,90 @@ class AppInfo {
   });
 }
 
-final List<AppInfo> allApps = [
-  AppInfo(
-    id: 'terminal',
-    title: 'Terminal',
-    content: const TerminalApp(),
-    icon: Icons.terminal,
-    color: Colors.black,
-  ),
-  AppInfo(
-    id: 'files',
-    title: 'File Explorer',
-    content: const FileExplorerApp(),
-    icon: Icons.folder,
-    color: Colors.blue,
-  ),
-  AppInfo(
-    id: 'settings',
-    title: 'Settings',
-    content: const SettingsApp(),
-    icon: Icons.settings,
-    color: Colors.grey,
-  ),
-  AppInfo(
-    id: 'about',
-    title: 'About Me',
-    content: const AboutApp(),
-    icon: Icons.person_outline,
-    color: Colors.blue,
-  ),
-  AppInfo(
-    id: 'contact',
-    title: 'Contact Me',
-    content: const ContactApp(),
-    icon: Icons.mail_outline,
-    color: Colors.green,
-  ),
-  AppInfo(
-    id: 'fyr',
-    title: 'fyr software',
-    url: 'https://fyr.software',
-    icon: Icons.computer,
-    color: Colors.cyan,
-  ),
-  AppInfo(
-    id: 'bybl',
-    title: 'bybl',
-    url: 'https://bybl.dev',
-    icon: Icons.book,
-    color: Colors.brown,
-  ),
-  AppInfo(
-    id: 'libretrac',
-    title: 'LibreTrac',
-    url: 'https://libretrac.site',
-    icon: Icons.favorite,
-    color: Colors.red,
-  ),
-  AppInfo(
-    id: 'olivebranch',
-    title: 'Olive Branch',
-    url: 'https://theolivebranch.press',
-    icon: Icons.newspaper,
-    color: Colors.greenAccent,
-  ),
-  AppInfo(
-    id: 'beatsbyarch',
-    title: 'Beats By Arch',
-    url: 'https://beatsby.archbtw.sh',
-    icon: Icons.headphones,
-    color: Colors.deepPurpleAccent,
-  ),
-  AppInfo(
-    id: 'github',
-    title: 'GitHub',
-    url: 'https://github.com/archieBTW',
-    icon: FontAwesomeIcons.github,
-    color: Colors.grey,
-  ),
-  AppInfo(
-    id: 'violetapparition',
-    title: 'Violet Apparition',
-    url: 'https://violetapparition.com',
-    icon: Icons.album,
-    color: Colors.deepPurple,
-  ),
-];
+List<AppInfo> getApps(AppConfig config) {
+  final List<AppInfo> systemApps = [
+    AppInfo(
+      id: 'terminal',
+      title: 'Terminal',
+      content: const TerminalApp(),
+      icon: Icons.terminal,
+      color: Colors.black,
+    ),
+    AppInfo(
+      id: 'files',
+      title: 'File Explorer',
+      content: const FileExplorerApp(),
+      icon: Icons.folder,
+      color: Colors.blue,
+    ),
+    AppInfo(
+      id: 'settings',
+      title: 'Settings',
+      content: const SettingsApp(),
+      icon: Icons.settings,
+      color: Colors.grey,
+    ),
+    AppInfo(
+      id: 'about',
+      title: 'About Me',
+      content: const AboutApp(),
+      icon: Icons.person_outline,
+      color: Colors.blue,
+    ),
+    AppInfo(
+      id: 'resume',
+      title: 'Resume',
+      content: const ResumeApp(),
+      icon: Icons.description_outlined,
+      color: Colors.orange,
+    ),
+    AppInfo(
+      id: 'contact',
+      title: 'Contact Me',
+      content: const ContactApp(),
+      icon: Icons.mail_outline,
+      color: Colors.green,
+    ),
+  ];
+
+  final List<AppInfo> customApps = config.apps.map((app) {
+    return AppInfo(
+      id: app.id,
+      title: app.title,
+      url: app.url,
+      icon: _getIconData(app.icon),
+      color: Color(int.parse(app.color)),
+    );
+  }).toList();
+
+  return [...systemApps, ...customApps];
+}
+
+dynamic _getIconData(String iconName) {
+  switch (iconName) {
+    case 'computer':
+      return Icons.computer;
+    case 'code':
+      return Icons.code;
+    case 'language':
+      return Icons.language;
+    case 'github':
+      return FontAwesomeIcons.github;
+    case 'link':
+      return Icons.link;
+    case 'smartphone':
+      return Icons.smartphone;
+    case 'album':
+      return Icons.album;
+    case 'headphones':
+      return Icons.headphones;
+    case 'book':
+      return Icons.book;
+    case 'favorite':
+      return Icons.favorite;
+    case 'newspaper':
+      return Icons.newspaper;
+    default:
+      return Icons.apps;
+  }
+}

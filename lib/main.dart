@@ -5,12 +5,22 @@ import 'package:provider/provider.dart';
 import 'system_settings.dart';
 import 'window_manager.dart';
 import 'system_controller.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart';
+import 'models/config_model.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  final String configString = await rootBundle.loadString('assets/config.json');
+  final configJson = jsonDecode(configString);
+  final config = AppConfig.fromJson(configJson);
+
   final windowManager = WindowManager();
   runApp(
     MultiProvider(
       providers: [
+        Provider<AppConfig>.value(value: config),
         ChangeNotifierProvider(create: (_) => SystemSettings()),
         ChangeNotifierProvider.value(value: windowManager),
         ChangeNotifierProvider(create: (_) => SystemController(windowManager: windowManager)),
@@ -26,9 +36,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SystemSettings>();
+    final config = context.watch<AppConfig>();
     
     return MaterialApp(
-      title: 'fyrWeb',
+      title: config.profile.tabTitle,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: settings.isDarkMode ? Brightness.dark : Brightness.light,

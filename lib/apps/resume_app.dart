@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../models/config_model.dart';
 
 class ResumeApp extends StatelessWidget {
   const ResumeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final config = context.watch<AppConfig>();
+    
     return SingleChildScrollView(
       padding: const EdgeInsets.all(40),
       child: Column(
@@ -13,9 +17,9 @@ class ResumeApp extends StatelessWidget {
         children: [
           Row(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 40,
-                backgroundImage: AssetImage('assets/face.jpg'),
+                backgroundImage: AssetImage(config.profile.profilePic),
               ),
               const SizedBox(width: 24),
               Expanded(
@@ -23,7 +27,7 @@ class ResumeApp extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'archie',
+                      config.profile.name,
                       style: GoogleFonts.outfit(
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 32,
@@ -31,7 +35,7 @@ class ResumeApp extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Software Engineer',
+                      config.profile.title,
                       style: GoogleFonts.inter(
                         color: Theme.of(
                           context,
@@ -47,14 +51,12 @@ class ResumeApp extends StatelessWidget {
           const SizedBox(height: 40),
           _Section(
             title: 'Experience',
-            children: [
-              _ExperienceItem(
-                company: 'Well Edumacated',
-                role: 'Software Engineer',
-                period: 'Present',
-                description: 'making the world a better place',
-              ),
-            ],
+            children: config.experience.map((item) => _ExperienceItem(
+              company: item.company,
+              role: item.role,
+              period: item.period,
+              description: item.description,
+            )).toList(),
           ),
           const SizedBox(height: 32),
           _Section(
@@ -63,21 +65,7 @@ class ResumeApp extends StatelessWidget {
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
-                children: [
-                  _SkillChip(label: 'Flutter/Dart'),
-                  _SkillChip(label: 'Go'),
-                  _SkillChip(label: 'Typescript'),
-                  _SkillChip(label: 'PHP'),
-                  _SkillChip(label: 'C++'),
-                  _SkillChip(label: 'Javascript'),
-                  _SkillChip(label: 'Rust'),
-                  _SkillChip(label: 'Java'),
-                  _SkillChip(label: 'Kotlin'),
-                  _SkillChip(label: 'Swift'),
-                  _SkillChip(label: 'Python'),
-                  _SkillChip(label: 'Bash'),
-                  _SkillChip(label: 'Powershell'),
-                ],
+                children: config.skills.map((skill) => _SkillChip(label: skill)).toList(),
               ),
             ],
           ),

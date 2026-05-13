@@ -1,0 +1,41 @@
+{
+  "profile": {
+    "name": "archie",
+    "title": "Software Engineer",
+    "about": "I'm just a dev who likes to make cool things",
+    "profilePic": "assets/face.jpg",
+    "tabTitle": "archieBTW"
+  },
+  "skills": [
+    "Flutter/Dart",
+    "Go",
+    "Typescript",
+    "PHP",
+    "C++",
+    "Javascript",
+    "Rust",
+    "Java",
+    "Kotlin",
+    "Swift",
+    "Python",
+    "Bash",
+    "Powershell"
+  ],
+  "socials": [
+    {
+      "id": "github",
+      "name": "GitHub",
+      "url": "https://github.com/archieBTW",
+      "icon": "github"
+    }
+  ],
+  "apps": [],
+  "experience": [
+    {
+      "company": "Well Edumacated",
+      "role": "Software Engineer",
+      "period": "Present",
+      "description": "making the world a better place"
+    }
+  ]
+}

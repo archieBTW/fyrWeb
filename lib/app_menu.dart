@@ -3,6 +3,8 @@ import 'package:glass_kit/glass_kit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_data.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import 'models/config_model.dart';
 
 class AppMenu extends StatelessWidget {
   final Function(String, String, Widget?, dynamic, {String? url}) onOpenApp;
@@ -39,23 +41,28 @@ class AppMenu extends StatelessWidget {
           ),
           const Divider(color: Colors.white10, height: 1),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: allApps.length,
-              itemBuilder: (context, index) {
-                final app = allApps[index];
-                return ListTile(
-                  dense: true,
-                  leading: app.icon is IconData 
-                    ? Icon(app.icon, color: app.color, size: 18)
-                    : FaIcon(app.icon, color: app.color, size: 16),
-                  title: Text(
-                    app.title,
-                    style: GoogleFonts.inter(color: Colors.white, fontSize: 13),
-                  ),
-                  onTap: () {
-                    onOpenApp(app.id, app.title, app.content, app.icon, url: app.url);
-                    onClose();
+            child: Consumer<AppConfig>(
+              builder: (context, config, child) {
+                final apps = getApps(config);
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: apps.length,
+                  itemBuilder: (context, index) {
+                    final app = apps[index];
+                    return ListTile(
+                      dense: true,
+                      leading: app.icon is IconData 
+                        ? Icon(app.icon, color: app.color, size: 18)
+                        : FaIcon(app.icon, color: app.color, size: 16),
+                      title: Text(
+                        app.title,
+                        style: GoogleFonts.inter(color: Colors.white, fontSize: 13),
+                      ),
+                      onTap: () {
+                        onOpenApp(app.id, app.title, app.content, app.icon, url: app.url);
+                        onClose();
+                      },
+                    );
                   },
                 );
               },
