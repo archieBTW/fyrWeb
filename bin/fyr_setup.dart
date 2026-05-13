@@ -14,7 +14,13 @@ void main(List<String> arguments) async {
     ..addOption('about', help: 'Update about me text')
     ..addOption('tab-title', help: 'Update tab bar title')
     ..addOption('profile-pic', help: 'Update profile picture path')
-    ..addCommand('add-app');
+    ..addOption('terminal-name', help: 'Update terminal user name')
+    ..addOption('system-name', help: 'Update system/project name')
+    ..addOption('email', help: 'Update contact email')
+    ..addOption('location', help: 'Update contact location')
+    ..addCommand('add-app')
+    ..addCommand('add-experience')
+    ..addCommand('add-social');
 
   final results = parser.parse(arguments);
 
@@ -22,8 +28,10 @@ void main(List<String> arguments) async {
     print('fyr CLI - Manage your portfolio site\n');
     print(parser.usage);
     print('\nCommands:');
-    print('  wizard   Run the setup wizard');
-    print('  add-app  Add a new app link');
+    print('  wizard          Run the setup wizard');
+    print('  add-app         Add a new app link');
+    print('  add-experience  Add work experience');
+    print('  add-social      Add a social link');
     return;
   }
 
@@ -34,6 +42,16 @@ void main(List<String> arguments) async {
 
   if (results.command?.name == 'add-app') {
     await addApp();
+    return;
+  }
+
+  if (results.command?.name == 'add-experience') {
+    await addExperience();
+    return;
+  }
+
+  if (results.command?.name == 'add-social') {
+    await addSocial();
     return;
   }
 
@@ -61,6 +79,22 @@ void main(List<String> arguments) async {
     config['profile']['profilePic'] = results['profile-pic'];
     changed = true;
   }
+  if (results['terminal-name'] != null) {
+    config['profile']['terminalName'] = results['terminal-name'];
+    changed = true;
+  }
+  if (results['system-name'] != null) {
+    config['profile']['systemName'] = results['system-name'];
+    changed = true;
+  }
+  if (results['email'] != null) {
+    config['profile']['email'] = results['email'];
+    changed = true;
+  }
+  if (results['location'] != null) {
+    config['profile']['location'] = results['location'];
+    changed = true;
+  }
 
   if (changed) {
     await saveConfig(config);
@@ -78,18 +112,107 @@ Future<void> runWizard() async {
   config['profile']['title'] = ask('Title', defaultValue: config['profile']['title']);
   config['profile']['about'] = ask('About Me', defaultValue: config['profile']['about']);
   config['profile']['tabTitle'] = ask('Tab Bar Title', defaultValue: config['profile']['tabTitle']);
+  config['profile']['terminalName'] = ask('Terminal User Name', defaultValue: config['profile']['terminalName']);
+  config['profile']['systemName'] = ask('System/Project Name', defaultValue: config['profile']['systemName']);
+  config['profile']['email'] = ask('Email', defaultValue: config['profile']['email']);
+  config['profile']['location'] = ask('Location', defaultValue: config['profile']['location']);
   config['profile']['profilePic'] = ask('Profile Pic Path', defaultValue: config['profile']['profilePic']);
 
   print('\nSkills (comma separated):');
   String skillsInput = ask('Skills', defaultValue: (config['skills'] as List).join(', '));
   config['skills'] = skillsInput.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
 
-  print('\nWould you like to add a new app? (y/n)');
+  print('\n--- Social Links ---');
+  print('Would you like to clear existing socials and add new? (y/n)');
+  if (stdin.readLineSync()?.toLowerCase() == 'y') {
+    config['socials'] = [];
+    bool adding = true;
+    while (adding) {
+      await addSocial(existingConfig: config);
+      print('Add another social link? (y/n)');
+      adding = stdin.readLineSync()?.toLowerCase() == 'y';
+    }
+  }
+
+  print('\n--- Work Experience ---');
+  print('Would you like to clear existing experience and add new? (y/n)');
+  if (stdin.readLineSync()?.toLowerCase() == 'y') {
+    config['experience'] = [];
+    bool adding = true;
+    while (adding) {
+      await addExperience(existingConfig: config);
+      print('Add another experience? (y/n)');
+      adding = stdin.readLineSync()?.toLowerCase() == 'y';
+    }
+  }
+
+  print('\n--- Apps ---');
+  print('Would you like to add a new app? (y/n)');
   if (stdin.readLineSync()?.toLowerCase() == 'y') {
     await addApp(existingConfig: config);
-  } else {
+  }
+
+  await saveConfig(config);
+  print('\nWizard complete! Configuration saved.');
+}
+
+Future<void> addSocial({Map<String, dynamic>? existingConfig}) async {
+  Map<String, dynamic> config = existingConfig ?? await readConfig();
+  
+  print('\n--- Add Social Link ---');
+  String name = ask('Social Name (e.g. GitHub, LinkedIn)');
+  String url = ask('Profile URL');
+  
+  print('\nChoose an icon:');
+  const icons = {
+    '1': {'name': 'github', 'label': 'GitHub'},
+    '2': {'name': 'linkedin', 'label': 'LinkedIn'},
+    '3': {'name': 'twitter', 'label': 'Twitter'},
+    '4': {'name': 'instagram', 'label': 'Instagram'},
+    '5': {'name': 'facebook', 'label': 'Facebook'},
+    '6': {'name': 'youtube', 'label': 'YouTube'},
+    '7': {'name': 'tiktok', 'label': 'TikTok'},
+    '8': {'name': 'link', 'label': 'Generic Link'},
+  };
+
+  icons.forEach((key, value) => print('$key: ${value['label']}'));
+  String iconChoice = ask('Icon Choice', defaultValue: '8');
+  String iconName = icons[iconChoice]?['name'] ?? 'link';
+
+  List socials = config['socials'] as List;
+  socials.add({
+    'id': name.toLowerCase().replaceAll(' ', '_'),
+    'name': name,
+    'url': url,
+    'icon': iconName,
+  });
+
+  if (existingConfig == null) {
     await saveConfig(config);
-    print('\nWizard complete! Configuration saved.');
+    print('\nSocial link added successfully!');
+  }
+}
+
+Future<void> addExperience({Map<String, dynamic>? existingConfig}) async {
+  Map<String, dynamic> config = existingConfig ?? await readConfig();
+  
+  print('\n--- Add Experience ---');
+  String company = ask('Company');
+  String role = ask('Role');
+  String period = ask('Period (e.g. 2020 - Present)');
+  String description = ask('Description');
+
+  List exp = config['experience'] as List;
+  exp.add({
+    'company': company,
+    'role': role,
+    'period': period,
+    'description': description,
+  });
+
+  if (existingConfig == null) {
+    await saveConfig(config);
+    print('\nExperience added successfully!');
   }
 }
 
@@ -128,8 +251,10 @@ Future<void> addApp({Map<String, dynamic>? existingConfig}) async {
     'color': color,
   });
 
-  await saveConfig(config);
-  print('\nApp "$title" added successfully!');
+  if (existingConfig == null) {
+    await saveConfig(config);
+    print('\nApp "$title" added successfully!');
+  }
 }
 
 String ask(String question, {String? defaultValue}) {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:glass_kit/glass_kit.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'models/config_model.dart';
 
 class TopBar extends StatelessWidget {
   final VoidCallback onMenuTap;
@@ -40,7 +42,7 @@ class TopBar extends StatelessWidget {
             ),
             const SizedBox(width: 16),
             Text(
-              'fyrWeb',
+              context.watch<AppConfig>().profile.systemName,
               style: GoogleFonts.inter(
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,

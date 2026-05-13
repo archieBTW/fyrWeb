@@ -57,10 +57,13 @@ class ContactApp extends StatelessWidget {
                 children: [
                   _ContactField(
                     label: 'Email',
-                    value: 'contact@violetapparition.com',
+                    value: config.profile.email,
                   ),
                   const Divider(color: Colors.white10, height: 32),
-                  _ContactField(label: 'Location', value: 'Oklahoma City, OK'),
+                  _ContactField(
+                    label: 'Location',
+                    value: config.profile.location,
+                  ),
                 ],
               ),
             ),

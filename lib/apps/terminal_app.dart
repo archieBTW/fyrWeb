@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../models/config_model.dart';
 
 class TerminalApp extends StatefulWidget {
   const TerminalApp({super.key});
@@ -17,9 +19,10 @@ class _TerminalAppState extends State<TerminalApp> {
   @override
   void initState() {
     super.initState();
+    final config = context.read<AppConfig>();
     _history.addAll([
-      'fyrWeb v1.0.0 (tty1)',
-      'Welcome archie. Type "help" for a list of commands.',
+      '${config.profile.systemName} v1.0.0 (tty1)',
+      'Welcome ${config.profile.terminalName}. Type "help" for a list of commands.',
       '',
     ]);
 
@@ -32,17 +35,18 @@ class _TerminalAppState extends State<TerminalApp> {
   }
 
   void _showNeofetch() {
+    final config = context.read<AppConfig>();
     _history.addAll([
-      '            .-/+oossssoo+/-.               archie@fyrWeb',
+      '            .-/+oossssoo+/-.               ${config.profile.terminalName}@${config.profile.systemName}',
       '        `:+ssssssssssssssssss+:`           ------------',
-      '      -+ssssssssssssssssssyyssss+-         OS: fyrWeb 1.0.0 x86_64',
-      '    .ossssssssssssssssssdMMMNysssso.       Host:  fyrWeb',
+      '      -+ssssssssssssssssssyyssss+-         OS: ${config.profile.systemName} 1.0.0 x86_64',
+      '    .ossssssssssssssssssdMMMNysssso.       Host:  ${config.profile.systemName}',
       '   /ssssssssssshdmmNNmmyNMMMMhssssss/      Kernel: 5.15.0-generic',
       '  +ssssssssshmydMMMMMMMNddddyssssssss+     Uptime: 2 hours, 42 mins',
       ' /sssssssshNMMMyhhyyyyhmNMMMNhssssssss/    Packages: 1337 (dpkg)',
       '.ssssssssdMMMMMMNdyysssdmMMMMMysssssssso.  Shell: zsh 5.8.1',
       'osssssssNMMMMMMMMMMMMMMMMMMMMMysssssssso   Resolution: 1920x1080',
-      'osssssssNMMMMMMMMMMMMMMMMMMMMMysssssssso   DE: fyrWeb-DE',
+      'osssssssNMMMMMMMMMMMMMMMMMMMMMysssssssso   DE: ${config.profile.systemName}-DE',
       'osssssssNMMMMMMMMmhyyyyyyhmMMMhssssssso    WM: fyrWM',
       '.ssssssssdMMMMMMNdyysssssdmMMMysssssssso.  Theme: Glassmorphic-Dark',
       ' /sssssssshNMMMyhhyyyyhdNMMMNhssssssss/    Icons: Material-Rounded',
@@ -56,8 +60,9 @@ class _TerminalAppState extends State<TerminalApp> {
   }
 
   void _handleCommand(String cmd) {
+    final config = context.read<AppConfig>();
     setState(() {
-      _history.add('archie@fyrWeb:~\$ $cmd');
+      _history.add('${config.profile.terminalName}@${config.profile.systemName}:~\$ $cmd');
       switch (cmd.toLowerCase().trim()) {
         case 'neofetch':
           _showNeofetch();
@@ -72,17 +77,17 @@ class _TerminalAppState extends State<TerminalApp> {
           return;
         case 'ls':
           _history.add(
-            '-rw-r--r--  1 archie  staff  1.2K May 12 15:47  about_me.txt',
+            '-rw-r--r--  1 ${config.profile.terminalName}  staff  1.2K May 12 15:47  about_me.txt',
           );
           break;
         case 'whoami':
-          _history.add('archie');
+          _history.add(config.profile.terminalName);
           break;
         case 'date':
           _history.add(DateTime.now().toString());
           break;
         case 'uname':
-          _history.add('fyrWeb 5.15.0-generic x86_64');
+          _history.add('${config.profile.systemName} 5.15.0-generic x86_64');
           break;
         case '':
           break;
@@ -130,7 +135,7 @@ class _TerminalAppState extends State<TerminalApp> {
               Row(
                 children: [
                   Text(
-                    'archie@fyrWeb:~\$ ',
+                    '${context.watch<AppConfig>().profile.terminalName}@${context.watch<AppConfig>().profile.systemName}:~\$ ',
                     style: GoogleFonts.firaCode(
                       color: Colors.greenAccent,
                       fontSize: 14,

@@ -40,6 +40,10 @@ class ProfileConfig {
   final String about;
   final String profilePic;
   final String tabTitle;
+  final String terminalName;
+  final String systemName;
+  final String email;
+  final String location;
 
   ProfileConfig({
     required this.name,
@@ -47,6 +51,10 @@ class ProfileConfig {
     required this.about,
     required this.profilePic,
     required this.tabTitle,
+    required this.terminalName,
+    required this.systemName,
+    required this.email,
+    required this.location,
   });
 
   factory ProfileConfig.fromJson(Map<String, dynamic> json) {
@@ -56,6 +64,10 @@ class ProfileConfig {
       about: json['about'] ?? '',
       profilePic: json['profilePic'] ?? 'assets/face.jpg',
       tabTitle: json['tabTitle'] ?? 'Portfolio',
+      terminalName: json['terminalName'] ?? 'archie',
+      systemName: json['systemName'] ?? 'fyrWeb',
+      email: json['email'] ?? '',
+      location: json['location'] ?? '',
     );
   }
 
@@ -65,6 +77,10 @@ class ProfileConfig {
     'about': about,
     'profilePic': profilePic,
     'tabTitle': tabTitle,
+    'terminalName': terminalName,
+    'systemName': systemName,
+    'email': email,
+    'location': location,
   };
 }
 
