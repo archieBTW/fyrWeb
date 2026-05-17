@@ -10,7 +10,7 @@ class ContactApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final config = context.watch<AppConfig>();
-    
+
     return Padding(
       padding: const EdgeInsets.all(48.0),
       child: Center(
@@ -55,10 +55,7 @@ class ContactApp extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _ContactField(
-                    label: 'Email',
-                    value: config.profile.email,
-                  ),
+                  _ContactField(label: 'Email', value: config.profile.email),
                   const Divider(color: Colors.white10, height: 32),
                   _ContactField(
                     label: 'Location',

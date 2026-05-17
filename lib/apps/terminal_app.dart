@@ -32,7 +32,7 @@ class _TerminalAppState extends State<TerminalApp> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
-  
+
   late _FileNode _root;
   late _FileNode _currentDir;
 
@@ -40,7 +40,7 @@ class _TerminalAppState extends State<TerminalApp> {
   void initState() {
     super.initState();
     _initFileSystem();
-    
+
     final config = context.read<AppConfig>();
     _history.addAll([
       '${config.profile.systemName} v1.0.0 (tty1)',
@@ -58,51 +58,78 @@ class _TerminalAppState extends State<TerminalApp> {
 
   void _initFileSystem() {
     final config = context.read<AppConfig>();
-    _root = _FileNode(name: '/', isDirectory: true, children: {
-      'home': _FileNode(name: 'home', isDirectory: true, children: {
-        config.profile.terminalName: _FileNode(
-          name: config.profile.terminalName, 
-          isDirectory: true, 
+    _root = _FileNode(
+      name: '/',
+      isDirectory: true,
+      children: {
+        'home': _FileNode(
+          name: 'home',
+          isDirectory: true,
           children: {
-            'resume.txt': _FileNode(
-              name: 'resume.txt', 
-              content: 'Name: ${config.profile.name}\nTitle: ${config.profile.title}\nContact: me@example.com'
+            config.profile.terminalName: _FileNode(
+              name: config.profile.terminalName,
+              isDirectory: true,
+              children: {
+                'resume.txt': _FileNode(
+                  name: 'resume.txt',
+                  content:
+                      'Name: ${config.profile.name}\nTitle: ${config.profile.title}\nContact: me@example.com',
+                ),
+                'notes.txt': _FileNode(
+                  name: 'notes.txt',
+                  content: 'TODO: Build more awesome stuff.',
+                ),
+                'projects': _FileNode(
+                  name: 'projects',
+                  isDirectory: true,
+                  children: {
+                    'secret_project.txt': _FileNode(
+                      name: 'secret_project.txt',
+                      content: 'Shh! This is a secret.',
+                    ),
+                  },
+                ),
+              },
             ),
-            'notes.txt': _FileNode(name: 'notes.txt', content: 'TODO: Build more awesome stuff.'),
-            'projects': _FileNode(name: 'projects', isDirectory: true, children: {
-              'secret_project.txt': _FileNode(name: 'secret_project.txt', content: 'Shh! This is a secret.'),
-            }),
-          }
+          },
         ),
-      }),
-      'etc': _FileNode(name: 'etc', isDirectory: true, children: {
-        'config': _FileNode(name: 'config', content: 'system_mode=awesome'),
-      }),
-    });
-    
+        'etc': _FileNode(
+          name: 'etc',
+          isDirectory: true,
+          children: {
+            'config': _FileNode(name: 'config', content: 'system_mode=awesome'),
+          },
+        ),
+      },
+    );
+
     _root.children!['home']!.parent = _root;
     _root.children!['etc']!.parent = _root;
-    
-    _currentDir = _root.children!['home']!.children![config.profile.terminalName]!;
+
+    _currentDir =
+        _root.children!['home']!.children![config.profile.terminalName]!;
   }
 
   _FileNode? _getNode(String path) {
     if (path.isEmpty) return _currentDir;
-    
+
     _FileNode current = path.startsWith('/') ? _root : _currentDir;
     final parts = path.split('/').where((p) => p.isNotEmpty).toList();
-    
+
     for (final part in parts) {
       if (part == '.') continue;
       if (part == '~') {
         final config = context.read<AppConfig>();
-        current = _root.children!['home']!.children![config.profile.terminalName]!;
+        current =
+            _root.children!['home']!.children![config.profile.terminalName]!;
         continue;
       }
       if (part == '..') {
         current = current.parent ?? current;
       } else {
-        if (!current.isDirectory || current.children == null || !current.children!.containsKey(part)) {
+        if (!current.isDirectory ||
+            current.children == null ||
+            !current.children!.containsKey(part)) {
           return null;
         }
         current = current.children![part]!;
@@ -149,11 +176,15 @@ class _TerminalAppState extends State<TerminalApp> {
 
   void _handleCommand(String input) {
     final config = context.read<AppConfig>();
-    final promptPath = _getAbsolutePath(_currentDir).replaceFirst('/home/${config.profile.terminalName}', '~');
-    
+    final promptPath = _getAbsolutePath(
+      _currentDir,
+    ).replaceFirst('/home/${config.profile.terminalName}', '~');
+
     setState(() {
-      _history.add('${config.profile.terminalName}@${config.profile.systemName}:$promptPath\$ $input');
-      
+      _history.add(
+        '${config.profile.terminalName}@${config.profile.systemName}:$promptPath\$ $input',
+      );
+
       final parts = input.trim().split(' ');
       final cmd = parts[0].toLowerCase();
       final args = parts.length > 1 ? parts.sublist(1) : <String>[];
@@ -177,14 +208,18 @@ class _TerminalAppState extends State<TerminalApp> {
           final targetPath = args.isNotEmpty ? args[0] : '';
           final node = _getNode(targetPath);
           if (node == null) {
-            _history.add('ls: cannot access \'$targetPath\': No such file or directory');
+            _history.add(
+              'ls: cannot access \'$targetPath\': No such file or directory',
+            );
           } else if (!node.isDirectory) {
             _history.add(node.name);
           } else {
             if (node.children == null || node.children!.isEmpty) {
               // Empty dir
             } else {
-              final files = node.children!.values.map((c) => c.isDirectory ? '${c.name}/' : c.name).join('  ');
+              final files = node.children!.values
+                  .map((c) => c.isDirectory ? '${c.name}/' : c.name)
+                  .join('  ');
               _history.add(files);
             }
           }
@@ -230,7 +265,7 @@ class _TerminalAppState extends State<TerminalApp> {
       }
       _history.add('');
     });
-    
+
     _controller.clear();
     _focusNode.requestFocus();
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -248,7 +283,9 @@ class _TerminalAppState extends State<TerminalApp> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final config = context.watch<AppConfig>();
-    final promptPath = _getAbsolutePath(_currentDir).replaceFirst('/home/${config.profile.terminalName}', '~');
+    final promptPath = _getAbsolutePath(
+      _currentDir,
+    ).replaceFirst('/home/${config.profile.terminalName}', '~');
 
     return GestureDetector(
       onTap: () => _focusNode.requestFocus(),

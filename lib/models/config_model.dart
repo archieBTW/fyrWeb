@@ -22,14 +22,31 @@ class AppConfig {
   factory AppConfig.fromJson(Map<String, dynamic> json) {
     return AppConfig(
       profile: ProfileConfig.fromJson(json['profile'] ?? {}),
-      skills: (json['skills'] as List?)?.map((e) {
-        if (e is String) return SkillCategory(category: 'Other', items: [e]);
-        return SkillCategory.fromJson(e);
-      }).toList() ?? [],
-      socials: (json['socials'] as List?)?.map((e) => SocialLink.fromJson(e)).toList() ?? [],
-      apps: (json['apps'] as List?)?.map((e) => CustomApp.fromJson(e)).toList() ?? [],
-      experience: (json['experience'] as List?)?.map((e) => ExperienceItem.fromJson(e)).toList() ?? [],
-      education: (json['education'] as List?)?.map((e) => EducationItem.fromJson(e)).toList() ?? [],
+      skills:
+          (json['skills'] as List?)?.map((e) {
+            if (e is String)
+              return SkillCategory(category: 'Other', items: [e]);
+            return SkillCategory.fromJson(e);
+          }).toList() ??
+          [],
+      socials:
+          (json['socials'] as List?)
+              ?.map((e) => SocialLink.fromJson(e))
+              .toList() ??
+          [],
+      apps:
+          (json['apps'] as List?)?.map((e) => CustomApp.fromJson(e)).toList() ??
+          [],
+      experience:
+          (json['experience'] as List?)
+              ?.map((e) => ExperienceItem.fromJson(e))
+              .toList() ??
+          [],
+      education:
+          (json['education'] as List?)
+              ?.map((e) => EducationItem.fromJson(e))
+              .toList() ??
+          [],
       certifications: List<String>.from(json['certifications'] ?? []),
     );
   }
@@ -219,10 +236,7 @@ class SkillCategory {
   final String category;
   final List<String> items;
 
-  SkillCategory({
-    required this.category,
-    required this.items,
-  });
+  SkillCategory({required this.category, required this.items});
 
   factory SkillCategory.fromJson(Map<String, dynamic> json) {
     return SkillCategory(
@@ -231,8 +245,5 @@ class SkillCategory {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'category': category,
-    'items': items,
-  };
+  Map<String, dynamic> toJson() => {'category': category, 'items': items};
 }

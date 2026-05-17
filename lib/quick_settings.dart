@@ -27,7 +27,9 @@ class _QuickSettingsState extends State<QuickSettings> {
       height: 380,
       borderRadius: BorderRadius.circular(16),
       blur: 30,
-      color: isDark ? Colors.black.withOpacity(0.6) : Colors.white.withOpacity(0.8),
+      color: isDark
+          ? Colors.black.withOpacity(0.6)
+          : Colors.white.withOpacity(0.8),
       borderColor: onSurfaceColor.withOpacity(0.1),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -92,7 +94,9 @@ class _QuickSettingsState extends State<QuickSettings> {
                 Text(
                   'Battery: 84%',
                   style: GoogleFonts.inter(
-                      color: onSurfaceColor.withOpacity(0.5), fontSize: 12),
+                    color: onSurfaceColor.withOpacity(0.5),
+                    fontSize: 12,
+                  ),
                 ),
                 const Icon(Icons.battery_4_bar, color: Colors.green, size: 16),
               ],
@@ -179,10 +183,7 @@ class _SliderRow extends StatelessWidget {
               activeTrackColor: onSurfaceColor.withOpacity(0.2),
               inactiveTrackColor: onSurfaceColor.withOpacity(0.05),
             ),
-            child: Slider(
-              value: value,
-              onChanged: onChanged,
-            ),
+            child: Slider(value: value, onChanged: onChanged),
           ),
         ),
       ],

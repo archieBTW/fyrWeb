@@ -1,10 +1,12 @@
 {
   "profile": {
-    "name": "Archie",
+    "name": "Archie Rigdon",
     "title": "Software Engineer",
     "about": "I'm just a dev who likes to make cool things",
     "profilePic": "assets/face.jpg",
-    "tabTitle": "archieBTW"
+    "tabTitle": "archieBTW",
+    "email": "billy@billyrigdon.dev",
+    "location": "oklahoma city, ok"
   },
   "skills": [
     {
@@ -74,11 +76,11 @@
   ],
   "apps": [
     {
-      "id": "libretrac",
-      "title": "LibreTrac",
-      "url": "https://libretrac.site",
-      "icon": "favorite",
-      "color": "0xFFE91E63"
+      "id": "github",
+      "title": "GitHub",
+      "url": "https://github.com/archieBTW",
+      "icon": "github",
+      "color": "0xFF24292E"
     },
     {
       "id": "archbtw",
@@ -102,18 +104,11 @@
       "color": "0xFF795548"
     },
     {
-      "id": "beatsbyarch",
-      "title": "Beats By Arch",
-      "url": "",
-      "icon": "headphones",
-      "color": "0xFF2196F3"
-    },
-    {
-      "id": "theolivebranch",
-      "title": "The Olive Branch",
-      "url": "https://theolivebranch.press",
-      "icon": "newspaper",
-      "color": "0xFF607D8B"
+      "id": "libretrac",
+      "title": "LibreTrac",
+      "url": "https://libretrac.site",
+      "icon": "favorite",
+      "color": "0xFFE91E63"
     },
     {
       "id": "fyr",
@@ -123,11 +118,25 @@
       "color": "0xFFFF9800"
     },
     {
+      "id": "theolivebranch",
+      "title": "The Olive Branch",
+      "url": "https://theolivebranch.press",
+      "icon": "newspaper",
+      "color": "0xFF607D8B"
+    },
+    {
       "id": "violetapparition",
       "title": "Violet Apparition",
       "url": "https://violetapparition.com",
       "icon": "album",
       "color": "0xFF673AB7"
+    },
+    {
+      "id": "beatsbyarch",
+      "title": "Beats By Arch",
+      "url": "",
+      "icon": "headphones",
+      "color": "0xFF2196F3"
     }
   ],
   "experience": [
@@ -151,7 +160,7 @@
     },
     {
       "company": "Emsco Solutions",
-      "role": "Sysadmin",
+      "role": "Systems Administrator",
       "period": "Apr 2018 - Aug 2021",
       "description": "Managed comprehensive IT services and provided technical support for a portfolio of over 50 clients."
     },

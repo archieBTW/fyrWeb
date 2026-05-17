@@ -10,11 +10,7 @@ class AppMenu extends StatelessWidget {
   final Function(String, String, Widget?, dynamic, {String? url}) onOpenApp;
   final VoidCallback onClose;
 
-  const AppMenu({
-    super.key,
-    required this.onOpenApp,
-    required this.onClose,
-  });
+  const AppMenu({super.key, required this.onOpenApp, required this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -51,15 +47,24 @@ class AppMenu extends StatelessWidget {
                     final app = apps[index];
                     return ListTile(
                       dense: true,
-                      leading: app.icon is IconData 
-                        ? Icon(app.icon, color: app.color, size: 18)
-                        : FaIcon(app.icon, color: app.color, size: 16),
+                      leading: app.icon is IconData
+                          ? Icon(app.icon, color: app.color, size: 18)
+                          : FaIcon(app.icon, color: app.color, size: 16),
                       title: Text(
                         app.title,
-                        style: GoogleFonts.inter(color: Colors.white, fontSize: 13),
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontSize: 13,
+                        ),
                       ),
                       onTap: () {
-                        onOpenApp(app.id, app.title, app.content, app.icon, url: app.url);
+                        onOpenApp(
+                          app.id,
+                          app.title,
+                          app.content,
+                          app.icon,
+                          url: app.url,
+                        );
                         onClose();
                       },
                     );
@@ -71,7 +76,11 @@ class AppMenu extends StatelessWidget {
           const Divider(color: Colors.white10, height: 1),
           ListTile(
             dense: true,
-            leading: const Icon(Icons.power_settings_new, color: Colors.redAccent, size: 18),
+            leading: const Icon(
+              Icons.power_settings_new,
+              color: Colors.redAccent,
+              size: 18,
+            ),
             title: Text(
               'Shut Down...',
               style: GoogleFonts.inter(color: Colors.white, fontSize: 13),

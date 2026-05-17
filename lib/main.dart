@@ -11,7 +11,7 @@ import 'models/config_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   final String configString = await rootBundle.loadString('assets/config.json');
   final configJson = jsonDecode(configString);
   final config = AppConfig.fromJson(configJson);
@@ -23,7 +23,9 @@ void main() async {
         Provider<AppConfig>.value(value: config),
         ChangeNotifierProvider(create: (_) => SystemSettings()),
         ChangeNotifierProvider.value(value: windowManager),
-        ChangeNotifierProvider(create: (_) => SystemController(windowManager: windowManager)),
+        ChangeNotifierProvider(
+          create: (_) => SystemController(windowManager: windowManager),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -37,7 +39,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SystemSettings>();
     final config = context.watch<AppConfig>();
-    
+
     return MaterialApp(
       title: config.profile.tabTitle,
       debugShowCheckedModeBanner: false,
@@ -46,16 +48,23 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: settings.accentColor,
           brightness: settings.isDarkMode ? Brightness.dark : Brightness.light,
-          surface: settings.isDarkMode ? const Color(0xFF0A0A0A) : const Color(0xFFF0F0F0),
+          surface: settings.isDarkMode
+              ? const Color(0xFF0A0A0A)
+              : const Color(0xFFF0F0F0),
           onSurface: settings.isDarkMode ? Colors.white : Colors.black87,
         ),
-        scaffoldBackgroundColor: settings.isDarkMode ? Colors.black : Colors.white,
-        textTheme: GoogleFonts.interTextTheme(
-          settings.isDarkMode ? ThemeData.dark().textTheme : ThemeData.light().textTheme,
-        ).apply(
-          bodyColor: settings.isDarkMode ? Colors.white : Colors.black87,
-          displayColor: settings.isDarkMode ? Colors.white : Colors.black,
-        ),
+        scaffoldBackgroundColor: settings.isDarkMode
+            ? Colors.black
+            : Colors.white,
+        textTheme:
+            GoogleFonts.interTextTheme(
+              settings.isDarkMode
+                  ? ThemeData.dark().textTheme
+                  : ThemeData.light().textTheme,
+            ).apply(
+              bodyColor: settings.isDarkMode ? Colors.white : Colors.black87,
+              displayColor: settings.isDarkMode ? Colors.white : Colors.black,
+            ),
         useMaterial3: true,
       ),
       home: const DesktopScreen(),

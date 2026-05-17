@@ -10,7 +10,7 @@ class FileNode {
   final List<FileNode> children;
 
   FileNode({required this.name, this.fullPath, List<FileNode>? children})
-      : children = children ?? [];
+    : children = children ?? [];
 
   bool get isFile => fullPath != null;
 }
@@ -141,9 +141,7 @@ class _CodeEditorAppState extends State<CodeEditorApp> {
                 ? Center(
                     child: Text(
                       'Select a file to view its source code.',
-                      style: GoogleFonts.jetBrainsMono(
-                        color: Colors.white54,
-                      ),
+                      style: GoogleFonts.jetBrainsMono(color: Colors.white54),
                     ),
                   )
                 : _buildCodeViewer(content, isDesktop),
@@ -164,9 +162,42 @@ class _CodeEditorAppState extends State<CodeEditorApp> {
             )
           : Column(
               children: [
-                Container(
-                  height: 150, // Small view on mobile for file tree
-                  child: fileTreeWidget,
+                Theme(
+                  data: Theme.of(
+                    context,
+                  ).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    title: Text(
+                      'Explorer: $_selectedFile',
+                      style: GoogleFonts.jetBrainsMono(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    iconColor: Colors.white70,
+                    collapsedIconColor: Colors.white70,
+                    backgroundColor: const Color(0xFF252526),
+                    collapsedBackgroundColor: const Color(0xFF252526),
+                    children: [
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height * 0.4,
+                        ),
+                        child: _FileTreeWidget(
+                          files: sourceCodeFiles,
+                          selectedFile: _selectedFile,
+                          hideTitle: true,
+                          onFileSelected: (path) {
+                            setState(() {
+                              _selectedFile = path;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Expanded(child: codeViewerWidget),
               ],
@@ -179,11 +210,13 @@ class _FileTreeWidget extends StatelessWidget {
   final Map<String, String> files;
   final String? selectedFile;
   final ValueChanged<String> onFileSelected;
+  final bool hideTitle;
 
   const _FileTreeWidget({
     required this.files,
     this.selectedFile,
     required this.onFileSelected,
+    this.hideTitle = false,
   });
 
   FileNode _buildTree() {
@@ -200,19 +233,17 @@ class _FileTreeWidget extends StatelessWidget {
         final isFile = i == parts.length - 1;
 
         var child = current.children.cast<FileNode?>().firstWhere(
-            (n) => n!.name == part,
-            orElse: () => null);
+          (n) => n!.name == part,
+          orElse: () => null,
+        );
         if (child == null) {
-          child = FileNode(
-            name: part,
-            fullPath: isFile ? path : null,
-          );
+          child = FileNode(name: part, fullPath: isFile ? path : null);
           current.children.add(child);
         }
         current = child;
       }
     }
-    
+
     _sortNode(libNode);
     return root;
   }
@@ -236,18 +267,19 @@ class _FileTreeWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Text(
-              'EXPLORER',
-              style: GoogleFonts.jetBrainsMono(
-                fontSize: 11,
-                color: Colors.white54,
-                letterSpacing: 1.2,
-                fontWeight: FontWeight.bold,
+          if (!hideTitle)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Text(
+                'EXPLORER',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 11,
+                  color: Colors.white54,
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
           Expanded(
             child: ListView(
               padding: EdgeInsets.zero,
@@ -303,11 +335,22 @@ class _TreeNodeWidgetState extends State<_TreeNodeWidget> {
       return InkWell(
         onTap: () => widget.onFileSelected(widget.node.fullPath!),
         child: Container(
-          color: isSelected ? Colors.white.withOpacity(0.1) : Colors.transparent,
-          padding: EdgeInsets.only(left: 16.0 + (widget.level * 12.0), top: 4, bottom: 4, right: 8),
+          color: isSelected
+              ? Colors.white.withOpacity(0.1)
+              : Colors.transparent,
+          padding: EdgeInsets.only(
+            left: 16.0 + (widget.level * 12.0),
+            top: 4,
+            bottom: 4,
+            right: 8,
+          ),
           child: Row(
             children: [
-              const Icon(Icons.insert_drive_file, size: 14, color: Colors.white70),
+              const Icon(
+                Icons.insert_drive_file,
+                size: 14,
+                color: Colors.white70,
+              ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -334,16 +377,27 @@ class _TreeNodeWidgetState extends State<_TreeNodeWidget> {
               });
             },
             child: Container(
-              padding: EdgeInsets.only(left: 8.0 + (widget.level * 12.0), top: 4, bottom: 4, right: 8),
+              padding: EdgeInsets.only(
+                left: 8.0 + (widget.level * 12.0),
+                top: 4,
+                bottom: 4,
+                right: 8,
+              ),
               child: Row(
                 children: [
                   Icon(
-                    _isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
+                    _isExpanded
+                        ? Icons.keyboard_arrow_down
+                        : Icons.keyboard_arrow_right,
                     size: 16,
                     color: Colors.white54,
                   ),
                   const SizedBox(width: 2),
-                  const Icon(Icons.folder, size: 14, color: Color(0xFF9E75FF)), // purple folder
+                  const Icon(
+                    Icons.folder,
+                    size: 14,
+                    color: Color(0xFF9E75FF),
+                  ), // purple folder
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
@@ -361,12 +415,14 @@ class _TreeNodeWidgetState extends State<_TreeNodeWidget> {
             ),
           ),
           if (_isExpanded)
-            ...widget.node.children.map((child) => _TreeNodeWidget(
-                  node: child,
-                  level: widget.level + 1,
-                  selectedFile: widget.selectedFile,
-                  onFileSelected: widget.onFileSelected,
-                )),
+            ...widget.node.children.map(
+              (child) => _TreeNodeWidget(
+                node: child,
+                level: widget.level + 1,
+                selectedFile: widget.selectedFile,
+                onFileSelected: widget.onFileSelected,
+              ),
+            ),
         ],
       );
     }

@@ -36,27 +36,37 @@ class WindowFrame extends StatelessWidget {
         height: windowData.isMaximized ? null : windowData.size.height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(windowData.isMaximized ? 0 : 12),
-          boxShadow: windowData.isMaximized ? [] : [
-            BoxShadow(
-              color: windowData.isFocused
-                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
-                  : Colors.black.withValues(alpha: isDark ? 0.2 : 0.1),
-              blurRadius: windowData.isFocused ? 40 : 30,
-              spreadRadius: windowData.isFocused ? 8 : 5,
-            ),
-          ],
+          boxShadow: windowData.isMaximized
+              ? []
+              : [
+                  BoxShadow(
+                    color: windowData.isFocused
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.3)
+                        : Colors.black.withValues(alpha: isDark ? 0.2 : 0.1),
+                    blurRadius: windowData.isFocused ? 40 : 30,
+                    spreadRadius: windowData.isFocused ? 8 : 5,
+                  ),
+                ],
         ),
         child: Stack(
           children: [
             Positioned.fill(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(windowData.isMaximized ? 0 : 12),
+                borderRadius: BorderRadius.circular(
+                  windowData.isMaximized ? 0 : 12,
+                ),
                 child: Column(
                   children: [
                     GestureDetector(
-                      onPanUpdate: windowData.isMaximized ? null : (details) {
-                        onPositionChanged(windowData.position + details.delta);
-                      },
+                      onPanUpdate: windowData.isMaximized
+                          ? null
+                          : (details) {
+                              onPositionChanged(
+                                windowData.position + details.delta,
+                              );
+                            },
                       onDoubleTap: onMaximize,
                       child: Container(
                         height: 38,
@@ -90,18 +100,24 @@ class WindowFrame extends StatelessWidget {
                               _WindowControl(
                                 color: Colors.greenAccent,
                                 onTap: onMaximize,
-                                icon: windowData.isMaximized ? Icons.close_fullscreen : Icons.fullscreen,
+                                icon: windowData.isMaximized
+                                    ? Icons.close_fullscreen
+                                    : Icons.fullscreen,
                               ),
                               const SizedBox(width: 12),
                               windowData.icon is IconData
                                   ? Icon(
                                       windowData.icon,
-                                      color: onSurfaceColor.withValues(alpha: 0.7),
+                                      color: onSurfaceColor.withValues(
+                                        alpha: 0.7,
+                                      ),
                                       size: 14,
                                     )
                                   : FaIcon(
                                       windowData.icon,
-                                      color: onSurfaceColor.withValues(alpha: 0.7),
+                                      color: onSurfaceColor.withValues(
+                                        alpha: 0.7,
+                                      ),
                                       size: 12,
                                     ),
                               const SizedBox(width: 8),
@@ -130,7 +146,7 @@ class WindowFrame extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Resize Handles
             if (!windowData.isMaximized) ...[
               // Right Edge
@@ -143,10 +159,15 @@ class WindowFrame extends StatelessWidget {
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: GestureDetector(
                     onPanUpdate: (details) {
-                      onSizeChanged(Size(
-                        (windowData.size.width + details.delta.dx).clamp(300.0, 1200.0),
-                        windowData.size.height,
-                      ));
+                      onSizeChanged(
+                        Size(
+                          (windowData.size.width + details.delta.dx).clamp(
+                            300.0,
+                            1200.0,
+                          ),
+                          windowData.size.height,
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -161,10 +182,16 @@ class WindowFrame extends StatelessWidget {
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: GestureDetector(
                     onPanUpdate: (details) {
-                      final newWidth = (windowData.size.width - details.delta.dx).clamp(300.0, 1200.0);
+                      final newWidth =
+                          (windowData.size.width - details.delta.dx).clamp(
+                            300.0,
+                            1200.0,
+                          );
                       if (newWidth != windowData.size.width) {
                         onSizeChanged(Size(newWidth, windowData.size.height));
-                        onPositionChanged(windowData.position + Offset(details.delta.dx, 0));
+                        onPositionChanged(
+                          windowData.position + Offset(details.delta.dx, 0),
+                        );
                       }
                     },
                   ),
@@ -180,10 +207,15 @@ class WindowFrame extends StatelessWidget {
                   cursor: SystemMouseCursors.resizeUpDown,
                   child: GestureDetector(
                     onPanUpdate: (details) {
-                      onSizeChanged(Size(
-                        windowData.size.width,
-                        (windowData.size.height + details.delta.dy).clamp(200.0, 800.0),
-                      ));
+                      onSizeChanged(
+                        Size(
+                          windowData.size.width,
+                          (windowData.size.height + details.delta.dy).clamp(
+                            200.0,
+                            800.0,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -198,10 +230,16 @@ class WindowFrame extends StatelessWidget {
                   cursor: SystemMouseCursors.resizeUpDown,
                   child: GestureDetector(
                     onPanUpdate: (details) {
-                      final newHeight = (windowData.size.height - details.delta.dy).clamp(200.0, 800.0);
+                      final newHeight =
+                          (windowData.size.height - details.delta.dy).clamp(
+                            200.0,
+                            800.0,
+                          );
                       if (newHeight != windowData.size.height) {
                         onSizeChanged(Size(windowData.size.width, newHeight));
-                        onPositionChanged(windowData.position + Offset(0, details.delta.dy));
+                        onPositionChanged(
+                          windowData.position + Offset(0, details.delta.dy),
+                        );
                       }
                     },
                   ),
@@ -219,8 +257,14 @@ class WindowFrame extends StatelessWidget {
                     onPanUpdate: (details) {
                       onSizeChanged(
                         Size(
-                          (windowData.size.width + details.delta.dx).clamp(300.0, 1200.0),
-                          (windowData.size.height + details.delta.dy).clamp(200.0, 800.0),
+                          (windowData.size.width + details.delta.dx).clamp(
+                            300.0,
+                            1200.0,
+                          ),
+                          (windowData.size.height + details.delta.dy).clamp(
+                            200.0,
+                            800.0,
+                          ),
                         ),
                       );
                     },
@@ -246,7 +290,7 @@ class WindowFrame extends StatelessWidget {
         left: 0,
         top: 35,
         right: 0,
-        bottom: 90,
+        bottom: 0,
         child: windowContent,
       );
     }

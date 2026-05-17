@@ -43,12 +43,13 @@ class _DesktopScreenState extends State<DesktopScreen> {
           final focusedWindow = openWindows.isNotEmpty
               ? openWindows.last
               : null;
-              
+
           final screenHeight = MediaQuery.of(context).size.height;
           final isMaximized = openWindows.any((w) => w.isMaximized);
-          final isIntersectingDock = openWindows.any((w) => 
-              !w.isMaximized && 
-              (w.position.dy + w.size.height) > (screenHeight - 90)
+          final isIntersectingDock = openWindows.any(
+            (w) =>
+                !w.isMaximized &&
+                (w.position.dy + w.size.height) > (screenHeight - 90),
           );
           final hideDock = isMaximized || isIntersectingDock;
 
@@ -86,7 +87,13 @@ class _DesktopScreenState extends State<DesktopScreen> {
                   apps,
                 )
               else
-                _buildDesktopLayout(context, settings, windowManager, system, hideDock),
+                _buildDesktopLayout(
+                  context,
+                  settings,
+                  windowManager,
+                  system,
+                  hideDock,
+                ),
             ],
           );
         },
@@ -159,7 +166,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
           right: 0,
           child: MouseRegion(
             onEnter: (_) {
-              // Optionally we can show dock on hover even if it's hidden, 
+              // Optionally we can show dock on hover even if it's hidden,
               // but standard behavior is fine for now
             },
             child: Dock(onOpenApp: system.openApp),
@@ -181,7 +188,8 @@ class _DesktopScreenState extends State<DesktopScreen> {
 
     return Stack(
       children: [
-        if (focusedWindow == null) _buildMobileHomeScreen(context, system, apps),
+        if (focusedWindow == null)
+          _buildMobileHomeScreen(context, system, apps),
 
         if (focusedWindow != null)
           Positioned.fill(
@@ -297,7 +305,11 @@ class _DesktopScreenState extends State<DesktopScreen> {
     );
   }
 
-  Widget _buildMobileHomeScreen(BuildContext context, SystemController system, List<AppInfo> apps) {
+  Widget _buildMobileHomeScreen(
+    BuildContext context,
+    SystemController system,
+    List<AppInfo> apps,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(top: 60, left: 30, right: 30),
       child: GridView.builder(

@@ -116,95 +116,103 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
   @override
   Widget build(BuildContext context) {
     final files = _folders[_currentPath] ?? [];
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: Colors.white.withValues(alpha: 0.05),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.arrow_back,
+    return Material(
+      color: Colors.transparent,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: Colors.white.withValues(alpha: 0.05),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    size: 18,
+                    color: Colors.white54,
+                  ),
+                  onPressed: _currentPath == 'Home' ? null : _goBack,
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.arrow_forward,
                   size: 18,
                   color: Colors.white54,
                 ),
-                onPressed: _currentPath == 'Home' ? null : _goBack,
-              ),
-              const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward, size: 18, color: Colors.white54),
-              const SizedBox(width: 24),
-              Text(
-                'Home > $_currentPath',
-                style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-              ),
-              const Spacer(),
-              const Icon(Icons.search, size: 18, color: Colors.white54),
-              const SizedBox(width: 16),
-              const Icon(Icons.view_module, size: 18, color: Colors.white54),
-            ],
-          ),
-        ),
-        // Content
-        Expanded(
-          child: GridView.builder(
-            padding: const EdgeInsets.all(24),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 6,
-              crossAxisSpacing: 20,
-              mainAxisSpacing: 20,
-            ),
-            itemCount: files.length,
-            itemBuilder: (context, index) {
-              final file = files[index];
-              return InkWell(
-                onTap: () {
-                  if (file['isFolder'] == true) {
-                    _navigateTo(file['name'] as String);
-                  } else if (file['name'] == 'resume.pdf') {
-                    context.read<SystemController>().openApp(
-                      'resume',
-                      'Resume',
-                      const ResumeApp(),
-                      Icons.picture_as_pdf,
-                    );
-                  } else if (file['url'] != null) {
-                    final url = file['url'] as String;
-                    context.read<SystemController>().openApp(
-                      file['name'] as String,
-                      file['name'] as String,
-                      null,
-                      null,
-                      url: url,
-                    );
-                  }
-                },
-                child: Column(
-                  children: [
-                    Icon(
-                      file['icon'] as IconData,
-                      color: file['color'] as Color,
-                      size: 48,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      file['name'] as String,
-                      style: GoogleFonts.inter(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                const SizedBox(width: 24),
+                Text(
+                  'Home > $_currentPath',
+                  style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
                 ),
-              );
-            },
+                const Spacer(),
+                const Icon(Icons.search, size: 18, color: Colors.white54),
+                const SizedBox(width: 16),
+                const Icon(Icons.view_module, size: 18, color: Colors.white54),
+              ],
+            ),
           ),
-        ),
-      ],
+          // Content
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.all(24),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isMobile ? 3 : 6,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+              ),
+              itemCount: files.length,
+              itemBuilder: (context, index) {
+                final file = files[index];
+                return InkWell(
+                  onTap: () {
+                    if (file['isFolder'] == true) {
+                      _navigateTo(file['name'] as String);
+                    } else if (file['name'] == 'resume.pdf') {
+                      context.read<SystemController>().openApp(
+                        'resume',
+                        'Resume',
+                        const ResumeApp(),
+                        Icons.picture_as_pdf,
+                      );
+                    } else if (file['url'] != null) {
+                      final url = file['url'] as String;
+                      context.read<SystemController>().openApp(
+                        file['name'] as String,
+                        file['name'] as String,
+                        null,
+                        null,
+                        url: url,
+                      );
+                    }
+                  },
+                  child: Column(
+                    children: [
+                      Icon(
+                        file['icon'] as IconData,
+                        color: file['color'] as Color,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        file['name'] as String,
+                        style: GoogleFonts.inter(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
