@@ -2,10 +2,12 @@ import 'dart:convert';
 
 class AppConfig {
   final ProfileConfig profile;
-  final List<String> skills;
+  final List<SkillCategory> skills;
   final List<SocialLink> socials;
   final List<CustomApp> apps;
   final List<ExperienceItem> experience;
+  final List<EducationItem> education;
+  final List<String> certifications;
 
   AppConfig({
     required this.profile,
@@ -13,24 +15,33 @@ class AppConfig {
     required this.socials,
     required this.apps,
     required this.experience,
+    required this.education,
+    required this.certifications,
   });
 
   factory AppConfig.fromJson(Map<String, dynamic> json) {
     return AppConfig(
       profile: ProfileConfig.fromJson(json['profile'] ?? {}),
-      skills: List<String>.from(json['skills'] ?? []),
+      skills: (json['skills'] as List?)?.map((e) {
+        if (e is String) return SkillCategory(category: 'Other', items: [e]);
+        return SkillCategory.fromJson(e);
+      }).toList() ?? [],
       socials: (json['socials'] as List?)?.map((e) => SocialLink.fromJson(e)).toList() ?? [],
       apps: (json['apps'] as List?)?.map((e) => CustomApp.fromJson(e)).toList() ?? [],
       experience: (json['experience'] as List?)?.map((e) => ExperienceItem.fromJson(e)).toList() ?? [],
+      education: (json['education'] as List?)?.map((e) => EducationItem.fromJson(e)).toList() ?? [],
+      certifications: List<String>.from(json['certifications'] ?? []),
     );
   }
 
   Map<String, dynamic> toJson() => {
     'profile': profile.toJson(),
-    'skills': skills,
+    'skills': skills.map((e) => e.toJson()).toList(),
     'socials': socials.map((e) => e.toJson()).toList(),
     'apps': apps.map((e) => e.toJson()).toList(),
     'experience': experience.map((e) => e.toJson()).toList(),
+    'education': education.map((e) => e.toJson()).toList(),
+    'certifications': certifications,
   };
 }
 
@@ -175,5 +186,53 @@ class ExperienceItem {
     'role': role,
     'period': period,
     'description': description,
+  };
+}
+
+class EducationItem {
+  final String school;
+  final String degree;
+  final String period;
+
+  EducationItem({
+    required this.school,
+    required this.degree,
+    required this.period,
+  });
+
+  factory EducationItem.fromJson(Map<String, dynamic> json) {
+    return EducationItem(
+      school: json['school'] ?? '',
+      degree: json['degree'] ?? '',
+      period: json['period'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'school': school,
+    'degree': degree,
+    'period': period,
+  };
+}
+
+class SkillCategory {
+  final String category;
+  final List<String> items;
+
+  SkillCategory({
+    required this.category,
+    required this.items,
+  });
+
+  factory SkillCategory.fromJson(Map<String, dynamic> json) {
+    return SkillCategory(
+      category: json['category'] ?? '',
+      items: List<String>.from(json['items'] ?? []),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'category': category,
+    'items': items,
   };
 }

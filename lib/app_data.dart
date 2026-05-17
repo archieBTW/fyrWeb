@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'apps/about_app.dart';
 import 'apps/contact_app.dart';
 import 'apps/terminal_app.dart';
 import 'apps/file_explorer_app.dart';
@@ -48,13 +47,6 @@ List<AppInfo> getApps(AppConfig config) {
       content: const SettingsApp(),
       icon: Icons.settings,
       color: Colors.grey,
-    ),
-    AppInfo(
-      id: 'about',
-      title: 'About Me',
-      content: const AboutApp(),
-      icon: Icons.person_outline,
-      color: Colors.blue,
     ),
     AppInfo(
       id: 'resume',

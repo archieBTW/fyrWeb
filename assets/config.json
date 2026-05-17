@@ -1,25 +1,68 @@
 {
   "profile": {
-    "name": "archie",
+    "name": "Archie",
     "title": "Software Engineer",
     "about": "I'm just a dev who likes to make cool things",
     "profilePic": "assets/face.jpg",
     "tabTitle": "archieBTW"
   },
   "skills": [
-    "Flutter/Dart",
-    "Go",
-    "Typescript",
-    "PHP",
-    "C++",
-    "Javascript",
-    "Rust",
-    "Java",
-    "Kotlin",
-    "Swift",
-    "Python",
-    "Bash",
-    "Powershell"
+    {
+      "category": "Languages",
+      "items": [
+        "Dart",
+        "Typescript",
+        "Python",
+        "Java",
+        "Kotlin",
+        "Ruby",
+        "C++",
+        "Swift",
+        "C#",
+        "Rust",
+        "PHP",
+        "Javascript",
+        "HTML/CSS",
+        "Go",
+        "PowerShell",
+        "Bash"
+      ]
+    },
+    {
+      "category": "Frameworks",
+      "items": [
+        "Flutter",
+        "Angular",
+        "React",
+        "Vue",
+        "Electron",
+        "Blazor",
+        "Gin/Gorm",
+        "Laravel",
+        "Django",
+        "Spring"
+      ]
+    },
+    {
+      "category": "Databases",
+      "items": [
+        "Postgres",
+        "MySQL",
+        "MSSQL",
+        "MongoDB",
+        "SQLite"
+      ]
+    },
+    {
+      "category": "Infrastructure & DevOps",
+      "items": [
+        "Docker",
+        "Linux",
+        "Terraform",
+        "Ansible",
+        "Github Actions"
+      ]
+    }
   ],
   "socials": [
     {
@@ -29,13 +72,113 @@
       "icon": "github"
     }
   ],
-  "apps": [],
+  "apps": [
+    {
+      "id": "libretrac",
+      "title": "LibreTrac",
+      "url": "https://libretrac.site",
+      "icon": "favorite",
+      "color": "0xFFE91E63"
+    },
+    {
+      "id": "archbtw",
+      "title": "archBTW.",
+      "url": "https://archBTW.sh",
+      "icon": "album",
+      "color": "0xFF9C27B0"
+    },
+    {
+      "id": "welledumacated",
+      "title": "Well Edumacated",
+      "url": "https://welledumacated.dev",
+      "icon": "link",
+      "color": "0xFF4CAF50"
+    },
+    {
+      "id": "bybl",
+      "title": "bybl",
+      "url": "https://bybl.dev",
+      "icon": "book",
+      "color": "0xFF795548"
+    },
+    {
+      "id": "beatsbyarch",
+      "title": "Beats By Arch",
+      "url": "",
+      "icon": "headphones",
+      "color": "0xFF2196F3"
+    },
+    {
+      "id": "theolivebranch",
+      "title": "The Olive Branch",
+      "url": "https://theolivebranch.press",
+      "icon": "newspaper",
+      "color": "0xFF607D8B"
+    },
+    {
+      "id": "fyr",
+      "title": "fyr",
+      "url": "https://fyr.software",
+      "icon": "computer",
+      "color": "0xFFFF9800"
+    },
+    {
+      "id": "violetapparition",
+      "title": "Violet Apparition",
+      "url": "https://violetapparition.com",
+      "icon": "album",
+      "color": "0xFF673AB7"
+    }
+  ],
   "experience": [
     {
-      "company": "Well Edumacated",
-      "role": "Software Engineer",
-      "period": "Present",
-      "description": "making the world a better place"
+      "company": "Clevyr",
+      "role": "Software Developer",
+      "period": "Oct 2023 - Present",
+      "description": "Build cross-platform mobile applications using Flutter and develop robust backend APIs utilizing Laravel and Django."
+    },
+    {
+      "company": "RMS",
+      "role": "Software Developer",
+      "period": "Jan 2022 - Oct 2023",
+      "description": "Engineered healthcare billing software utilizing Angular for the frontend and Java for the backend architecture."
+    },
+    {
+      "company": "RMS",
+      "role": "DevOps Analyst",
+      "period": "Sep 2021 - Jan 2022",
+      "description": "Automated deployments and managed infrastructure for healthcare billing software to ensure high availability and streamlined release processes."
+    },
+    {
+      "company": "Emsco Solutions",
+      "role": "Sysadmin",
+      "period": "Apr 2018 - Aug 2021",
+      "description": "Managed comprehensive IT services and provided technical support for a portfolio of over 50 clients."
+    },
+    {
+      "company": "Geek Squad",
+      "role": "Agent",
+      "period": "Oct 2015 - Apr 2018",
+      "description": "Diagnosed and repaired computer hardware and software issues, providing high-quality technical support to customers."
     }
+  ],
+  "education": [
+    {
+      "school": "Christian Leadership College",
+      "degree": "Bachelors in Theology",
+      "period": "Jan 2026 - Present"
+    },
+    {
+      "school": "Francis Tuttle Technology Center",
+      "degree": "Cyber Security",
+      "period": "2014 - 2016"
+    }
+  ],
+  "certifications": [
+    "LPIC-1",
+    "Suse CLA",
+    "Linux+",
+    "Network+",
+    "A+"
   ]
 }
