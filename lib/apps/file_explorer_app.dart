@@ -17,13 +17,7 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
   final Map<String, List<Map<String, dynamic>>> _folders = {
     'Home': [
       {
-        'name': 'Documents',
-        'icon': Icons.folder,
-        'color': Colors.blue,
-        'isFolder': true,
-      },
-      {
-        'name': 'Pictures',
+        'name': 'Projects',
         'icon': Icons.folder,
         'color': Colors.blue,
         'isFolder': true,
@@ -41,40 +35,64 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
         'isFolder': false,
       },
     ],
-    'Documents': [
+    'Projects': [
       {
-        'name': 'projects.txt',
-        'icon': Icons.description,
-        'color': Colors.grey,
+        'name': 'libretrac.html',
+        'icon': Icons.html,
+        'color': Colors.orange,
         'isFolder': false,
+        'url': 'https://libretrac.site',
+        'external': true,
       },
       {
-        'name': 'notes.md',
-        'icon': Icons.description,
-        'color': Colors.grey,
+        'name': 'welledumacated.html',
+        'icon': Icons.html,
+        'color': Colors.orange,
         'isFolder': false,
-      },
-    ],
-    'Pictures': [
-      {
-        'name': 'avatar.png',
-        'icon': Icons.image,
-        'color': Colors.purple,
-        'isFolder': false,
+        'url': 'https://welledumacated.dev',
+        'external': true,
       },
       {
-        'name': 'wallpaper_backup.png',
-        'icon': Icons.image,
-        'color': Colors.purple,
+        'name': 'bybl.html',
+        'icon': Icons.html,
+        'color': Colors.orange,
         'isFolder': false,
+        'url': 'https://bybl.dev',
+        'external': true,
+      },
+      {
+        'name': 'theolivebranch.html',
+        'icon': Icons.html,
+        'color': Colors.orange,
+        'isFolder': false,
+        'url': 'https://theolivebranch.press',
+        'external': true,
+      },
+      {
+        'name': 'fyr.html',
+        'icon': Icons.html,
+        'color': Colors.orange,
+        'isFolder': false,
+        'url': 'https://fyr.software',
+        'external': true,
       },
     ],
     'Music': [
       {
-        'name': 'beats.mp3',
+        'name': 'archbtw.wav',
         'icon': Icons.music_note,
-        'color': Colors.orange,
+        'color': Colors.purple,
         'isFolder': false,
+        'url': 'https://archBTW.sh',
+        'external': true,
+      },
+      {
+        'name': 'violetapparition.mp3',
+        'icon': Icons.music_note,
+        'color': Colors.purple,
+        'isFolder': false,
+        'url': 'https://violetapparition.com',
+        'external': true,
       },
     ],
   };
@@ -103,7 +121,7 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withValues(alpha: 0.05),
           child: Row(
             children: [
               IconButton(
@@ -150,6 +168,15 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
                       'Resume',
                       const ResumeApp(),
                       Icons.picture_as_pdf,
+                    );
+                  } else if (file['url'] != null) {
+                    final url = file['url'] as String;
+                    context.read<SystemController>().openApp(
+                      file['name'] as String,
+                      file['name'] as String,
+                      null,
+                      null,
+                      url: url,
                     );
                   }
                 },

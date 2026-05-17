@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
@@ -31,16 +18,98 @@
 
   <title>fyrWeb</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      background-color: #000000;
+      color: #00FF00;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #boot-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      z-index: 9999;
+      background-color: #000000;
+    }
+    #boot-sequence {
+      white-space: pre-wrap;
+      line-height: 1.4;
+    }
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 15px;
+      background-color: #00FF00;
+      animation: blink 1s step-end infinite;
+      vertical-align: middle;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
+  <div id="boot-container">
+    <span id="boot-sequence"></span><span class="cursor" id="cursor"></span>
+  </div>
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <script>
+    const bootLines = [
+      "[ OK ] Started udev Kernel Device Manager.",
+      "[ OK ] Reached target Local File Systems.",
+      "         Mounting /boot/efi...",
+      "[ OK ] Mounted /boot/efi.",
+      "[ OK ] Reached target System Initialization.",
+      "[ OK ] Started Daily Cleanup of Temporary Directories.",
+      "[ OK ] Started Network Time Synchronization.",
+      "[ OK ] Reached target Network.",
+      "         Starting D-Bus System Message Bus...",
+      "[ OK ] Started D-Bus System Message Bus.",
+      "[ OK ] Started User Login Management.",
+      "         Loading GUI Server...",
+      "[ OK ] GUI Server loaded successfully.",
+      "         Loading user profile 'archie'...",
+      "         Mounting virtual environments...",
+      "[ OK ] fyrOS initialized.",
+      "         Boot sequence complete. Launching environment..."
+    ];
+
+    const bootSequence = document.getElementById('boot-sequence');
+    const bootContainer = document.getElementById('boot-container');
+    let lineIndex = 0;
+
+    function addLine() {
+      if (lineIndex < bootLines.length) {
+        bootSequence.innerHTML += bootLines[lineIndex] + "<br>";
+        lineIndex++;
+        
+        // Random delay to simulate loading process
+        const delay = Math.random() * 200 + 50;
+        setTimeout(addLine, delay);
+      }
+    }
+
+    // Start the boot animation
+    setTimeout(addLine, 100);
+
+    // Hide the boot container once Flutter renders the first frame
+    window.addEventListener('flutter-first-frame', function() {
+      bootContainer.style.display = 'none';
+    });
+  </script>
+
+  <!-- This script adds the flutter initialization JS code -->
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

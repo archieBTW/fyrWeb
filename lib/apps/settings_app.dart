@@ -108,9 +108,9 @@ class SettingsApp extends StatelessWidget {
               runSpacing: 16,
               children: [
                 _WallpaperThumb(
-                  path: 'assets/wallpaper.png',
-                  isSelected: settings.wallpaperPath == 'assets/wallpaper.png',
-                  onTap: () => settings.setWallpaper('assets/wallpaper.png'),
+                  path: 'assets/wallpaper.jpg',
+                  isSelected: settings.wallpaperPath == 'assets/wallpaper.jpg',
+                  onTap: () => settings.setWallpaper('assets/wallpaper.jpg'),
                 ),
                 _WallpaperThumb(
                   path:

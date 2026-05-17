@@ -9,7 +9,7 @@ class SystemSettings extends ChangeNotifier {
 
   bool _isDarkMode = true;
   Color _accentColor = Colors.blue;
-  String _wallpaperPath = 'assets/wallpaper.png';
+  String _wallpaperPath = 'assets/wallpaper.jpg';
   Uint8List? _wallpaperBytes;
 
   bool get isDarkMode => _isDarkMode;
@@ -26,7 +26,8 @@ class SystemSettings extends ChangeNotifier {
     _prefs = await SharedPreferences.getInstance();
     _isDarkMode = _prefs.getBool('isDarkMode') ?? true;
     _accentColor = Color(_prefs.getInt('accentColor') ?? Colors.blue.value);
-    _wallpaperPath = _prefs.getString('wallpaperPath') ?? 'assets/wallpaper.png';
+    _wallpaperPath =
+        _prefs.getString('wallpaperPath') ?? 'assets/wallpaper.jpg';
     if (_wallpaperPath.startsWith('data:image')) {
       _decodeWallpaper(_wallpaperPath);
     }

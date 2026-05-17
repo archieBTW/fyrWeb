@@ -43,6 +43,14 @@ class _DesktopScreenState extends State<DesktopScreen> {
           final focusedWindow = openWindows.isNotEmpty
               ? openWindows.last
               : null;
+              
+          final screenHeight = MediaQuery.of(context).size.height;
+          final isMaximized = openWindows.any((w) => w.isMaximized);
+          final isIntersectingDock = openWindows.any((w) => 
+              !w.isMaximized && 
+              (w.position.dy + w.size.height) > (screenHeight - 90)
+          );
+          final hideDock = isMaximized || isIntersectingDock;
 
           return Stack(
             children: [
@@ -78,7 +86,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
                   apps,
                 )
               else
-                _buildDesktopLayout(context, settings, windowManager, system),
+                _buildDesktopLayout(context, settings, windowManager, system, hideDock),
             ],
           );
         },
@@ -91,6 +99,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
     SystemSettings settings,
     WindowManager windowManager,
     SystemController system,
+    bool hideDock,
   ) {
     return Stack(
       children: [
@@ -102,6 +111,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
                 windowData: w,
                 onClose: () => windowManager.closeWindow(w.id),
                 onMinimize: () => windowManager.minimizeWindow(w.id),
+                onMaximize: () => windowManager.toggleMaximize(w.id),
                 onFocus: () => windowManager.focusWindow(w.id),
                 onPositionChanged: (pos) =>
                     windowManager.updatePosition(w.id, pos),
@@ -141,11 +151,19 @@ class _DesktopScreenState extends State<DesktopScreen> {
         if (_showQuickSettings)
           Positioned(top: 35, right: 10, child: const QuickSettings()),
 
-        Positioned(
-          bottom: 20,
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          bottom: hideDock ? -100 : 20,
           left: 0,
           right: 0,
-          child: Dock(onOpenApp: system.openApp),
+          child: MouseRegion(
+            onEnter: (_) {
+              // Optionally we can show dock on hover even if it's hidden, 
+              // but standard behavior is fine for now
+            },
+            child: Dock(onOpenApp: system.openApp),
+          ),
         ),
       ],
     );
@@ -281,7 +299,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
 
   Widget _buildMobileHomeScreen(BuildContext context, SystemController system, List<AppInfo> apps) {
     return Padding(
-      padding: const EdgeInsets.only(top: 100, left: 30, right: 30),
+      padding: const EdgeInsets.only(top: 60, left: 30, right: 30),
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,

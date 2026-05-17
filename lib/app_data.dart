@@ -5,6 +5,7 @@ import 'apps/terminal_app.dart';
 import 'apps/file_explorer_app.dart';
 import 'apps/settings_app.dart';
 import 'apps/resume_app.dart';
+import 'apps/code_editor_app.dart';
 import 'models/config_model.dart';
 
 class AppInfo {
@@ -28,6 +29,13 @@ class AppInfo {
 List<AppInfo> getApps(AppConfig config) {
   final List<AppInfo> systemApps = [
     AppInfo(
+      id: 'resume',
+      title: 'Resume',
+      content: const ResumeApp(),
+      icon: Icons.description_outlined,
+      color: Colors.orange,
+    ),
+    AppInfo(
       id: 'terminal',
       title: 'Terminal',
       content: const TerminalApp(),
@@ -42,18 +50,18 @@ List<AppInfo> getApps(AppConfig config) {
       color: Colors.blue,
     ),
     AppInfo(
+      id: 'code',
+      title: 'Source Code',
+      content: const CodeEditorApp(),
+      icon: Icons.code,
+      color: const Color(0xFF1E1E1E),
+    ),
+    AppInfo(
       id: 'settings',
       title: 'Settings',
       content: const SettingsApp(),
       icon: Icons.settings,
       color: Colors.grey,
-    ),
-    AppInfo(
-      id: 'resume',
-      title: 'Resume',
-      content: const ResumeApp(),
-      icon: Icons.description_outlined,
-      color: Colors.orange,
     ),
     AppInfo(
       id: 'contact',

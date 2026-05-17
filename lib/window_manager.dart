@@ -8,6 +8,7 @@ class WindowData {
   Offset position;
   Size size;
   bool isMinimized;
+  bool isMaximized;
   bool isFocused;
 
   WindowData({
@@ -18,6 +19,7 @@ class WindowData {
     this.position = const Offset(100, 100),
     this.size = const Size(800, 600),
     this.isMinimized = false,
+    this.isMaximized = false,
     this.isFocused = true,
   });
 }
@@ -57,6 +59,14 @@ class WindowManager extends ChangeNotifier {
     final index = _windows.indexWhere((w) => w.id == id);
     if (index != -1) {
       _windows[index].isMinimized = true;
+      notifyListeners();
+    }
+  }
+
+  void toggleMaximize(String id) {
+    final index = _windows.indexWhere((w) => w.id == id);
+    if (index != -1) {
+      _windows[index].isMaximized = !_windows[index].isMaximized;
       notifyListeners();
     }
   }
