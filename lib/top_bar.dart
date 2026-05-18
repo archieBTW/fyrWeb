@@ -40,15 +40,6 @@ class TopBar extends StatelessWidget {
                 size: 18,
               ),
             ),
-            const SizedBox(width: 16),
-            Text(
-              context.watch<AppConfig>().profile.systemName,
-              style: GoogleFonts.inter(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-              ),
-            ),
             const Spacer(),
             GestureDetector(
               onTap: onQuickSettingsTap,

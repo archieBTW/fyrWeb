@@ -4,9 +4,9 @@
     "title": "Software Engineer",
     "about": "I'm just a dev who likes to make cool things",
     "profilePic": "assets/face.jpg",
-    "tabTitle": "archieBTW",
-    "email": "billy@billyrigdon.dev",
-    "location": "oklahoma city, ok"
+    "tabTitle": "Archer Woods",
+    "email": "arch@archerwoods.dev",
+    "location": "Oklahoma City, OK"
   },
   "skills": [
     {
@@ -134,7 +134,7 @@
     {
       "id": "beatsbyarch",
       "title": "Beats By Arch",
-      "url": "",
+      "url": "https://beatsby.archbtw.sh",
       "icon": "headphones",
       "color": "0xFF2196F3"
     }
@@ -166,7 +166,7 @@
     },
     {
       "company": "Geek Squad",
-      "role": "Agent",
+      "role": "Advanced Repair Agent",
       "period": "Oct 2015 - Apr 2018",
       "description": "Diagnosed and repaired computer hardware and software issues, providing high-quality technical support to customers."
     }

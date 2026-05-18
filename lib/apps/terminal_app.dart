@@ -73,11 +73,11 @@ class _TerminalAppState extends State<TerminalApp> {
                 'resume.txt': _FileNode(
                   name: 'resume.txt',
                   content:
-                      'Name: ${config.profile.name}\nTitle: ${config.profile.title}\nContact: me@example.com',
+                      'Name: ${config.profile.name}\nTitle: ${config.profile.title}\nContact: arch@archerwoods.dev',
                 ),
                 'notes.txt': _FileNode(
                   name: 'notes.txt',
-                  content: 'TODO: Build more awesome stuff.',
+                  content: 'You found me 🫣.',
                 ),
                 'projects': _FileNode(
                   name: 'projects',
@@ -85,7 +85,7 @@ class _TerminalAppState extends State<TerminalApp> {
                   children: {
                     'secret_project.txt': _FileNode(
                       name: 'secret_project.txt',
-                      content: 'Shh! This is a secret.',
+                      content: 'What is stage 2?',
                     ),
                   },
                 ),
@@ -152,25 +152,23 @@ class _TerminalAppState extends State<TerminalApp> {
   void _showNeofetch() {
     final config = context.read<AppConfig>();
     _history.addAll([
-      '            .-/+oossssoo+/-.               ${config.profile.terminalName}@${config.profile.systemName}',
-      '        `:+ssssssssssssssssss+:`           ------------',
-      '      -+ssssssssssssssssssyyssss+-         OS: ${config.profile.systemName} 1.0.0 x86_64',
-      '    .ossssssssssssssssssdMMMNysssso.       Host:  ${config.profile.systemName}',
-      '   /ssssssssssshdmmNNmmyNMMMMhssssss/      Kernel: 5.15.0-generic',
-      '  +ssssssssshmydMMMMMMMNddddyssssssss+     Uptime: 2 hours, 42 mins',
-      ' /sssssssshNMMMyhhyyyyhmNMMMNhssssssss/    Packages: 1337 (dpkg)',
-      '.ssssssssdMMMMMMNdyysssdmMMMMMysssssssso.  Shell: zsh 5.8.1',
-      'osssssssNMMMMMMMMMMMMMMMMMMMMMysssssssso   Resolution: 1920x1080',
-      'osssssssNMMMMMMMMMMMMMMMMMMMMMysssssssso   DE: ${config.profile.systemName}-DE',
-      'osssssssNMMMMMMMMmhyyyyyyhmMMMhssssssso    WM: fyrWM',
-      '.ssssssssdMMMMMMNdyysssssdmMMMysssssssso.  Theme: Glassmorphic-Dark',
-      ' /sssssssshNMMMyhhyyyyhdNMMMNhssssssss/    Icons: Material-Rounded',
-      '  +ssssssssshmydMMMMMMMNddddyssssssss+     Terminal: fyrTerm',
-      '   /ssssssssssshdmmNNmmyNMMMMhssssss/      CPU: Virtual Core (4) @ 2.4GHz',
-      '    .ossssssssssssssssssdMMMNysssso.       GPU: SwiftShader',
-      '      -+ssssssssssssssssssyyssss+-         Memory: 2048MiB / 8192MiB',
-      '        `:+ssssssssssssssssss+:`',
-      '            .-/+oossssoo+/-.',
+      '                  %                         ${config.profile.terminalName}@${config.profile.systemName}',
+      '                  %%%                       ------------',
+      '                  % %%%                     OS: ${config.profile.systemName} 1.0.0 x86_64',
+      '                 %% %%%                     Host:  ${config.profile.systemName}',
+      '                %%% %%%  %%                 Kernel: 5.15.0-generic',
+      '              %%%  %%% %%%                  Uptime: 2 hours, 42 mins',
+      '            %%%   %%%%% %                   Packages: 1337 (dpkg)',
+      '           %%%   %% %%  %%                  Shell: zsh 5.8.1',
+      '          %%%%          %%%                 Resolution: 1920x1080',
+      '          %%%%#   % %. %%%%%                DE: ${config.profile.systemName}-DE',
+      '         %%%%% %% % %%%%%%%%%               WM: fyrWM',
+      '         %%%%% %% % %%%%%%%%%               Theme: Glassmorphic-Dark',
+      '          %%%% %%%% %%%%%%%%%               Icons: Material-Rounded',
+      '          %%%%%%%%%%%%%%%%%%                Terminal: fyrTerm',
+      '            %%%        %%%                  CPU: Virtual Core (4) @ 2.4GHz',
+      '               %%%%%%%                      GPU: SwiftShader',
+      '                                            Memory: 2048MiB / 8192MiB',
     ]);
   }
 

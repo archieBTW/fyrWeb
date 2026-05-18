@@ -42,6 +42,7 @@ dependencies:
   url_launcher: ^6.3.2
   provider: ^6.1.5+1
   file_picker: ^11.0.2
+  audioplayers: ^6.5.1
   pdf: ^3.12.0
   printing: ^5.14.3
   universal_html: ^2.3.0
@@ -76,6 +77,8 @@ flutter:
     - assets/wallpaper.jpg
     - assets/face.jpg
     - assets/config.json
+    - assets/photos/
+    - assets/music/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

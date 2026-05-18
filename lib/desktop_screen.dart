@@ -311,18 +311,18 @@ class _DesktopScreenState extends State<DesktopScreen> {
     List<AppInfo> apps,
   ) {
     return Padding(
-      padding: const EdgeInsets.only(top: 60, left: 30, right: 30),
+      padding: const EdgeInsets.only(top: 60, left: 20, right: 20, bottom: 120),
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
-          mainAxisSpacing: 30,
-          crossAxisSpacing: 20,
-          childAspectRatio: 0.8,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 16,
+          childAspectRatio: 0.85,
         ),
         itemCount: apps.length,
         itemBuilder: (context, index) {
           final app = apps[index];
-          return _buildMobileIcon(app, system);
+          return _buildMobileIcon(app, system, size: 50);
         },
       ),
     );

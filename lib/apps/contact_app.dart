@@ -31,19 +31,19 @@ class ContactApp extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(color: Colors.white70, fontSize: 18),
             ),
-            const SizedBox(height: 48),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: config.socials.map((social) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: _SocialButton(
-                    icon: _getSocialIcon(social.icon),
-                    label: social.name,
-                  ),
-                );
-              }).toList(),
-            ),
+            // const SizedBox(height: 48),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: config.socials.map((social) {
+            //     return Padding(
+            //       padding: const EdgeInsets.symmetric(horizontal: 12),
+            //       child: _SocialButton(
+            //         icon: _getSocialIcon(social.icon),
+            //         label: social.name,
+            //       ),
+            //     );
+            //   }).toList(),
+            // ),
             const SizedBox(height: 48),
             Container(
               constraints: const BoxConstraints(maxWidth: 500),

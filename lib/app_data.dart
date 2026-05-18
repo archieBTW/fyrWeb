@@ -6,6 +6,8 @@ import 'apps/file_explorer_app.dart';
 import 'apps/settings_app.dart';
 import 'apps/resume_app.dart';
 import 'apps/code_editor_app.dart';
+import 'apps/photo_album_app.dart';
+import 'apps/music_player_app.dart';
 import 'models/config_model.dart';
 
 class AppInfo {
@@ -57,11 +59,18 @@ List<AppInfo> getApps(AppConfig config) {
       color: const Color(0xFF1E1E1E),
     ),
     AppInfo(
-      id: 'settings',
-      title: 'Settings',
-      content: const SettingsApp(),
-      icon: Icons.settings,
-      color: Colors.grey,
+      id: 'photos',
+      title: 'Photos',
+      content: const PhotoAlbumApp(),
+      icon: Icons.photo_album,
+      color: Colors.purple,
+    ),
+    AppInfo(
+      id: 'music',
+      title: 'Music Player',
+      content: const MusicPlayerApp(),
+      icon: Icons.headphones,
+      color: Colors.teal,
     ),
     AppInfo(
       id: 'contact',
@@ -69,6 +78,13 @@ List<AppInfo> getApps(AppConfig config) {
       content: const ContactApp(),
       icon: Icons.mail_outline,
       color: Colors.green,
+    ),
+    AppInfo(
+      id: 'settings',
+      title: 'Settings',
+      content: const SettingsApp(),
+      icon: Icons.settings,
+      color: Colors.grey,
     ),
   ];
 
