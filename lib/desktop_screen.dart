@@ -12,6 +12,7 @@ import 'system_controller.dart';
 import 'app_data.dart';
 import 'models/config_model.dart';
 import 'dart:convert';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DesktopScreen extends StatefulWidget {
   const DesktopScreen({super.key});
@@ -23,6 +24,45 @@ class DesktopScreen extends StatefulWidget {
 class _DesktopScreenState extends State<DesktopScreen> {
   bool _showAppMenu = false;
   bool _showQuickSettings = false;
+  ModalRoute<dynamic>? _route;
+  LocalHistoryEntry? _historyEntry;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+  }
+
+  @override
+  void dispose() {
+    if (_historyEntry != null) {
+      _route?.removeLocalHistoryEntry(_historyEntry!);
+    }
+    super.dispose();
+  }
+
+  void _updateHistoryEntry(bool shouldHaveEntry) {
+    if (shouldHaveEntry && _historyEntry == null) {
+      _historyEntry = LocalHistoryEntry(onRemove: () {
+        _historyEntry = null;
+        if (!mounted) return;
+        final windowManager = context.read<WindowManager>();
+        final openWindows = windowManager.windows.where((w) => !w.isMinimized).toList();
+        if (openWindows.isNotEmpty) {
+          windowManager.closeWindow(openWindows.last.id);
+        } else if (_showAppMenu || _showQuickSettings) {
+          setState(() {
+            _showAppMenu = false;
+            _showQuickSettings = false;
+          });
+        }
+      });
+      _route?.addLocalHistoryEntry(_historyEntry!);
+    } else if (!shouldHaveEntry && _historyEntry != null) {
+      _route?.removeLocalHistoryEntry(_historyEntry!);
+      _historyEntry = null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,16 +73,24 @@ class _DesktopScreenState extends State<DesktopScreen> {
     final apps = getApps(config);
     final isMobile = MediaQuery.of(context).size.width < 600;
 
+    final openWindowsForPop = windowManager.windows.where((w) => !w.isMinimized).toList();
+    final focusedWindowForPop = openWindowsForPop.isNotEmpty ? openWindowsForPop.last : null;
+    final hasActiveOverlay = focusedWindowForPop != null || _showAppMenu || _showQuickSettings;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateHistoryEntry(hasActiveOverlay);
+    });
+
     return Scaffold(
       body: ListenableBuilder(
-        listenable: windowManager,
-        builder: (context, child) {
-          final openWindows = windowManager.windows
-              .where((w) => !w.isMinimized)
-              .toList();
-          final focusedWindow = openWindows.isNotEmpty
-              ? openWindows.last
-              : null;
+          listenable: windowManager,
+          builder: (context, child) {
+            final openWindows = windowManager.windows
+                .where((w) => !w.isMinimized)
+                .toList();
+            final focusedWindow = openWindows.isNotEmpty
+                ? openWindows.last
+                : null;
 
           final screenHeight = MediaQuery.of(context).size.height;
           final isMaximized = openWindows.any((w) => w.isMaximized);
@@ -348,6 +396,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
           Container(
             width: size,
             height: size,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: app.color,
               borderRadius: BorderRadius.circular(16),
@@ -359,11 +408,17 @@ class _DesktopScreenState extends State<DesktopScreen> {
                 ),
               ],
             ),
-            child: Icon(
-              app.icon is IconData ? app.icon : Icons.apps,
-              color: Colors.white,
-              size: size * 0.6,
-            ),
+            child: app.icon is IconData
+                ? Icon(
+                    app.icon,
+                    color: Colors.white,
+                    size: size * 0.6,
+                  )
+                : FaIcon(
+                    app.icon,
+                    color: Colors.white,
+                    size: size * 0.6,
+                  ),
           ),
           if (showLabel) ...[
             const SizedBox(height: 8),

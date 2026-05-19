@@ -8,6 +8,7 @@ import 'apps/resume_app.dart';
 import 'apps/code_editor_app.dart';
 import 'apps/photo_album_app.dart';
 import 'apps/music_player_app.dart';
+import 'apps/snake_game_app.dart';
 import 'models/config_model.dart';
 
 class AppInfo {
@@ -71,6 +72,13 @@ List<AppInfo> getApps(AppConfig config) {
       content: const MusicPlayerApp(),
       icon: Icons.headphones,
       color: Colors.teal,
+    ),
+    AppInfo(
+      id: 'snake',
+      title: 'Snake Game',
+      content: const SnakeGameApp(),
+      icon: Icons.gamepad,
+      color: Colors.purple,
     ),
     AppInfo(
       id: 'contact',
