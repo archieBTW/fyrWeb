@@ -8,7 +8,7 @@ class SystemSettings extends ChangeNotifier {
   bool _isInitialized = false;
 
   bool _isDarkMode = true;
-  Color _accentColor = Colors.blue;
+  Color _accentColor = Colors.purple;
   String _wallpaperPath = 'assets/wallpaper.jpg';
   Uint8List? _wallpaperBytes;
 
@@ -25,7 +25,7 @@ class SystemSettings extends ChangeNotifier {
   Future<void> _loadSettings() async {
     _prefs = await SharedPreferences.getInstance();
     _isDarkMode = _prefs.getBool('isDarkMode') ?? true;
-    _accentColor = Color(_prefs.getInt('accentColor') ?? Colors.blue.value);
+    _accentColor = Color(_prefs.getInt('accentColor') ?? Colors.purple.value);
     _wallpaperPath =
         _prefs.getString('wallpaperPath') ?? 'assets/wallpaper.jpg';
     if (_wallpaperPath.startsWith('data:image')) {

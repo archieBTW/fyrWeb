@@ -259,6 +259,7 @@ class _ThemeOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SystemSettings>();
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -271,7 +272,7 @@ class _ThemeOption extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: isSelected
-                    ? Colors.blue
+                    ? settings.accentColor
                     : Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
                 width: 2,
               ),
@@ -337,6 +338,7 @@ class _WallpaperThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SystemSettings>();
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -345,7 +347,7 @@ class _WallpaperThumb extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? Colors.blue : Colors.transparent,
+            color: isSelected ? settings.accentColor : Colors.transparent,
             width: 3,
           ),
           image: DecorationImage(
