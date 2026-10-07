@@ -14,13 +14,13 @@ class SystemController extends ChangeNotifier {
     dynamic icon, {
     String? url,
   }) async {
+    if (content != null) {
+      windowManager.openWindow(id, title, content, icon);
+      return;
+    }
     if (url != null) {
       final Uri uri = Uri.parse(url);
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-      return;
-    }
-    if (content != null) {
-      windowManager.openWindow(id, title, content, icon);
     }
   }
 }

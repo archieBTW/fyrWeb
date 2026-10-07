@@ -148,6 +148,7 @@ class CustomApp {
   final String url;
   final String icon;
   final String color;
+  final List<String>? caseStudy;
 
   CustomApp({
     required this.id,
@@ -155,6 +156,7 @@ class CustomApp {
     required this.url,
     required this.icon,
     required this.color,
+    this.caseStudy,
   });
 
   factory CustomApp.fromJson(Map<String, dynamic> json) {
@@ -164,6 +166,7 @@ class CustomApp {
       url: json['url'] ?? '',
       icon: json['icon'] ?? 'apps',
       color: json['color'] ?? '0xFF2196F3',
+      caseStudy: (json['caseStudy'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
     );
   }
 
@@ -173,6 +176,7 @@ class CustomApp {
     'url': url,
     'icon': icon,
     'color': color,
+    if (caseStudy != null) 'caseStudy': caseStudy,
   };
 }
 

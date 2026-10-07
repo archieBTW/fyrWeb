@@ -101,64 +101,65 @@
       "title": "archBTW.",
       "url": "https://archBTW.sh",
       "icon": "album",
-      "color": "0xFF9C27B0"
-    },
-    {
-      "id": "welledumacated",
-      "title": "Well Edumacated",
-      "url": "https://welledumacated.dev",
-      "icon": "link",
-      "color": "0xFF4CAF50"
+      "color": "0xFF9C27B0",
+      "caseStudy": [
+        "Immersive Thematic UI: Designed and deployed a highly stylized web experience in Flutter utilizing a strict terminal-emulator aesthetic to house music streaming, biographical content, and a merchandise store.",
+        "Custom Asset Handling: Engineered custom audio player states designed as shell script executions and integrated unique visual assets, including real-time ASCII animations, to create a cohesive brand identity."
+      ]
     },
     {
       "id": "bybl",
       "title": "bybl",
       "url": "https://bybl.dev",
       "icon": "book",
-      "color": "0xFF795548"
+      "color": "0xFF795548",
+      "caseStudy": [
+        "Dynamic AI Integration: Architected an AI-augmented study application utilizing the Gemini API, featuring dynamic prompt injection that allows users to seamlessly adjust the AI's theological perspective and academic depth.",
+        "Robust State & Data Management: Built complex local state handling for verse highlighting, custom journaling, and global theming, complemented by interactive mapping integrations to visualize historical routes.",
+        "Cross-Platform Deployment: Published as a highly polished, open-source web and mobile application with a distraction-free UI designed specifically for deep reading and research."
+      ]
     },
     {
       "id": "libretrac",
       "title": "LibreTrac",
       "url": "https://libretrac.site",
       "icon": "favorite",
-      "color": "0xFFE91E63"
+      "color": "0xFFE91E63",
+      "caseStudy": [
+        "Complex Data Visualization: Engineered a comprehensive health and habit tracking dashboard in Flutter, featuring responsive, multi-line charting to visualize overlapping mood, energy, and cognitive trends.",
+        "AI Analytics & Interactivity: Integrated an LLM-powered analytics engine to synthesize weekly user data and identify behavioral shifts, alongside custom interactive cognitive tests and medication adherence tracking."
+      ]
     },
     {
       "id": "fyr",
       "title": "fyr",
       "url": "https://fyr.software",
       "icon": "computer",
-      "color": "0xFFFF9800"
+      "color": "0xFFFF9800",
+      "caseStudy": [
+        "Systems-Level Architecture: Developed a complete, modern Linux desktop environment composed of a native Flutter shell running seamlessly over a custom Wayland compositor (Swayfx fork).",
+        "Advanced Window Management: Implemented complex window management supporting both floating UI components and multi-window tiling layouts, alongside deep hardware integration for core system controls.",
+        "Native Ecosystem Development: Built an entire suite of native desktop applications from scratch, pushing the limits of desktop Flutter with a custom terminal, file manager, web browser, and Virtual Machine manager."
+      ]
     },
     {
       "id": "theolivebranch",
       "title": "The Olive Branch",
       "url": "https://theolivebranch.press",
       "icon": "newspaper",
-      "color": "0xFF607D8B"
-    },
-    {
-      "id": "violetapparition",
-      "title": "Violet Apparition",
-      "url": "https://violetapparition.com",
-      "icon": "album",
-      "color": "0xFF673AB7"
-    },
-    {
-      "id": "beatsbyarch",
-      "title": "Beats By Arch",
-      "url": "https://beatsby.archbtw.sh",
-      "icon": "headphones",
-      "color": "0xFF2196F3"
+      "color": "0xFF607D8B",
+      "caseStudy": [
+        "API Consumption & Parsing: Created a streamlined, production-ready news aggregator that effectively consumes, parses, and formats multiple third-party feeds into a clean, unified reading experience.",
+        "Persistent State Management: Implemented global state handling for persistent user preferences, including dynamic primary color theming, dark mode toggles, and customized active feed filtering."
+      ]
     }
   ],
   "experience": [
     {
       "company": "Clevyr",
       "role": "Software Developer",
-      "period": "Oct 2023 - Present",
-      "description": "Build cross-platform mobile applications using Flutter and develop robust backend APIs utilizing Laravel and Django."
+      "period": "Oct 2023 - Oct 2026",
+      "description": "Built cross-platform mobile applications using Flutter and developed robust backend APIs utilizing Laravel, Django, and ServerPod."
     },
     {
       "company": "RMS",
@@ -186,6 +187,11 @@
     }
   ],
   "education": [
+    {
+      "school": "Christian Leaders Institute",
+      "degree": "Theology/Philosophy (Bachelor's of Divinity)",
+      "period": "Jan 2026 - Present"
+    },
     {
       "school": "Francis Tuttle Technology Center",
       "degree": "Cyber Security",

@@ -9,6 +9,7 @@ import 'apps/code_editor_app.dart';
 import 'apps/photo_album_app.dart';
 import 'apps/music_player_app.dart';
 import 'apps/snake_game_app.dart';
+import 'apps/case_study_app.dart';
 import 'models/config_model.dart';
 
 class AppInfo {
@@ -18,6 +19,7 @@ class AppInfo {
   final dynamic icon;
   final Color color;
   final String? url;
+  final List<String>? caseStudy;
 
   AppInfo({
     required this.id,
@@ -26,6 +28,7 @@ class AppInfo {
     required this.icon,
     this.color = Colors.blue,
     this.url,
+    this.caseStudy,
   });
 }
 
@@ -101,8 +104,10 @@ List<AppInfo> getApps(AppConfig config) {
       id: app.id,
       title: app.title,
       url: app.url,
+      content: app.caseStudy != null ? CaseStudyApp(app: app) : null,
       icon: _getIconData(app.icon),
       color: Color(int.parse(app.color)),
+      caseStudy: app.caseStudy,
     );
   }).toList();
 
