@@ -145,6 +145,7 @@ class SocialLink {
 class CustomApp {
   final String id;
   final String title;
+  final String? subtitle;
   final String url;
   final String icon;
   final String color;
@@ -153,6 +154,7 @@ class CustomApp {
   CustomApp({
     required this.id,
     required this.title,
+    this.subtitle,
     required this.url,
     required this.icon,
     required this.color,
@@ -163,6 +165,7 @@ class CustomApp {
     return CustomApp(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
+      subtitle: json['subtitle'],
       url: json['url'] ?? '',
       icon: json['icon'] ?? 'apps',
       color: json['color'] ?? '0xFF2196F3',
@@ -173,6 +176,7 @@ class CustomApp {
   Map<String, dynamic> toJson() => {
     'id': id,
     'title': title,
+    if (subtitle != null) 'subtitle': subtitle,
     'url': url,
     'icon': icon,
     'color': color,

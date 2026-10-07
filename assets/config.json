@@ -99,6 +99,7 @@
     {
       "id": "archbtw",
       "title": "archBTW.",
+      "subtitle": "A Terminal-themed Music Site for archBTW",
       "url": "https://archBTW.sh",
       "icon": "album",
       "color": "0xFF9C27B0",
@@ -110,6 +111,7 @@
     {
       "id": "bybl",
       "title": "bybl",
+      "subtitle": "AI-Powered Bible Study Tool",
       "url": "https://bybl.dev",
       "icon": "book",
       "color": "0xFF795548",
@@ -122,6 +124,7 @@
     {
       "id": "libretrac",
       "title": "LibreTrac",
+      "subtitle": "Mood/Sleep/Cognition Tracker with AI Analysis",
       "url": "https://libretrac.site",
       "icon": "favorite",
       "color": "0xFFE91E63",
@@ -133,6 +136,7 @@
     {
       "id": "fyr",
       "title": "fyr",
+      "subtitle": "A Tiling/Floating Desktop Environment and App Suite for Linux",
       "url": "https://fyr.software",
       "icon": "computer",
       "color": "0xFFFF9800",
@@ -145,6 +149,7 @@
     {
       "id": "theolivebranch",
       "title": "The Olive Branch",
+      "subtitle": "A Customizable News Aggregator",
       "url": "https://theolivebranch.press",
       "icon": "newspaper",
       "color": "0xFF607D8B",

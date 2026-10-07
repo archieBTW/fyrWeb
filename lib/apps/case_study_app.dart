@@ -20,12 +20,30 @@ class CaseStudyApp extends StatelessWidget {
             children: [
               Icon(Icons.cases_rounded, color: Color(int.parse(app.color)), size: 40),
               const SizedBox(width: 16),
-              Text(
-                '${app.title}',
-                style: GoogleFonts.outfit(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${app.title}',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (app.subtitle != null && app.subtitle!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        app.subtitle!,
+                        style: GoogleFonts.inter(
+                          color: Colors.white70,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],

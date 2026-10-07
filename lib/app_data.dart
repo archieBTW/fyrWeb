@@ -15,6 +15,7 @@ import 'models/config_model.dart';
 class AppInfo {
   final String id;
   final String title;
+  final String? subtitle;
   final Widget? content;
   final dynamic icon;
   final Color color;
@@ -24,6 +25,7 @@ class AppInfo {
   AppInfo({
     required this.id,
     required this.title,
+    this.subtitle,
     this.content,
     required this.icon,
     this.color = Colors.blue,
@@ -103,6 +105,7 @@ List<AppInfo> getApps(AppConfig config) {
     return AppInfo(
       id: app.id,
       title: app.title,
+      subtitle: app.subtitle,
       url: app.url,
       content: app.caseStudy != null ? CaseStudyApp(app: app) : null,
       icon: _getIconData(app.icon),
