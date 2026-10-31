@@ -1,8 +1,8 @@
 {
   "profile": {
     "name": "Archer Woods",
-    "title": "Software Engineer",
-    "about": "I'm just a dev who likes to make cool things",
+    "title": "DevOps/Software Engineer",
+    "about": "I just like building cool things.",
     "profilePic": "assets/face.jpg",
     "tabTitle": "Archer Woods",
     "email": "arch@archerwoods.dev",
@@ -63,17 +63,21 @@
         "Linux",
         "Terraform",
         "Ansible",
-        "Github Actions"
+        "Github Actions",
+        "Google Cloud Platform",
+        "Kubernetes"
       ]
     },
     {
       "category": "Specialties",
       "items": [
+        "Automation",
+        "DevOps",
+        "Cloud Computing",
         "Software Architecture",
         "System Design",
         "Microservices",
         "API Design",
-        "Machine Learning",
         "Mobile App Development",
         "State Management",
         "Responsive Design"
@@ -157,9 +161,28 @@
         "API Consumption & Parsing: Created a streamlined, production-ready news aggregator that effectively consumes, parses, and formats multiple third-party feeds into a clean, unified reading experience.",
         "Persistent State Management: Implemented global state handling for persistent user preferences, including dynamic primary color theming, dark mode toggles, and customized active feed filtering."
       ]
+    },
+    {
+      "id": "carlyle",
+      "title": "Carlyle",
+      "subtitle": "AI Automotive Diagnostics & Tuning Platform",
+      "url": "https://carlyleauto.online",
+      "icon": "speedometer",
+      "color": "0xFF00BCD4",
+      "caseStudy": [
+        "Multimodal AI Diagnostics: Architected a Gemini-powered automotive assistant supporting real-time text, voice, and photo inputs to troubleshoot mechanical issues, recommend modifications, and guide vehicle maintenance.",
+        "Live OBD-II Telemetry & Intelligent Code Scanning: Integrated live OBD-II scanner connectivity for real-time telemetry streaming and code extraction, paired with AI analysis delivering fault severity, repair steps, required parts, and cost estimates.",
+        "Virtual Garage, Dyno Modeling & Mod Studio: Built an interactive garage management system featuring AI-modeled dyno performance estimations based on installed aftermarket mods and image-to-image generative mockups for visualizing vehicle modifications."
+      ]
     }
   ],
   "experience": [
+    {
+      "company": "RMS",
+      "role": "DevOps Engineer",
+      "period": "Nov 2026 - Present",
+      "description": "Automating infrastructure, enhancing CI/CD pipelines, implementing advanced monitoring solutions, and optimizing cloud resource utilization to support rapid development cycles and high availability requirements."
+    },
     {
       "company": "Clevyr",
       "role": "Software Developer",
@@ -192,11 +215,6 @@
     }
   ],
   "education": [
-    {
-      "school": "Christian Leaders Institute",
-      "degree": "Theology/Philosophy (Bachelor's of Divinity)",
-      "period": "Jan 2026 - Present"
-    },
     {
       "school": "Francis Tuttle Technology Center",
       "degree": "Cyber Security",

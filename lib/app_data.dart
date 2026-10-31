@@ -141,6 +141,10 @@ dynamic _getIconData(String iconName) {
       return Icons.favorite;
     case 'newspaper':
       return Icons.newspaper;
+    case 'speedometer':
+    case 'speed':
+    case 'gauge':
+      return Icons.speed;
     default:
       return Icons.apps;
   }
