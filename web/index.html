@@ -58,6 +58,252 @@
       50% { opacity: 0; }
     }
   </style>
+  <script>
+    // Audio synthesizer for Grand Theft Ant
+    window.cyberSynth = (function() {
+      let ctx = null;
+      function ensure() {
+        if (!ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) ctx = new AudioCtx();
+        }
+        if (ctx && ctx.state === 'suspended') ctx.resume();
+        return ctx;
+      }
+      function tone(type, fStart, fEnd, dur, gainVal) {
+        const c = ensure();
+        if (!c) return;
+        const now = c.currentTime;
+        const osc = c.createOscillator();
+        const g = c.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(fStart, now);
+        osc.frequency.exponentialRampToValueAtTime(Math.max(20, fEnd), now + dur);
+        g.gain.setValueAtTime(gainVal, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        osc.connect(g);
+        g.connect(c.destination);
+        osc.start(now);
+        osc.stop(now + dur);
+      }
+      function noise(dur, gainVal, filterFreq) {
+        const c = ensure();
+        if (!c) return;
+        const now = c.currentTime;
+        const bufSize = Math.floor(c.sampleRate * dur);
+        const buf = c.createBuffer(1, bufSize, c.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+        const src = c.createBufferSource();
+        src.buffer = buf;
+        const flt = c.createBiquadFilter();
+        flt.type = 'lowpass';
+        flt.frequency.setValueAtTime(filterFreq || 1200, now);
+        const g = c.createGain();
+        g.gain.setValueAtTime(gainVal, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+        src.connect(flt);
+        flt.connect(g);
+        g.connect(c.destination);
+        src.start(now);
+      }
+      return {
+        init: function() { ensure(); },
+        laser: function() {
+          tone('sawtooth', 880, 140, 0.13, 0.16);
+          tone('square', 1320, 220, 0.09, 0.08);
+        },
+        shotgun: function() {
+          noise(0.24, 0.28, 950);
+          tone('sawtooth', 260, 48, 0.22, 0.22);
+        },
+        railgun: function() {
+          tone('sawtooth', 1600, 180, 0.35, 0.2);
+          tone('sine', 2400, 420, 0.32, 0.15);
+          noise(0.18, 0.15, 2800);
+        },
+        hit: function() {
+          tone('triangle', 520, 180, 0.07, 0.14);
+        },
+        explosion: function() {
+          noise(0.45, 0.32, 600);
+          tone('sawtooth', 140, 28, 0.4, 0.25);
+        },
+        pickup: function() {
+          tone('sine', 520, 1040, 0.16, 0.15);
+        },
+        dash: function() {
+          tone('sine', 220, 880, 0.18, 0.16);
+          noise(0.14, 0.1, 1800);
+        },
+        damage: function() {
+          tone('sawtooth', 160, 55, 0.2, 0.24);
+          noise(0.15, 0.2, 500);
+        }
+      };
+    })();
+
+    // Desktop Web Gamepad / Controller API bridge
+    window.cyberGamepad = (function() {
+      return {
+        poll: function() {
+          try {
+            const gps = navigator.getGamepads ? navigator.getGamepads() : [];
+            for (let i = 0; i < gps.length; i++) {
+              const gp = gps[i];
+              if (gp && gp.connected) {
+                const axes = [];
+                for (let a = 0; a < gp.axes.length; a++) {
+                  axes.push(gp.axes[a] || 0.0);
+                }
+                const buttons = [];
+                for (let b = 0; b < gp.buttons.length; b++) {
+                  const btn = gp.buttons[b];
+                  buttons.push(btn ? (btn.pressed ? 1.0 : btn.value || 0.0) : 0.0);
+                }
+                return {
+                  connected: true,
+                  id: gp.id || 'Standard Controller',
+                  axes: axes,
+                  buttons: buttons
+                };
+              }
+            }
+          } catch (e) {}
+          return { connected: false };
+        }
+      };
+    })();
+
+    // Local Wallpaper Persistent Storage (IndexedDB)
+    window.fyrWallpaperStorage = (function() {
+      const DB_NAME = 'fyr_storage_db';
+      const STORE_NAME = 'wallpapers';
+      const KEY = 'active_custom_wallpaper';
+
+      function openDB(onSuccess, onError) {
+        if (!window.indexedDB) {
+          if (onError) onError('IndexedDB not supported');
+          return;
+        }
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = function(e) {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME);
+          }
+        };
+        req.onsuccess = function(e) {
+          onSuccess(e.target.result);
+        };
+        req.onerror = function(e) {
+          if (onError) onError(e.target.error);
+        };
+      }
+
+      return {
+        save: function(data, callback) {
+          openDB(function(db) {
+            try {
+              const tx = db.transaction(STORE_NAME, 'readwrite');
+              const store = tx.objectStore(STORE_NAME);
+              const req = store.put(data, KEY);
+              req.onsuccess = function() {
+                if (callback) callback(true);
+              };
+              req.onerror = function() {
+                if (callback) callback(false);
+              };
+            } catch(e) {
+              if (callback) callback(false);
+            }
+          }, function() {
+            if (callback) callback(false);
+          });
+        },
+        load: function(callback) {
+          openDB(function(db) {
+            try {
+              const tx = db.transaction(STORE_NAME, 'readonly');
+              const store = tx.objectStore(STORE_NAME);
+              const req = store.get(KEY);
+              req.onsuccess = function() {
+                const val = req.result || null;
+                if (callback) callback(val);
+              };
+              req.onerror = function() {
+                if (callback) callback(null);
+              };
+            } catch(e) {
+              if (callback) callback(null);
+            }
+          }, function() {
+            if (callback) callback(null);
+          });
+        },
+        clear: function(callback) {
+          openDB(function(db) {
+            try {
+              const tx = db.transaction(STORE_NAME, 'readwrite');
+              const store = tx.objectStore(STORE_NAME);
+              const req = store.delete(KEY);
+              req.onsuccess = function() {
+                if (callback) callback(true);
+              };
+              req.onerror = function() {
+                if (callback) callback(false);
+              };
+            } catch(e) {
+              if (callback) callback(false);
+            }
+          }, function() {
+            if (callback) callback(false);
+          });
+        }
+      };
+    })();
+
+    // Image Compressor for uploaded wallpapers
+    window.fyrCompressImage = function(dataUrl, maxDim, quality, callback) {
+      try {
+        const img = new Image();
+        img.onload = function() {
+          let w = img.width;
+          let h = img.height;
+          const limit = maxDim || 1920;
+          if (w > limit || h > limit) {
+            if (w >= h) {
+              h = Math.round((h * limit) / w);
+              w = limit;
+            } else {
+              w = Math.round((w * limit) / h);
+              h = limit;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          let mime = 'image/jpeg';
+          if (dataUrl && dataUrl.indexOf('image/png') !== -1) {
+            mime = 'image/webp';
+          }
+          let compressed = canvas.toDataURL(mime, quality || 0.85);
+          if (!compressed || compressed === 'data:,' || compressed.length < 50) {
+            compressed = canvas.toDataURL('image/jpeg', quality || 0.85);
+          }
+          if (callback) callback(compressed || dataUrl);
+        };
+        img.onerror = function() {
+          if (callback) callback(dataUrl);
+        };
+        img.src = dataUrl;
+      } catch(e) {
+        if (callback) callback(dataUrl);
+      }
+    };
+  </script>
 </head>
 <body>
   <div id="boot-container">

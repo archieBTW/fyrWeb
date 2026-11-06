@@ -3,7 +3,7 @@ import 'package:glass_kit/glass_kit.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'models/config_model.dart';
+import 'system_settings.dart';
 
 class TopBar extends StatelessWidget {
   final VoidCallback onMenuTap;
@@ -17,7 +17,14 @@ class TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SystemSettings>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
+
+    final timePattern = settings.use24HourClock
+        ? (settings.showClockSeconds ? 'HH:mm:ss' : 'HH:mm')
+        : (settings.showClockSeconds ? 'h:mm:ss a' : 'h:mm a');
+    final dateFormatPattern = 'EEE MMM d  $timePattern';
 
     return GlassContainer.clearGlass(
       height: 32,
@@ -25,8 +32,8 @@ class TopBar extends StatelessWidget {
       borderWidth: 0,
       blur: 20,
       color: isDark
-          ? Colors.black.withOpacity(0.3)
-          : Colors.white.withOpacity(0.3),
+          ? Colors.black.withValues(alpha: 0.3)
+          : Colors.white.withValues(alpha: 0.3),
       borderColor: Colors.transparent,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -34,11 +41,7 @@ class TopBar extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: onMenuTap,
-              child: Icon(
-                Icons.menu,
-                color: Theme.of(context).colorScheme.onSurface,
-                size: 18,
-              ),
+              child: Icon(Icons.menu, color: onSurfaceColor, size: 18),
             ),
             const Spacer(),
             GestureDetector(
@@ -46,28 +49,34 @@ class TopBar extends StatelessWidget {
               child: Row(
                 children: [
                   Icon(
-                    Icons.wifi,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    settings.wifi ? Icons.wifi : Icons.wifi_off,
+                    color: settings.wifi
+                        ? onSurfaceColor
+                        : onSurfaceColor.withValues(alpha: 0.4),
+                    size: 16,
+                  ),
+                  if (settings.bluetooth) ...[
+                    const SizedBox(width: 12),
+                    Icon(
+                      Icons.bluetooth,
+                      color: settings.accentColor,
+                      size: 16,
+                    ),
+                  ],
+                  const SizedBox(width: 12),
+                  Icon(
+                    settings.soundVolume == 0
+                        ? Icons.volume_off
+                        : (settings.soundVolume < 0.5
+                              ? Icons.volume_down
+                              : Icons.volume_up),
+                    color: onSurfaceColor,
                     size: 16,
                   ),
                   const SizedBox(width: 12),
-                  Icon(
-                    Icons.battery_full,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    size: 16,
-                  ),
+                  Icon(Icons.battery_full, color: onSurfaceColor, size: 16),
                   const SizedBox(width: 12),
-                  Icon(
-                    Icons.search,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 12),
-                  Icon(
-                    Icons.tune,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    size: 16,
-                  ),
+                  Icon(Icons.tune, color: onSurfaceColor, size: 16),
                 ],
               ),
             ),
@@ -78,9 +87,9 @@ class TopBar extends StatelessWidget {
                 stream: Stream.periodic(const Duration(seconds: 1)),
                 builder: (context, snapshot) {
                   return Text(
-                    DateFormat('EEE MMM d  h:mm a').format(DateTime.now()),
+                    DateFormat(dateFormatPattern).format(DateTime.now()),
                     style: GoogleFonts.inter(
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: onSurfaceColor,
                       fontWeight: FontWeight.w500,
                       fontSize: 13,
                     ),

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class AppConfig {
   final ProfileConfig profile;
   final List<SkillCategory> skills;
@@ -150,6 +148,10 @@ class CustomApp {
   final String icon;
   final String color;
   final List<String>? caseStudy;
+  final List<String>? devopsStudy;
+  final List<String>? sysadminStudy;
+  final String? architectureBadge;
+  final List<String>? tags;
 
   CustomApp({
     required this.id,
@@ -159,6 +161,10 @@ class CustomApp {
     required this.icon,
     required this.color,
     this.caseStudy,
+    this.devopsStudy,
+    this.sysadminStudy,
+    this.architectureBadge,
+    this.tags,
   });
 
   factory CustomApp.fromJson(Map<String, dynamic> json) {
@@ -170,6 +176,10 @@ class CustomApp {
       icon: json['icon'] ?? 'apps',
       color: json['color'] ?? '0xFF2196F3',
       caseStudy: (json['caseStudy'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
+      devopsStudy: (json['devopsStudy'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
+      sysadminStudy: (json['sysadminStudy'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
+      architectureBadge: json['architectureBadge'],
+      tags: (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
     );
   }
 
@@ -181,6 +191,10 @@ class CustomApp {
     'icon': icon,
     'color': color,
     if (caseStudy != null) 'caseStudy': caseStudy,
+    if (devopsStudy != null) 'devopsStudy': devopsStudy,
+    if (sysadminStudy != null) 'sysadminStudy': sysadminStudy,
+    if (architectureBadge != null) 'architectureBadge': architectureBadge,
+    if (tags != null) 'tags': tags,
   };
 }
 

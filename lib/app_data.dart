@@ -8,8 +8,9 @@ import 'apps/resume_app.dart';
 import 'apps/code_editor_app.dart';
 import 'apps/photo_album_app.dart';
 import 'apps/music_player_app.dart';
-import 'apps/snake_game_app.dart';
+import 'apps/grand_theft_ant/grand_theft_ant_app.dart';
 import 'apps/case_study_app.dart';
+import 'apps/infra_monitor_app.dart';
 import 'models/config_model.dart';
 
 class AppInfo {
@@ -21,6 +22,10 @@ class AppInfo {
   final Color color;
   final String? url;
   final List<String>? caseStudy;
+  final List<String>? devopsStudy;
+  final List<String>? sysadminStudy;
+  final String? architectureBadge;
+  final List<String>? tags;
 
   AppInfo({
     required this.id,
@@ -31,6 +36,10 @@ class AppInfo {
     this.color = Colors.blue,
     this.url,
     this.caseStudy,
+    this.devopsStudy,
+    this.sysadminStudy,
+    this.architectureBadge,
+    this.tags,
   });
 }
 
@@ -42,6 +51,14 @@ List<AppInfo> getApps(AppConfig config) {
       content: const ResumeApp(),
       icon: Icons.description_outlined,
       color: Colors.orange,
+    ),
+    AppInfo(
+      id: 'infra_monitor',
+      title: 'Infra Monitor',
+      subtitle: 'GCP Cloud & SysAdmin Telemetry',
+      content: const InfraMonitorApp(),
+      icon: Icons.dns_rounded,
+      color: const Color(0xFF00B0FF),
     ),
     AppInfo(
       id: 'terminal',
@@ -79,11 +96,12 @@ List<AppInfo> getApps(AppConfig config) {
       color: Colors.teal,
     ),
     AppInfo(
-      id: 'snake',
-      title: 'Snake Game',
-      content: const SnakeGameApp(),
-      icon: Icons.gamepad,
-      color: Colors.purple,
+      id: 'grand_theft_ant',
+      title: 'Grand Theft Ant',
+      subtitle: '3D Open-World Bug Simulation',
+      content: const GrandTheftAntApp(),
+      icon: Icons.sports_esports_rounded,
+      color: const Color(0xFF7FA650),
     ),
     AppInfo(
       id: 'contact',
@@ -111,6 +129,10 @@ List<AppInfo> getApps(AppConfig config) {
       icon: _getIconData(app.icon),
       color: Color(int.parse(app.color)),
       caseStudy: app.caseStudy,
+      devopsStudy: app.devopsStudy,
+      sysadminStudy: app.sysadminStudy,
+      architectureBadge: app.architectureBadge,
+      tags: app.tags,
     );
   }).toList();
 
@@ -121,6 +143,10 @@ dynamic _getIconData(String iconName) {
   switch (iconName) {
     case 'computer':
       return Icons.computer;
+    case 'people':
+    case 'group':
+    case 'social':
+      return Icons.people_alt_rounded;
     case 'code':
       return Icons.code;
     case 'language':
@@ -145,6 +171,27 @@ dynamic _getIconData(String iconName) {
     case 'speed':
     case 'gauge':
       return Icons.speed;
+    case 'cloud':
+      return Icons.cloud_done_rounded;
+    case 'dns':
+    case 'server':
+      return Icons.dns_rounded;
+    case 'terminal':
+      return Icons.terminal_rounded;
+    case 'docker':
+      return FontAwesomeIcons.docker;
+    case 'shield':
+    case 'security':
+      return Icons.shield_outlined;
+    case 'layers':
+      return Icons.layers_rounded;
+    case 'gamepad':
+    case 'game':
+    case 'sports_esports':
+      return Icons.sports_esports_rounded;
+    case 'bug':
+    case 'ant':
+      return Icons.pest_control_rounded;
     default:
       return Icons.apps;
   }

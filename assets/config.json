@@ -1,8 +1,8 @@
 {
   "profile": {
     "name": "Archer Woods",
-    "title": "DevOps/Software Engineer",
-    "about": "I just like building cool things.",
+    "title": "DevOps Engineer & Software Developer",
+    "about": "Started in Linux Systems Administration with LPIC-1 and Linux+ certifications before expanding into full-stack development and cloud infrastructure. I architect and automate resilient systems: from custom Linux Wayland desktop shells and mobile Flutter applications to Terraform/Ansible GCP deployments with zero-trust networking.",
     "profilePic": "assets/face.jpg",
     "tabTitle": "Archer Woods",
     "email": "arch@archerwoods.dev",
@@ -10,77 +10,88 @@
   },
   "skills": [
     {
+      "category": "Infrastructure & Cloud DevOps",
+      "items": [
+        "Terraform",
+        "Ansible & Playbooks",
+        "Docker & Docker Compose",
+        "Google Cloud Platform (GCP)",
+        "Cloudflare DNS Automation",
+        "Nginx Reverse Proxy & Rate Limiting",
+        "CI/CD (GitHub Actions)",
+        "Zero-Trust Network Isolation"
+      ]
+    },
+    {
+      "category": "Systems Administration & Security",
+      "items": [
+        "Debian / Ubuntu Server",
+        "Arch Linux",
+        "Linux Kernel & sysctl Tuning",
+        "systemd & Service Management",
+        "UFW & Netfilter Firewalls",
+        "Fail2ban Intrusion Prevention",
+        "Certbot / TLS 1.3 Encryption",
+        "Bash & Shell Scripting",
+        "SSH Hardening & Key Management",
+        "LPIC-1 / Linux+ Certified"
+      ]
+    },
+    {
       "category": "Languages",
       "items": [
         "Dart",
-        "Typescript",
+        "Go",
         "Python",
+        "Bash",
+        "Typescript",
+        "Javascript",
         "Java",
         "Kotlin",
-        "Ruby",
         "C++",
-        "Swift",
         "C#",
         "Rust",
         "PHP",
-        "Javascript",
-        "HTML/CSS",
-        "Go",
-        "PowerShell",
-        "Bash"
+        "Ruby",
+        "HTML/CSS"
       ]
     },
     {
       "category": "Frameworks",
       "items": [
         "Flutter",
-        "Angular",
+        "Serverpod",
+        "Gin/Gorm",
         "React",
+        "Angular",
         "Vue",
         "Electron",
-        "Blazor",
-        "Gin/Gorm",
-        "Laravel",
         "Django",
-        "Spring",
-        "Serverpod"
+        "Laravel",
+        "Spring"
       ]
     },
     {
       "category": "Databases",
       "items": [
-        "Postgres",
+        "PostgreSQL",
         "MySQL",
+        "SQLite",
         "MSSQL",
-        "MongoDB",
-        "SQLite"
-      ]
-    },
-    {
-      "category": "Infrastructure & DevOps",
-      "items": [
-        "Docker",
-        "Linux",
-        "Terraform",
-        "Ansible",
-        "Github Actions",
-        "Google Cloud Platform",
-        "Kubernetes"
+        "MongoDB"
       ]
     },
     {
       "category": "Specialties",
       "items": [
-        "Automation",
-        "DevOps",
-        "Cloud Computing",
-        "Software Architecture",
-        "System Design",
-        "Microservices",
-        "API Design",
-        "Mobile App Development",
+        "DevOps & Infrastructure as Code",
+        "Systems Architecture & Hardening",
+        "Cloud Computing (GCP)",
+        "Automation & Tooling",
+        "Cross-Platform App Development",
+        "API Design & Microservices",
         "State Management",
-        "Responsive Design"
+        "Terminal / TUI Applications"
       ]
     }
   ],
@@ -101,15 +112,105 @@
       "color": "0xFF24292E"
     },
     {
+      "id": "we_iac",
+      "title": "WE-IAC",
+      "subtitle": "GCP Infrastructure as Code & Multi-Site Deployment Engine",
+      "url": "https://github.com/archieBTW",
+      "icon": "cloud",
+      "color": "0xFF00B0FF",
+      "architectureBadge": "Terraform • Ansible • GCP • Docker • Nginx",
+      "caseStudy": [
+        "Multi-Tenant Infrastructure as Code: Engineered end-to-end declarative infrastructure with Terraform on GCP, provisioning compute instances, static IPs, and automated Cloudflare DNS A-records.",
+        "Configuration Management & Playbooks: Authored modular Ansible roles (common, firewall, docker, nginx, certbot, bybl_backend, static_sites) supporting full-host provisioning and granular single-site re-deployments via tags.",
+        "Zero-Trust Container Security: Hardened container networking using internal Docker bridge networks with zero host port exposure for PostgreSQL database clusters.",
+        "Automated SSL & Reverse Proxy: Configured Nginx with TLS 1.3, leaky-bucket rate limiting (30 r/s static, 20 r/s API), and automated ACME challenge renewals via Certbot systemd timers."
+      ],
+      "devopsStudy": [
+        "Terraform GCP Lifecycle: Declarative provisioning of e2-micro compute instances with balanced persistent disks and static external IP reservation.",
+        "Automated Cloudflare DNS Sync: Terraform cloudflare_record resources maintaining synchronized DNS A-records across all production apex domains and subdomains.",
+        "Targeted Ansible Orchestration: Fast re-deployment playbook (deploy-sites.yml) executing tag-based artifact compilation and rsync distribution without server restarts.",
+        "Zero-Downtime Nginx Reloads: Automated configuration validation (nginx -t) and graceful process reloads preserving active HTTP connections."
+      ],
+      "sysadminStudy": [
+        "e2-micro Memory Optimization: Configured 2GB swap allocation on 1GB RAM host with kernel sysctl tuning (vm.swappiness=20, vfs_cache_pressure=50) to eliminate OOM kills.",
+        "Host Firewall Lockdown: Enforced UFW default DENY incoming policy; restricted access strictly to TCP 80, 443, and rate-limited SSH (22).",
+        "Multi-Jail Intrusion Prevention: Fail2ban jails monitoring sshd brute-force attempts and nginx-limit-req rate-limit violations with automated 2-hour IP bans.",
+        "Isolated Container Bridge: PostgreSQL container resides exclusively on Docker app-network (172.20.0.0/16); zero public host ports mapped.",
+        "Secret Hardening: Ansible Vault encrypted credentials deploying to root-owned 0600 mode environment files."
+      ]
+    },
+    {
+      "id": "friendly",
+      "title": "friend.ly",
+      "subtitle": "Retro MySpace Customization, Modern Reels & Trust/Safety SQL Sandbox",
+      "url": "https://friendly.archerwoods.dev",
+      "icon": "people",
+      "color": "0xFF00E5FF",
+      "architectureBadge": "Blazor WASM • Spring Boot 3 • PostgreSQL 16 • S3/GCS • Ansible",
+      "caseStudy": [
+        "Full-Stack Social Architecture: Engineered an interview-ready social platform blending vintage 2005 MySpace CSS/HTML profile customization with modern TikTok-style vertical snap-scrolling video reels (/reels) and real-time watch telemetry.",
+        "Multi-Tier Clean Architecture: Developed with C# .NET 8 Blazor WebAssembly standalone SPA on the frontend and Java 21 / Spring Boot 3 on the backend utilizing Spring Data JPA for CRUD and JdbcTemplate for high-performance native queries.",
+        "Trust & Safety Anti-Abuse Engine: Implemented strict Jsoup HTML sanitization preserving retro markup (<marquee>, <blink>, <table>) while stripping XSS vectors. Built scoped CSS parsing targeting .friendly-profile-canvas to neutralize CSS exfiltration and javascript: URIs.",
+        "S3 Object Storage & Media Quarantine: Multi-bucket pipeline (friendly-media-quarantine, friendly-media-public, friendly-profile-songs) using AWS SDK v2 with GCP Cloud Storage HMAC interoperability and local MinIO development parity. Unapproved uploads remain in private quarantine until automated GCP Vision SafeSearch validation.",
+        "Advanced Relational Modeling: 15 normalized PostgreSQL tables supporting 10,000 users, 300,000+ telemetry rows, hierarchical comments (WITH RECURSIVE), COPPA age-gating triggers, and polymorphic reactions."
+      ],
+      "devopsStudy": [
+        "Automated Ansible Deployment: Authored 2-stage automated production playbook (deploy.yml) managing local fat-JAR packaging (mvn clean package), Docker image export/compression, Blazor WASM compilation (dotnet publish), and remote rsync distribution to Carlyle Auto server.",
+        "Host Nginx Reverse Proxy & WASM Optimization: Configured host Nginx with Brotli and Gzip compression tuned specifically for .wasm and .bin binaries (application/wasm, application/octet-stream). Fronted Blazor SPA at friendly.archerwoods.dev and reverse-proxied Spring Boot API at api.friendly.archerwoods.dev (127.0.0.1:8070).",
+        "Multi-Zone Rate Limiting: Configured leaky-bucket Nginx rate limiting zones (limit_req_zone $binary_remote_addr zone=friendly_req:10m rate=30r/s) with burst=50 nodelay to protect API endpoints against bot scrape clusters.",
+        "Dual-Provider S3 Cloud Storage: Seamless infrastructure toggle between local MinIO Docker service (minio-client provisioning buckets and anonymous download policies) and Google Cloud Storage using HMAC service account credentials without code changes."
+      ],
+      "sysadminStudy": [
+        "PostgreSQL 16 Engine Tuning: Deployed postgres:16-alpine on isolated bridge network (friendly-social-network). Tuned shared buffers and memory parameters to support complex analytical CTEs across 300,000+ telemetry events.",
+        "Database Index Optimization (50x Speedup): Designed composite and partial indexes (idx_posts_reels_recency, idx_media_approved, idx_telemetry_post) reducing FYP algorithm query times from 15.54ms to 0.307ms and buffer hits from 1,556 to 182 shared hits via EXPLAIN ANALYZE.",
+        "Automated Incident Remediation: Authored atomic SQL batch remediation transaction (WITH detected_bots ... UPDATE ... RETURNING) banning coordinated botnets (198.51.100.42), quarantining media assets, soft-deleting posts/comments, and recording JSONB audit incident logs in a single statement.",
+        "Zero-Trust Service Boundary: Database and backend containers communicate across internal Docker network with zero public database port exposure. UFW and Fail2ban enforce host protection with automated IP bans for repeat rate-limit violators."
+      ]
+    },
+    {
+      "id": "pycontui",
+      "title": "PyConTUI",
+      "subtitle": "Keyboard-Driven Terminal UI for Docker Management",
+      "url": "https://github.com/archieBTW",
+      "icon": "terminal",
+      "color": "0xFF4CAF50",
+      "architectureBadge": "Python • Textual • Docker SDK • ANSI",
+      "caseStudy": [
+        "Pure Terminal Navigation: Designed a keyboard-first terminal user interface for Docker container lifecycle orchestration built in Python using Textual.",
+        "Vim-Style Efficiency: Implemented full Vim keybindings (j, k, g, G, Ctrl+D/U) with modal search filtering (/) and zero mouse dependencies.",
+        "Async Engine Integration: Coupled with the Docker Engine SDK to deliver real-time container metrics, live stdout/stderr log following, and interactive exec shell connections."
+      ],
+      "devopsStudy": [
+        "Real-Time Container Telemetry: Pure text meter bars tracking CPU percentage, RAM allocation, network I/O, and block I/O throughput.",
+        "Lifecycle Control: Instant hotkeys for Start (s), Stop (t), Restart (r), Pause (p), Resume (u), and Container Pruning (P).",
+        "Volume & Network Orchestration: Interactive creation, inspection, and pruning of Docker bridge networks and named storage volumes."
+      ],
+      "sysadminStudy": [
+        "Headless Server Administration: Zero GUI overhead tool designed for remote SSH sessions, lightweight cloud VMs, and terminal purists.",
+        "Interactive Shell Hooks: Connects directly to sh/bash or custom entrypoints with ANSI text rendering and process PID inspection.",
+        "Disk & Artifact Reclamation: Dangling image and unused volume garbage collection directly from the terminal console."
+      ]
+    },
+    {
       "id": "archbtw",
       "title": "archBTW.",
       "subtitle": "A Terminal-themed Music Site for archBTW",
       "url": "https://archBTW.sh",
       "icon": "album",
       "color": "0xFF9C27B0",
+      "architectureBadge": "Flutter Web • Nginx • Certbot • UFW",
       "caseStudy": [
         "Immersive Thematic UI: Designed and deployed a highly stylized web experience in Flutter utilizing a strict terminal-emulator aesthetic to house music streaming, biographical content, and a merchandise store.",
         "Custom Asset Handling: Engineered custom audio player states designed as shell script executions and integrated unique visual assets, including real-time ASCII animations, to create a cohesive brand identity."
+      ],
+      "devopsStudy": [
+        "Automated Web Compilation: Flutter Web compiled with canvaskit renderer and synced to /var/www/archbtw.sh/html via WE-IAC.",
+        "Automated Cloudflare DNS Sync: Terraform-managed A-record pointing to static GCP IP.",
+        "Automated TLS 1.3: Certbot auto-renewal configured via systemd timers with zero downtime."
+      ],
+      "sysadminStudy": [
+        "Static Zone Rate-Limiting: 30 requests/second with burst 50 nodelay enforced at the Nginx reverse proxy level.",
+        "Kernel Cache Optimization: High inode retention (vfs_cache_pressure=50) for rapid static audio asset serving."
       ]
     },
     {
@@ -119,10 +220,21 @@
       "url": "https://bybl.dev",
       "icon": "book",
       "color": "0xFF795548",
+      "architectureBadge": "Flutter • Go REST • PostgreSQL • Gemini AI",
       "caseStudy": [
         "Dynamic AI Integration: Architected an AI-augmented study application utilizing the Gemini API, featuring dynamic prompt injection that allows users to seamlessly adjust the AI's theological perspective and academic depth.",
         "Robust State & Data Management: Built complex local state handling for verse highlighting, custom journaling, and global theming, complemented by interactive mapping integrations to visualize historical routes.",
         "Cross-Platform Deployment: Published as a highly polished, open-source web and mobile application with a distraction-free UI designed specifically for deep reading and research."
+      ],
+      "devopsStudy": [
+        "Containerized Go API: Backend REST service and gofyrAdmin management panel bundled into Docker containers with healthcheck probes.",
+        "Ansible Automated Rollouts: deploy-bybl.yml deploys database migrations, secret templates, and restarts containers via Docker Compose.",
+        "Nginx Rate Limiting: API zone restricted to 20 requests/second with burst 30 nodelay."
+      ],
+      "sysadminStudy": [
+        "Zero-Trust DB Exposure: PostgreSQL container bound strictly to internal bridge network with ZERO host ports exposed.",
+        "Fail2ban Jail: nginx-limit-req jail automatically bans IPs repeatedly triggering rate limits.",
+        "Secret Isolation: Ansible Vault deploying credentials to root-owned 0600 mode .env on remote host."
       ]
     },
     {
@@ -132,9 +244,18 @@
       "url": "https://libretrac.site",
       "icon": "favorite",
       "color": "0xFFE91E63",
+      "architectureBadge": "Flutter Web • AI Analytics • Multi-Line Charts",
       "caseStudy": [
         "Complex Data Visualization: Engineered a comprehensive health and habit tracking dashboard in Flutter, featuring responsive, multi-line charting to visualize overlapping mood, energy, and cognitive trends.",
         "AI Analytics & Interactivity: Integrated an LLM-powered analytics engine to synthesize weekly user data and identify behavioral shifts, alongside custom interactive cognitive tests and medication adherence tracking."
+      ],
+      "devopsStudy": [
+        "Static Edge Delivery: Nginx reverse proxy serving minified Flutter Web assets with brotli/gzip compression.",
+        "Ansible Site Tags: Fast targeted deployment via ansible-playbook deploy-sites.yml -e site=libretrac."
+      ],
+      "sysadminStudy": [
+        "Host UFW Filtering: Ingress denied except through Cloudflare reverse proxy on ports 80/443.",
+        "Fail2ban Botsearch: Malicious crawler and scanner detection jail active."
       ]
     },
     {
@@ -144,10 +265,19 @@
       "url": "https://fyr.software",
       "icon": "computer",
       "color": "0xFFFF9800",
+      "architectureBadge": "Wayland • Swayfx • Native Flutter Shell • Linux",
       "caseStudy": [
         "Systems-Level Architecture: Developed a complete, modern Linux desktop environment composed of a native Flutter shell running seamlessly over a custom Wayland compositor (Swayfx fork).",
         "Advanced Window Management: Implemented complex window management supporting both floating UI components and multi-window tiling layouts, alongside deep hardware integration for core system controls.",
         "Native Ecosystem Development: Built an entire suite of native desktop applications from scratch, pushing the limits of desktop Flutter with a custom terminal, file manager, web browser, and Virtual Machine manager."
+      ],
+      "devopsStudy": [
+        "Linux Desktop Packaging: Multi-stage Dockerized build environment compiling Swayfx fork, Wayland protocols, and Flutter Linux runner.",
+        "fyr.software Website: Automated static Flutter Web release pipeline deployed to GCP via WE-IAC."
+      ],
+      "sysadminStudy": [
+        "Systems-Level Linux Integration: IPC socket communication with Wayland compositor, pipewire audio hooks, and systemd session management.",
+        "Virtual Machine Management: Native QEMU/KVM integration directly within the desktop shell."
       ]
     },
     {
@@ -157,9 +287,18 @@
       "url": "https://theolivebranch.press",
       "icon": "newspaper",
       "color": "0xFF607D8B",
+      "architectureBadge": "Flutter Web • Nginx RSS Proxy • State Management",
       "caseStudy": [
         "API Consumption & Parsing: Created a streamlined, production-ready news aggregator that effectively consumes, parses, and formats multiple third-party feeds into a clean, unified reading experience.",
         "Persistent State Management: Implemented global state handling for persistent user preferences, including dynamic primary color theming, dark mode toggles, and customized active feed filtering."
+      ],
+      "devopsStudy": [
+        "Custom Nginx Reverse Proxy: Secure /proxy/ location block rewriting RSS feed requests with DNS resolvers (1.1.1.1, 8.8.8.8) to bypass client-side CORS.",
+        "Targeted Ansible Tag: Continuous deployment automated via WE-IAC static_sites role."
+      ],
+      "sysadminStudy": [
+        "Proxy Rate-Limiting: Prevents outbound SSRF abuse through strict URI pattern matching.",
+        "Automated TLS 1.3: ACME challenges automated via Certbot."
       ]
     },
     {
@@ -169,20 +308,23 @@
       "url": "https://carlyleauto.online",
       "icon": "speedometer",
       "color": "0xFF00BCD4",
+      "architectureBadge": "Flutter • Gemini Multimodal • OBD-II Telemetry",
       "caseStudy": [
         "Multimodal AI Diagnostics: Architected a Gemini-powered automotive assistant supporting real-time text, voice, and photo inputs to troubleshoot mechanical issues, recommend modifications, and guide vehicle maintenance.",
         "Live OBD-II Telemetry & Intelligent Code Scanning: Integrated live OBD-II scanner connectivity for real-time telemetry streaming and code extraction, paired with AI analysis delivering fault severity, repair steps, required parts, and cost estimates.",
         "Virtual Garage, Dyno Modeling & Mod Studio: Built an interactive garage management system featuring AI-modeled dyno performance estimations based on installed aftermarket mods and image-to-image generative mockups for visualizing vehicle modifications."
+      ],
+      "devopsStudy": [
+        "Continuous Deployment: Automated build and sync pipeline targeting carlyleauto.online.",
+        "Nginx Static Host: Strict caching headers and compression for rapid mobile browser loading."
+      ],
+      "sysadminStudy": [
+        "Certbot TLS 1.3 Security: HTTPS encryption with automated certificate renewal.",
+        "Host Firewall Hardening: Default DENY with rate-limited HTTP/HTTPS."
       ]
     }
   ],
   "experience": [
-    {
-      "company": "RMS",
-      "role": "DevOps Engineer",
-      "period": "Nov 2026 - Present",
-      "description": "Automating infrastructure, enhancing CI/CD pipelines, implementing advanced monitoring solutions, and optimizing cloud resource utilization to support rapid development cycles and high availability requirements."
-    },
     {
       "company": "Clevyr",
       "role": "Software Developer",
@@ -223,7 +365,7 @@
   ],
   "certifications": [
     "LPIC-1",
-    "Suse CLA",
+    "SUSE CLA",
     "Linux+",
     "Network+",
     "A+"

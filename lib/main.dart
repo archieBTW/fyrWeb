@@ -17,11 +17,14 @@ void main() async {
   final config = AppConfig.fromJson(configJson);
 
   final windowManager = WindowManager();
+  final settings = SystemSettings();
+  await settings.init();
+
   runApp(
     MultiProvider(
       providers: [
         Provider<AppConfig>.value(value: config),
-        ChangeNotifierProvider(create: (_) => SystemSettings()),
+        ChangeNotifierProvider<SystemSettings>.value(value: settings),
         ChangeNotifierProvider.value(value: windowManager),
         ChangeNotifierProvider(
           create: (_) => SystemController(windowManager: windowManager),

@@ -25,6 +25,17 @@ class CodeEditorApp extends StatefulWidget {
 class _CodeEditorAppState extends State<CodeEditorApp> {
   String? _selectedFile = 'lib/main.dart';
 
+  String _detectLanguage(String? path) {
+    if (path == null) return 'dart';
+    final lower = path.toLowerCase();
+    if (lower.endsWith('.yaml') || lower.endsWith('.yml')) return 'yaml';
+    if (lower.endsWith('.json')) return 'json';
+    if (lower.endsWith('.tf')) return 'yaml';
+    if (lower.endsWith('.conf') || lower.endsWith('.j2')) return 'nginx';
+    if (lower.endsWith('.sh') || lower.endsWith('.bash')) return 'bash';
+    return 'dart';
+  }
+
   Widget _buildCodeViewer(String content, bool isDesktop) {
     final lines = content.split('\n');
     final double fontSize = isDesktop ? 13 : 11;
@@ -57,7 +68,7 @@ class _CodeEditorAppState extends State<CodeEditorApp> {
               // Code
               HighlightView(
                 content,
-                language: 'dart',
+                language: _detectLanguage(_selectedFile),
                 theme: vs2015Theme,
                 padding: EdgeInsets.zero,
                 textStyle: GoogleFonts.jetBrainsMono(

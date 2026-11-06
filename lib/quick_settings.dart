@@ -1,24 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:glass_kit/glass_kit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'system_settings.dart';
 
-class QuickSettings extends StatefulWidget {
+class QuickSettings extends StatelessWidget {
   const QuickSettings({super.key});
 
   @override
-  State<QuickSettings> createState() => _QuickSettingsState();
-}
-
-class _QuickSettingsState extends State<QuickSettings> {
-  bool wifi = true;
-  bool bluetooth = false;
-  bool airplaneMode = false;
-  bool nightShift = false;
-  double brightness = 0.8;
-  double volume = 0.6;
-
-  @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SystemSettings>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
 
@@ -28,21 +19,27 @@ class _QuickSettingsState extends State<QuickSettings> {
       borderRadius: BorderRadius.circular(16),
       blur: 30,
       color: isDark
-          ? Colors.black.withOpacity(0.6)
-          : Colors.white.withOpacity(0.8),
-      borderColor: onSurfaceColor.withOpacity(0.1),
+          ? Colors.black.withValues(alpha: 0.6)
+          : Colors.white.withValues(alpha: 0.8),
+      borderColor: onSurfaceColor.withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Control Center',
-              style: GoogleFonts.inter(
-                color: onSurfaceColor,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Control Center',
+                  style: GoogleFonts.inter(
+                    color: onSurfaceColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Icon(Icons.tune, color: settings.accentColor, size: 18),
+              ],
             ),
             const SizedBox(height: 20),
             Wrap(
@@ -52,49 +49,61 @@ class _QuickSettingsState extends State<QuickSettings> {
                 _QuickTile(
                   icon: Icons.wifi,
                   label: 'Wi-Fi',
-                  isOn: wifi,
-                  onTap: () => setState(() => wifi = !wifi),
+                  isOn: settings.wifi,
+                  accentColor: settings.accentColor,
+                  onTap: () => settings.setWifi(!settings.wifi),
                 ),
                 _QuickTile(
                   icon: Icons.bluetooth,
                   label: 'Bluetooth',
-                  isOn: bluetooth,
-                  onTap: () => setState(() => bluetooth = !bluetooth),
+                  isOn: settings.bluetooth,
+                  accentColor: settings.accentColor,
+                  onTap: () => settings.setBluetooth(!settings.bluetooth),
                 ),
                 _QuickTile(
-                  icon: Icons.airplanemode_active,
-                  label: 'Airplane',
-                  isOn: airplaneMode,
-                  onTap: () => setState(() => airplaneMode = !airplaneMode),
+                  icon: settings.isDarkMode
+                      ? Icons.dark_mode
+                      : Icons.light_mode,
+                  label: settings.isDarkMode ? 'Dark Mode' : 'Light Mode',
+                  isOn: settings.isDarkMode,
+                  accentColor: settings.accentColor,
+                  onTap: () => settings.setDarkMode(!settings.isDarkMode),
                 ),
                 _QuickTile(
                   icon: Icons.nightlight_round,
                   label: 'Night Shift',
-                  isOn: nightShift,
-                  onTap: () => setState(() => nightShift = !nightShift),
+                  isOn: settings.nightShift,
+                  accentColor: settings.accentColor,
+                  onTap: () => settings.setNightShift(!settings.nightShift),
                 ),
               ],
             ),
             const SizedBox(height: 24),
             _SliderRow(
               icon: Icons.brightness_high,
-              value: brightness,
-              onChanged: (v) => setState(() => brightness = v),
+              value: settings.screenBrightness,
+              accentColor: settings.accentColor,
+              onChanged: (v) => settings.setScreenBrightness(v),
             ),
             const SizedBox(height: 16),
             _SliderRow(
-              icon: Icons.volume_up,
-              value: volume,
-              onChanged: (v) => setState(() => volume = v),
+              icon: settings.soundVolume == 0
+                  ? Icons.volume_off
+                  : (settings.soundVolume < 0.5
+                        ? Icons.volume_down
+                        : Icons.volume_up),
+              value: settings.soundVolume,
+              accentColor: settings.accentColor,
+              onChanged: (v) => settings.setSoundVolume(v),
             ),
             const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Battery: 84%',
+                  'Battery: 84% • fyrOS 2.4',
                   style: GoogleFonts.inter(
-                    color: onSurfaceColor.withOpacity(0.5),
+                    color: onSurfaceColor.withValues(alpha: 0.5),
                     fontSize: 12,
                   ),
                 ),
@@ -112,12 +121,14 @@ class _QuickTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool isOn;
+  final Color accentColor;
   final VoidCallback onTap;
 
   const _QuickTile({
     required this.icon,
     required this.label,
     required this.isOn,
+    required this.accentColor,
     required this.onTap,
   });
 
@@ -127,25 +138,36 @@ class _QuickTile extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        width: 120,
-        padding: const EdgeInsets.all(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        width: 124,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: isOn
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.8)
-              : onSurfaceColor.withOpacity(0.05),
+              ? accentColor.withValues(alpha: 0.85)
+              : onSurfaceColor.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isOn
+                ? accentColor.withValues(alpha: 0.9)
+                : onSurfaceColor.withValues(alpha: 0.1),
+            width: 1,
+          ),
         ),
         child: Row(
           children: [
             Icon(icon, color: isOn ? Colors.white : onSurfaceColor, size: 18),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                color: isOn ? Colors.white : onSurfaceColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+            Expanded(
+              child: Text(
+                label,
+                style: GoogleFonts.inter(
+                  color: isOn ? Colors.white : onSurfaceColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -158,11 +180,13 @@ class _QuickTile extends StatelessWidget {
 class _SliderRow extends StatelessWidget {
   final IconData icon;
   final double value;
+  final Color accentColor;
   final ValueChanged<double> onChanged;
 
   const _SliderRow({
     required this.icon,
     required this.value,
+    required this.accentColor,
     required this.onChanged,
   });
 
@@ -172,16 +196,16 @@ class _SliderRow extends StatelessWidget {
 
     return Row(
       children: [
-        Icon(icon, color: onSurfaceColor.withOpacity(0.5), size: 18),
+        Icon(icon, color: onSurfaceColor.withValues(alpha: 0.6), size: 18),
         const SizedBox(width: 12),
         Expanded(
           child: SliderTheme(
             data: SliderTheme.of(context).copyWith(
-              trackHeight: 20,
+              trackHeight: 18,
               thumbShape: SliderComponentShape.noThumb,
               overlayShape: SliderComponentShape.noOverlay,
-              activeTrackColor: onSurfaceColor.withOpacity(0.2),
-              inactiveTrackColor: onSurfaceColor.withOpacity(0.05),
+              activeTrackColor: accentColor.withValues(alpha: 0.8),
+              inactiveTrackColor: onSurfaceColor.withValues(alpha: 0.08),
             ),
             child: Slider(value: value, onChanged: onChanged),
           ),

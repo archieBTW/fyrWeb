@@ -3,6 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../system_controller.dart';
 import 'resume_app.dart';
+import 'infra_monitor_app.dart';
+import 'code_editor_app.dart';
+import 'grand_theft_ant/grand_theft_ant_app.dart';
 
 class FileExplorerApp extends StatefulWidget {
   const FileExplorerApp({super.key});
@@ -23,9 +26,15 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
         'isFolder': true,
       },
       {
+        'name': 'Infrastructure',
+        'icon': Icons.folder,
+        'color': Colors.cyan,
+        'isFolder': true,
+      },
+      {
         'name': 'Music',
         'icon': Icons.folder,
-        'color': Colors.blue,
+        'color': Colors.purpleAccent,
         'isFolder': true,
       },
       {
@@ -36,6 +45,21 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
       },
     ],
     'Projects': [
+      {
+        'name': 'friend.ly.html',
+        'icon': Icons.html,
+        'color': Colors.cyanAccent,
+        'isFolder': false,
+        'url': 'https://friendly.archerwoods.dev',
+        'external': true,
+      },
+      {
+        'name': 'grand_theft_ant.game',
+        'icon': Icons.sports_esports_rounded,
+        'color': const Color(0xFF7FA650),
+        'isFolder': false,
+        'openGame': true,
+      },
       {
         'name': 'libretrac.html',
         'icon': Icons.html,
@@ -75,6 +99,36 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
         'isFolder': false,
         'url': 'https://fyr.software',
         'external': true,
+      },
+    ],
+    'Infrastructure': [
+      {
+        'name': 'WE-IAC-Terraform',
+        'icon': Icons.cloud_outlined,
+        'color': Colors.purpleAccent,
+        'isFolder': false,
+        'openCode': true,
+      },
+      {
+        'name': 'Ansible-Deploy',
+        'icon': Icons.bolt,
+        'color': Colors.greenAccent,
+        'isFolder': false,
+        'openCode': true,
+      },
+      {
+        'name': 'Docker-Compose',
+        'icon': Icons.view_in_ar,
+        'color': Colors.blueAccent,
+        'isFolder': false,
+        'openCode': true,
+      },
+      {
+        'name': 'Infra-Monitor.app',
+        'icon': Icons.dns_rounded,
+        'color': Colors.cyanAccent,
+        'isFolder': false,
+        'openInfra': true,
       },
     ],
     'Music': [
@@ -175,6 +229,27 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
                         'Resume',
                         const ResumeApp(),
                         Icons.picture_as_pdf,
+                      );
+                    } else if (file['openGame'] == true) {
+                      context.read<SystemController>().openApp(
+                        'grand_theft_ant',
+                        'Grand Theft Ant',
+                        const GrandTheftAntApp(),
+                        Icons.sports_esports_rounded,
+                      );
+                    } else if (file['openInfra'] == true) {
+                      context.read<SystemController>().openApp(
+                        'infra_monitor',
+                        'Infra Monitor',
+                        const InfraMonitorApp(),
+                        Icons.dns_rounded,
+                      );
+                    } else if (file['openCode'] == true) {
+                      context.read<SystemController>().openApp(
+                        'code',
+                        'Source Code',
+                        const CodeEditorApp(),
+                        Icons.code,
                       );
                     } else if (file['url'] != null) {
                       final url = file['url'] as String;
