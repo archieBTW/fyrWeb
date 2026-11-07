@@ -26,7 +26,6 @@
       "category": "Systems Administration & Security",
       "items": [
         "Debian / Ubuntu Server",
-        "Arch Linux",
         "Linux Kernel & sysctl Tuning",
         "systemd & Service Management",
         "UFW & Netfilter Firewalls",
@@ -326,6 +325,12 @@
   ],
   "experience": [
     {
+      "company": "RMS",
+      "role": "DevOps Engineer",
+      "period": "Nov 2026 - Present",
+      "description": "Automating infrastructure, enhancing CI/CD pipelines, implementing advanced monitoring solutions, and optimizing cloud resource utilization to support rapid development cycles and high availability requirements."
+    },
+    {
       "company": "Clevyr",
       "role": "Software Developer",
       "period": "Oct 2023 - Oct 2026",
@@ -360,7 +365,7 @@
     {
       "school": "Francis Tuttle Technology Center",
       "degree": "Cyber Security",
-      "period": "2014 - 2016"
+      "period": "2014 - 2015"
     }
   ],
   "certifications": [

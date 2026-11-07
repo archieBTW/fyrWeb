@@ -1094,7 +1094,7 @@ class _CyberFpsGameScreenState extends State<CyberFpsGameScreen>
               const FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  'CITY OF GRASS',
+                  'GRAND THEFT ANT',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(0xFFF5EBD6),
