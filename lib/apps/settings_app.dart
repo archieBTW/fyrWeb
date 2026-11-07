@@ -79,8 +79,9 @@ class _SettingsAppState extends State<SettingsApp> {
         final file = result.files.first;
         final bytes = file.bytes!;
         final ext = (file.extension ?? 'png').toLowerCase();
-        final mimeType =
-            (ext == 'jpg' || ext == 'jpeg') ? 'image/jpeg' : 'image/png';
+        final mimeType = (ext == 'jpg' || ext == 'jpeg')
+            ? 'image/jpeg'
+            : 'image/png';
 
         await settings.setCustomWallpaperFromBytes(bytes, mimeType: mimeType);
 
@@ -143,27 +144,44 @@ class _SettingsAppState extends State<SettingsApp> {
     final settings = context.watch<SystemSettings>();
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
     final isDark = settings.isDarkMode;
-    final isNarrow = MediaQuery.of(context).size.width < 640;
 
-    return Container(
-      color: isDark ? const Color(0xFF101216) : const Color(0xFFF7F8FA),
-      child: isNarrow
-          ? Column(
-              children: [
-                _buildNarrowNav(settings),
-                Expanded(child: _buildSectionContent(settings, onSurfaceColor)),
-              ],
-            )
-          : Row(
-              children: [
-                _buildSidebar(settings, onSurfaceColor),
-                Container(
-                  width: 1,
-                  color: onSurfaceColor.withValues(alpha: 0.08),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 640;
+
+        return Container(
+          color: isDark ? const Color(0xFF101216) : const Color(0xFFF7F8FA),
+          child: isNarrow
+              ? Column(
+                  children: [
+                    _buildNarrowNav(settings),
+                    Expanded(
+                      child: _buildSectionContent(
+                        settings,
+                        onSurfaceColor,
+                        isNarrow,
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    _buildSidebar(settings, onSurfaceColor),
+                    Container(
+                      width: 1,
+                      color: onSurfaceColor.withValues(alpha: 0.08),
+                    ),
+                    Expanded(
+                      child: _buildSectionContent(
+                        settings,
+                        onSurfaceColor,
+                        isNarrow,
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(child: _buildSectionContent(settings, onSurfaceColor)),
-              ],
-            ),
+        );
+      },
     );
   }
 
@@ -174,10 +192,9 @@ class _SettingsAppState extends State<SettingsApp> {
         color: Theme.of(context).colorScheme.surface,
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withValues(alpha: 0.08),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.08),
           ),
         ),
       ),
@@ -295,29 +312,34 @@ class _SettingsAppState extends State<SettingsApp> {
     );
   }
 
-  Widget _buildSectionContent(SystemSettings settings, Color onSurfaceColor) {
+  Widget _buildSectionContent(
+    SystemSettings settings,
+    Color onSurfaceColor,
+    bool isNarrow,
+  ) {
     switch (_selectedSection) {
       case 0:
-        return _buildAppearanceSection(settings, onSurfaceColor);
+        return _buildAppearanceSection(settings, onSurfaceColor, isNarrow);
       case 1:
-        return _buildWallpaperSection(settings, onSurfaceColor);
+        return _buildWallpaperSection(settings, onSurfaceColor, isNarrow);
       case 2:
-        return _buildDesktopDockSection(settings, onSurfaceColor);
+        return _buildDesktopDockSection(settings, onSurfaceColor, isNarrow);
       case 3:
-        return _buildTimeSoundSection(settings, onSurfaceColor);
+        return _buildTimeSoundSection(settings, onSurfaceColor, isNarrow);
       case 4:
-        return _buildAboutSection(settings, onSurfaceColor);
+        return _buildAboutSection(settings, onSurfaceColor, isNarrow);
       default:
-        return _buildAppearanceSection(settings, onSurfaceColor);
+        return _buildAppearanceSection(settings, onSurfaceColor, isNarrow);
     }
   }
 
   Widget _buildAppearanceSection(
     SystemSettings settings,
     Color onSurfaceColor,
+    bool isNarrow,
   ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(isNarrow ? 16 : 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -326,63 +348,74 @@ class _SettingsAppState extends State<SettingsApp> {
             'Customize system theme mode, UI colors, and glass effects.',
             onSurfaceColor,
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: isNarrow ? 18 : 28),
 
           // Theme Mode
           _SettingCard(
             title: 'Theme Mode',
             description: 'Select dark or light interface theme for the system.',
+            isNarrow: isNarrow,
             child: Row(
               children: [
-                _ThemeCard(
-                  label: 'Dark Mode',
-                  icon: Icons.dark_mode_rounded,
-                  isSelected: settings.isDarkMode,
-                  accentColor: settings.accentColor,
-                  onTap: () => settings.setDarkMode(true),
-                  isDark: true,
+                Expanded(
+                  child: _ThemeCard(
+                    label: 'Dark Mode',
+                    icon: Icons.dark_mode_rounded,
+                    isSelected: settings.isDarkMode,
+                    accentColor: settings.accentColor,
+                    onTap: () => settings.setDarkMode(true),
+                    isDark: true,
+                    isNarrow: isNarrow,
+                  ),
                 ),
-                const SizedBox(width: 16),
-                _ThemeCard(
-                  label: 'Light Mode',
-                  icon: Icons.light_mode_rounded,
-                  isSelected: !settings.isDarkMode,
-                  accentColor: settings.accentColor,
-                  onTap: () => settings.setDarkMode(false),
-                  isDark: false,
+                SizedBox(width: isNarrow ? 10 : 16),
+                Expanded(
+                  child: _ThemeCard(
+                    label: 'Light Mode',
+                    icon: Icons.light_mode_rounded,
+                    isSelected: !settings.isDarkMode,
+                    accentColor: settings.accentColor,
+                    onTap: () => settings.setDarkMode(false),
+                    isDark: false,
+                    isNarrow: isNarrow,
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: isNarrow ? 16 : 24),
 
           // Accent Color
           _SettingCard(
             title: 'System Accent Color',
             description:
                 'Controls highlight tint across window headers, buttons, dock, and indicators.',
+            isNarrow: isNarrow,
             child: Wrap(
-              spacing: 14,
-              runSpacing: 14,
+              spacing: isNarrow ? 10 : 14,
+              runSpacing: isNarrow ? 10 : 14,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 ..._accentPalette.map((palette) {
                   final col = palette['color'] as Color;
                   final isSelected =
                       settings.accentColor.toARGB32() == col.toARGB32();
+                  final dotSize = isNarrow ? 32.0 : 36.0;
                   return Tooltip(
                     message: palette['name'] as String,
                     child: GestureDetector(
                       onTap: () => settings.setAccentColor(col),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        width: 36,
-                        height: 36,
+                        width: dotSize,
+                        height: dotSize,
                         decoration: BoxDecoration(
                           color: col,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: isSelected ? Colors.white : Colors.transparent,
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.transparent,
                             width: 3,
                           ),
                           boxShadow: [
@@ -395,7 +428,11 @@ class _SettingsAppState extends State<SettingsApp> {
                           ],
                         ),
                         child: isSelected
-                            ? const Icon(Icons.check, size: 18, color: Colors.white)
+                            ? Icon(
+                                Icons.check,
+                                size: isNarrow ? 16 : 18,
+                                color: Colors.white,
+                              )
                             : null,
                       ),
                     ),
@@ -404,13 +441,14 @@ class _SettingsAppState extends State<SettingsApp> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: isNarrow ? 16 : 24),
 
           // Window Glass Effects
           _SettingCard(
             title: 'Window Glassmorphism & Blur',
             description:
                 'Enable backdrop filters and frosted glass effects on windows and dock.',
+            isNarrow: isNarrow,
             child: SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(
@@ -438,9 +476,13 @@ class _SettingsAppState extends State<SettingsApp> {
     );
   }
 
-  Widget _buildWallpaperSection(SystemSettings settings, Color onSurfaceColor) {
+  Widget _buildWallpaperSection(
+    SystemSettings settings,
+    Color onSurfaceColor,
+    bool isNarrow,
+  ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(isNarrow ? 16 : 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -449,26 +491,28 @@ class _SettingsAppState extends State<SettingsApp> {
             'Set custom wallpapers, choose presets, or paste web image URLs. All changes persist locally.',
             onSurfaceColor,
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: isNarrow ? 18 : 28),
 
           // Active Wallpaper Status Card
-          _buildActiveWallpaperCard(settings, onSurfaceColor),
-          const SizedBox(height: 24),
+          _buildActiveWallpaperCard(settings, onSurfaceColor, isNarrow),
+          SizedBox(height: isNarrow ? 16 : 24),
 
           // Presets & Upload Section
           _SettingCard(
             title: 'Choose Wallpaper',
             description:
                 'Pick a curated preset or upload your own image from your computer.',
+            isNarrow: isNarrow,
             child: Wrap(
-              spacing: 14,
-              runSpacing: 14,
+              spacing: isNarrow ? 10 : 14,
+              runSpacing: isNarrow ? 10 : 14,
               children: [
                 // Preset Thumbnails
                 ..._presets.map((preset) {
                   final path = preset['path']!;
                   final name = preset['name']!;
-                  final isSelected = !settings.isCustomWallpaper &&
+                  final isSelected =
+                      !settings.isCustomWallpaper &&
                       settings.wallpaperPath == path;
 
                   return _WallpaperPreviewCard(
@@ -477,6 +521,7 @@ class _SettingsAppState extends State<SettingsApp> {
                     isSelected: isSelected,
                     accentColor: settings.accentColor,
                     onTap: () => settings.setWallpaper(path),
+                    isNarrow: isNarrow,
                   );
                 }),
 
@@ -485,8 +530,8 @@ class _SettingsAppState extends State<SettingsApp> {
                   onTap: _isUploading ? null : () => _pickWallpaper(settings),
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    width: 150,
-                    height: 100,
+                    width: isNarrow ? 130 : 150,
+                    height: isNarrow ? 85 : 100,
                     decoration: BoxDecoration(
                       color: settings.accentColor.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
@@ -512,14 +557,14 @@ class _SettingsAppState extends State<SettingsApp> {
                           Icon(
                             Icons.cloud_upload_rounded,
                             color: settings.accentColor,
-                            size: 26,
+                            size: isNarrow ? 22 : 26,
                           ),
                         const SizedBox(height: 6),
                         Text(
                           _isUploading ? 'Optimizing...' : 'Upload Image',
                           style: GoogleFonts.inter(
                             color: settings.accentColor,
-                            fontSize: 12,
+                            fontSize: isNarrow ? 11 : 12,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -537,84 +582,163 @@ class _SettingsAppState extends State<SettingsApp> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: isNarrow ? 16 : 24),
 
           // Custom Image URL Input
           _SettingCard(
             title: 'Set from Image URL',
             description:
                 'Paste any direct image link (Unsplash, Imgur, GitHub, etc.) to set as wallpaper.',
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _urlController,
-                    style: GoogleFonts.inter(fontSize: 13, color: onSurfaceColor),
-                    decoration: InputDecoration(
-                      hintText: 'https://images.unsplash.com/...',
-                      hintStyle: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: onSurfaceColor.withValues(alpha: 0.35),
+            isNarrow: isNarrow,
+            child: isNarrow
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextField(
+                        controller: _urlController,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: onSurfaceColor,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'https://images.unsplash.com/...',
+                          hintStyle: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: onSurfaceColor.withValues(alpha: 0.35),
+                          ),
+                          prefixIcon: const Icon(Icons.link_rounded, size: 18),
+                          filled: true,
+                          fillColor: onSurfaceColor.withValues(alpha: 0.04),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: onSurfaceColor.withValues(alpha: 0.15),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: onSurfaceColor.withValues(alpha: 0.15),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: settings.accentColor,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                        onSubmitted: (_) => _applyCustomUrl(settings),
                       ),
-                      prefixIcon: const Icon(Icons.link_rounded, size: 18),
-                      filled: true,
-                      fillColor: onSurfaceColor.withValues(alpha: 0.04),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 12,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: onSurfaceColor.withValues(alpha: 0.15),
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: ElevatedButton(
+                          onPressed: () => _applyCustomUrl(settings),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: settings.accentColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            'Apply URL',
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: onSurfaceColor.withValues(alpha: 0.15),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _urlController,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: onSurfaceColor,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'https://images.unsplash.com/...',
+                            hintStyle: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: onSurfaceColor.withValues(alpha: 0.35),
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.link_rounded,
+                              size: 18,
+                            ),
+                            filled: true,
+                            fillColor: onSurfaceColor.withValues(alpha: 0.04),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: onSurfaceColor.withValues(alpha: 0.15),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: onSurfaceColor.withValues(alpha: 0.15),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: settings.accentColor,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                          onSubmitted: (_) => _applyCustomUrl(settings),
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(
-                          color: settings.accentColor,
-                          width: 1.5,
+                      const SizedBox(width: 12),
+                      ElevatedButton(
+                        onPressed: () => _applyCustomUrl(settings),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: settings.accentColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Apply URL',
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                         ),
                       ),
-                    ),
-                    onSubmitted: (_) => _applyCustomUrl(settings),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 12),
-                ElevatedButton(
-                  onPressed: () => _applyCustomUrl(settings),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: settings.accentColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    'Apply URL',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: isNarrow ? 16 : 24),
 
           // Wallpaper Blur & Dim Controls
           _SettingCard(
             title: 'Desktop Background Adjustments',
             description:
                 'Fine-tune desktop contrast and blur to keep app windows easily readable.',
+            isNarrow: isNarrow,
             child: Column(
               children: [
                 Row(
@@ -721,6 +845,7 @@ class _SettingsAppState extends State<SettingsApp> {
   Widget _buildActiveWallpaperCard(
     SystemSettings settings,
     Color onSurfaceColor,
+    bool isNarrow,
   ) {
     final isCustom = settings.isCustomWallpaper;
     final isPreset = !isCustom && settings.wallpaperPath.startsWith('assets');
@@ -733,121 +858,129 @@ class _SettingsAppState extends State<SettingsApp> {
       statusLabel = 'Web URL Background';
     }
 
+    final thumbnailWidget = ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        width: isNarrow ? 96 : 120,
+        height: isNarrow ? 60 : 72,
+        child: settings.wallpaperBytes != null
+            ? Image.memory(settings.wallpaperBytes!, fit: BoxFit.cover)
+            : settings.wallpaperPath.startsWith('assets')
+            ? Image.asset(settings.wallpaperPath, fit: BoxFit.cover)
+            : Image.network(
+                settings.wallpaperPath,
+                fit: BoxFit.cover,
+                errorBuilder: (ctx, err, stack) =>
+                    Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover),
+              ),
+      ),
+    );
+
+    final detailsColumn = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: settings.accentColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                'ACTIVE',
+                style: GoogleFonts.inter(
+                  color: settings.accentColor,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                statusLabel,
+                style: GoogleFonts.inter(
+                  color: onSurfaceColor,
+                  fontSize: isNarrow ? 12 : 13,
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          isCustom
+              ? 'Stored safely in browser storage across sessions.'
+              : (isWebUrl ? settings.wallpaperPath : 'Default fyrOS Neon City'),
+          style: GoogleFonts.inter(
+            color: onSurfaceColor.withValues(alpha: 0.5),
+            fontSize: 11,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+
+    final resetButton = OutlinedButton.icon(
+      onPressed: () => settings.resetWallpaper(),
+      icon: const Icon(Icons.refresh_rounded, size: 16),
+      label: const Text('Reset Default'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: onSurfaceColor.withValues(alpha: 0.8),
+        side: BorderSide(color: onSurfaceColor.withValues(alpha: 0.2)),
+        padding: EdgeInsets.symmetric(
+          horizontal: isNarrow ? 12 : 16,
+          vertical: isNarrow ? 8 : 12,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(isNarrow ? 12 : 16),
       decoration: BoxDecoration(
         color: onSurfaceColor.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: onSurfaceColor.withValues(alpha: 0.08),
-        ),
+        border: Border.all(color: onSurfaceColor.withValues(alpha: 0.08)),
       ),
-      child: Row(
-        children: [
-          // Active Thumbnail
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: SizedBox(
-              width: 120,
-              height: 72,
-              child: settings.wallpaperBytes != null
-                  ? Image.memory(
-                      settings.wallpaperBytes!,
-                      fit: BoxFit.cover,
-                    )
-                  : settings.wallpaperPath.startsWith('assets')
-                      ? Image.asset(
-                          settings.wallpaperPath,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.network(
-                          settings.wallpaperPath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (ctx, err, stack) => Image.asset(
-                            'assets/wallpaper.jpg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
+      child: isNarrow
+          ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: settings.accentColor.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        'ACTIVE',
-                        style: GoogleFonts.inter(
-                          color: settings.accentColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        statusLabel,
-                        style: GoogleFonts.inter(
-                          color: onSurfaceColor,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+                    thumbnailWidget,
+                    const SizedBox(width: 12),
+                    Expanded(child: detailsColumn),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  isCustom
-                      ? 'Stored safely in browser storage across sessions.'
-                      : (isWebUrl ? settings.wallpaperPath : 'Default fyrOS Neon City'),
-                  style: GoogleFonts.inter(
-                    color: onSurfaceColor.withValues(alpha: 0.5),
-                    fontSize: 11,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                const SizedBox(height: 10),
+                Align(alignment: Alignment.centerRight, child: resetButton),
+              ],
+            )
+          : Row(
+              children: [
+                thumbnailWidget,
+                const SizedBox(width: 16),
+                Expanded(child: detailsColumn),
+                const SizedBox(width: 12),
+                resetButton,
               ],
             ),
-          ),
-          const SizedBox(width: 12),
-          OutlinedButton.icon(
-            onPressed: () => settings.resetWallpaper(),
-            icon: const Icon(Icons.refresh_rounded, size: 16),
-            label: const Text('Reset Default'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: onSurfaceColor.withValues(alpha: 0.8),
-              side: BorderSide(color: onSurfaceColor.withValues(alpha: 0.2)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
   Widget _buildDesktopDockSection(
     SystemSettings settings,
     Color onSurfaceColor,
+    bool isNarrow,
   ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(isNarrow ? 16 : 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -856,12 +989,13 @@ class _SettingsAppState extends State<SettingsApp> {
             'Configure desktop behavior, dock auto-hiding, and icon scaling.',
             onSurfaceColor,
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: isNarrow ? 18 : 28),
 
           _SettingCard(
             title: 'Dock Auto-Hide',
             description:
                 'Automatically hides the dock when windows overlap or when not hovered.',
+            isNarrow: isNarrow,
             child: SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(
@@ -884,12 +1018,13 @@ class _SettingsAppState extends State<SettingsApp> {
               onChanged: (val) => settings.setDockAutoHide(val),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: isNarrow ? 16 : 24),
 
           _SettingCard(
             title: 'Dock Icon Scale',
             description:
                 'Adjust the sizing of icons and height of the desktop dock.',
+            isNarrow: isNarrow,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -934,9 +1069,10 @@ class _SettingsAppState extends State<SettingsApp> {
   Widget _buildTimeSoundSection(
     SystemSettings settings,
     Color onSurfaceColor,
+    bool isNarrow,
   ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(isNarrow ? 16 : 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -945,12 +1081,13 @@ class _SettingsAppState extends State<SettingsApp> {
             'Configure top bar clock formats, system audio volume, and game synthesizer effects.',
             onSurfaceColor,
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: isNarrow ? 18 : 28),
 
           _SettingCard(
             title: 'Top Bar Clock Format',
             description:
                 'Select between 12-hour AM/PM and 24-hour military clock display.',
+            isNarrow: isNarrow,
             child: Column(
               children: [
                 SwitchListTile(
@@ -1001,12 +1138,13 @@ class _SettingsAppState extends State<SettingsApp> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: isNarrow ? 16 : 24),
 
           _SettingCard(
             title: 'Audio & Sound Effects',
             description:
                 'Controls system volume level and retro synthesizer effects.',
+            isNarrow: isNarrow,
             child: Column(
               children: [
                 Row(
@@ -1086,9 +1224,13 @@ class _SettingsAppState extends State<SettingsApp> {
     );
   }
 
-  Widget _buildAboutSection(SystemSettings settings, Color onSurfaceColor) {
+  Widget _buildAboutSection(
+    SystemSettings settings,
+    Color onSurfaceColor,
+    bool isNarrow,
+  ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(28),
+      padding: EdgeInsets.all(isNarrow ? 16 : 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1097,54 +1239,87 @@ class _SettingsAppState extends State<SettingsApp> {
             'System telemetry, hardened kernel configuration, and developer environment info.',
             onSurfaceColor,
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: isNarrow ? 18 : 28),
 
           _SettingCard(
             title: 'System Information',
             description:
                 'Running live on Google Cloud Platform (us-central1) with automated Ansible/Terraform orchestration.',
+            isNarrow: isNarrow,
             child: Column(
               children: [
-                _buildInfoRow('Operating System', 'fyrOS 2.4.0-hardened (Debian 12)', onSurfaceColor),
-                _buildInfoRow('Orchestration', 'WE-IAC (Terraform 1.7 + Ansible 9.2)', onSurfaceColor),
-                _buildInfoRow('Host Specs', 'GCP e2-medium (2 vCPU, 4GB RAM, 30GB SSD)', onSurfaceColor),
-                _buildInfoRow('Kernel Version', 'Linux 6.1.0-28-cloud-amd64', onSurfaceColor),
-                _buildInfoRow('Swappiness Tuning', 'vm.swappiness = 20', onSurfaceColor),
-                _buildInfoRow('Zero-Trust Network', 'Docker Internal Bridge (172.28.0.0/16)', onSurfaceColor),
-                _buildInfoRow('Firewall', 'UFW Active (22/TCP, 80/TCP, 443/TCP)', onSurfaceColor),
-                _buildInfoRow('Web Engine', 'Flutter 3.x Web (CanvasKit / WebGL)', onSurfaceColor),
+                _buildInfoRow(
+                  'Operating System',
+                  'fyrOS 2.4.0-hardened (Debian 12)',
+                  onSurfaceColor,
+                ),
+                _buildInfoRow(
+                  'Orchestration',
+                  'WE-IAC (Terraform 1.7 + Ansible 9.2)',
+                  onSurfaceColor,
+                ),
+                _buildInfoRow(
+                  'Host Specs',
+                  'GCP e2-medium (2 vCPU, 4GB RAM, 30GB SSD)',
+                  onSurfaceColor,
+                ),
+                _buildInfoRow(
+                  'Kernel Version',
+                  'Linux 6.1.0-28-cloud-amd64',
+                  onSurfaceColor,
+                ),
+                _buildInfoRow(
+                  'Swappiness Tuning',
+                  'vm.swappiness = 20',
+                  onSurfaceColor,
+                ),
+                _buildInfoRow(
+                  'Zero-Trust Network',
+                  'Docker Bridge (172.28.0.0/16)',
+                  onSurfaceColor,
+                ),
+                _buildInfoRow(
+                  'Firewall',
+                  'UFW Active (22, 80, 443)',
+                  onSurfaceColor,
+                ),
+                _buildInfoRow(
+                  'Web Engine',
+                  'Flutter Web (CanvasKit / WebGL)',
+                  onSurfaceColor,
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: isNarrow ? 16 : 24),
 
           _SettingCard(
             title: 'Reset Preferences',
             description:
                 'Clear all customized wallpapers, themes, and dock configurations back to system defaults.',
-            child: Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => _confirmResetAll(settings),
-                  icon: const Icon(Icons.restore_rounded, size: 18),
-                  label: const Text('Reset All Settings to Defaults'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent.withValues(alpha: 0.15),
-                    foregroundColor: Colors.redAccent,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 14,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(
-                        color: Colors.redAccent.withValues(alpha: 0.4),
-                      ),
+            isNarrow: isNarrow,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton.icon(
+                onPressed: () => _confirmResetAll(settings),
+                icon: const Icon(Icons.restore_rounded, size: 18),
+                label: const Text('Reset All Settings to Defaults'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent.withValues(alpha: 0.15),
+                  foregroundColor: Colors.redAccent,
+                  elevation: 0,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isNarrow ? 14 : 20,
+                    vertical: isNarrow ? 10 : 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(
+                      color: Colors.redAccent.withValues(alpha: 0.4),
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ],
@@ -1156,22 +1331,27 @@ class _SettingsAppState extends State<SettingsApp> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              color: onSurfaceColor.withValues(alpha: 0.6),
-              fontSize: 13,
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                color: onSurfaceColor.withValues(alpha: 0.6),
+                fontSize: 12,
+              ),
             ),
           ),
-          Flexible(
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 3,
             child: Text(
               value,
               textAlign: TextAlign.right,
               style: GoogleFonts.jetBrainsMono(
                 color: onSurfaceColor,
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1188,7 +1368,10 @@ class _SettingsAppState extends State<SettingsApp> {
         backgroundColor: const Color(0xFF1E212B),
         title: Text(
           'Reset All Settings?',
-          style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
+          style: GoogleFonts.outfit(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: Text(
           'This will reset all theme options, wallpapers, dock scales, and audio volume back to factory defaults. Custom uploaded wallpapers will be cleared.',
@@ -1248,11 +1431,13 @@ class _SettingCard extends StatelessWidget {
   final String title;
   final String description;
   final Widget child;
+  final bool isNarrow;
 
   const _SettingCard({
     required this.title,
     required this.description,
     required this.child,
+    this.isNarrow = false,
   });
 
   @override
@@ -1261,13 +1446,11 @@ class _SettingCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isNarrow ? 14 : 20),
       decoration: BoxDecoration(
         color: onSurfaceColor.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: onSurfaceColor.withValues(alpha: 0.08),
-        ),
+        border: Border.all(color: onSurfaceColor.withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1303,6 +1486,7 @@ class _ThemeCard extends StatelessWidget {
   final Color accentColor;
   final VoidCallback onTap;
   final bool isDark;
+  final bool isNarrow;
 
   const _ThemeCard({
     required this.label,
@@ -1311,6 +1495,7 @@ class _ThemeCard extends StatelessWidget {
     required this.accentColor,
     required this.onTap,
     required this.isDark,
+    this.isNarrow = false,
   });
 
   @override
@@ -1321,8 +1506,10 @@ class _ThemeCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 140,
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(
+          horizontal: isNarrow ? 10 : 16,
+          vertical: isNarrow ? 12 : 16,
+        ),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF16181E) : Colors.white,
           borderRadius: BorderRadius.circular(14),
@@ -1342,20 +1529,22 @@ class _ThemeCard extends StatelessWidget {
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 32,
+              size: isNarrow ? 26 : 32,
               color: isSelected
                   ? accentColor
                   : (isDark ? Colors.white70 : Colors.black87),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: isNarrow ? 6 : 10),
             Text(
               label,
+              textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 color: isDark ? Colors.white : Colors.black87,
-                fontSize: 13,
+                fontSize: isNarrow ? 12 : 13,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               ),
             ),
@@ -1372,6 +1561,7 @@ class _WallpaperPreviewCard extends StatelessWidget {
   final bool isSelected;
   final Color accentColor;
   final VoidCallback onTap;
+  final bool isNarrow;
 
   const _WallpaperPreviewCard({
     required this.path,
@@ -1379,10 +1569,14 @@ class _WallpaperPreviewCard extends StatelessWidget {
     required this.isSelected,
     required this.accentColor,
     required this.onTap,
+    this.isNarrow = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final cardW = isNarrow ? 130.0 : 150.0;
+    final cardH = isNarrow ? 85.0 : 100.0;
+
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -1390,8 +1584,8 @@ class _WallpaperPreviewCard extends StatelessWidget {
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: 150,
-            height: 100,
+            width: cardW,
+            height: cardH,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
@@ -1416,7 +1610,7 @@ class _WallpaperPreviewCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           SizedBox(
-            width: 150,
+            width: cardW,
             child: Text(
               title,
               style: GoogleFonts.inter(
