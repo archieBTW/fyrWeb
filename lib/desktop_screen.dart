@@ -13,6 +13,8 @@ import 'app_data.dart';
 import 'models/config_model.dart';
 import 'dart:ui';
 import 'dart:math';
+import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DesktopScreen extends StatefulWidget {
@@ -26,6 +28,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
   bool _showAppMenu = false;
   bool _showQuickSettings = false;
   bool _isDockHovered = false;
+  bool _didPrecacheAssets = false;
   ModalRoute<dynamic>? _route;
   LocalHistoryEntry? _historyEntry;
 
@@ -33,6 +36,39 @@ class _DesktopScreenState extends State<DesktopScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _route = ModalRoute.of(context);
+    if (!_didPrecacheAssets) {
+      _didPrecacheAssets = true;
+      _precacheCriticalImages();
+    }
+  }
+
+  Future<void> _precacheCriticalImages() async {
+    final config = context.read<AppConfig>();
+    unawaited(precacheImage(const AssetImage('assets/wallpaper.jpg'), context));
+    if (config.profile.profilePic.isNotEmpty) {
+      unawaited(precacheImage(AssetImage(config.profile.profilePic), context));
+    }
+    try {
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      if (!mounted) return;
+      final photos = manifest.listAssets().where(
+        (k) =>
+            k.startsWith('assets/photos/') &&
+            (k.endsWith('.webp') ||
+                k.endsWith('.png') ||
+                k.endsWith('.jpg') ||
+                k.endsWith('.jpeg')),
+      );
+      for (final path in photos) {
+        if (!mounted) break;
+        unawaited(
+          precacheImage(
+            ResizeImage(AssetImage(path), width: 400),
+            context,
+          ),
+        );
+      }
+    } catch (_) {}
   }
 
   @override
@@ -262,26 +298,29 @@ class _DesktopScreenState extends State<DesktopScreen> {
       imageWidget = Image.memory(
         settings.wallpaperBytes!,
         fit: BoxFit.cover,
+        gaplessPlayback: true,
         errorBuilder: (context, error, stackTrace) =>
-            Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover),
+            Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover, gaplessPlayback: true),
       );
     } else if (settings.wallpaperPath.startsWith('assets')) {
       imageWidget = Image.asset(
         settings.wallpaperPath,
         fit: BoxFit.cover,
+        gaplessPlayback: true,
         errorBuilder: (context, error, stackTrace) =>
-            Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover),
+            Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover, gaplessPlayback: true),
       );
     } else if (settings.wallpaperPath.startsWith('http://') ||
         settings.wallpaperPath.startsWith('https://')) {
       imageWidget = Image.network(
         settings.wallpaperPath,
         fit: BoxFit.cover,
+        gaplessPlayback: true,
         errorBuilder: (context, error, stackTrace) =>
-            Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover),
+            Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover, gaplessPlayback: true),
       );
     } else {
-      imageWidget = Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover);
+      imageWidget = Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover, gaplessPlayback: true);
     }
 
     if (settings.wallpaperBlur > 0.1) {

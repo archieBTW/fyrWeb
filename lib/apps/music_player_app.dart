@@ -40,7 +40,13 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
     final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
     final tracks = assetManifest
         .listAssets()
-        .where((key) => key.startsWith('assets/music/') && key.endsWith('.wav'))
+        .where(
+          (key) =>
+              key.startsWith('assets/music/') &&
+              (key.endsWith('.m4a') ||
+                  key.endsWith('.mp3') ||
+                  key.endsWith('.wav')),
+        )
         .toList();
     
     // Sort tracks by name
@@ -50,6 +56,8 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
       setState(() {
         _tracks = tracks;
       });
+      final relativePath = tracks.first.replaceFirst('assets/', '');
+      unawaited(_audioPlayer.setSource(AssetSource(relativePath)));
     }
     return tracks;
   }

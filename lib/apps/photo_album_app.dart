@@ -26,12 +26,14 @@ class _PhotoAlbumAppState extends State<PhotoAlbumApp> {
         .where(
           (key) =>
               key.startsWith('assets/photos/') &&
-              (key.endsWith('.png') ||
+              (key.endsWith('.webp') ||
+                  key.endsWith('.png') ||
                   key.endsWith('.jpg') ||
                   key.endsWith('.jpeg')),
         )
         .toList();
 
+    photoPaths.sort();
     return photoPaths;
   }
 
@@ -142,7 +144,13 @@ class _PhotoAlbumAppState extends State<PhotoAlbumApp> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.asset(path, fit: BoxFit.cover),
+                        child: Image.asset(
+                          path,
+                          fit: BoxFit.cover,
+                          cacheWidth: 400,
+                          filterQuality: FilterQuality.medium,
+                          gaplessPlayback: true,
+                        ),
                       ),
                     ),
                   );
