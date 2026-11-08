@@ -100,6 +100,13 @@ class _InfraMonitorAppState extends State<InfraMonitorApp>
       'latency': 46,
       'status': 200,
     },
+    {
+      'domain': 'beats.archerwoods.dev',
+      'type': 'Static Flutter Web',
+      'rateLimit': '50 r/s',
+      'latency': 34,
+      'status': 200,
+    },
   ];
 
   @override

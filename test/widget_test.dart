@@ -1,30 +1,23 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:billyrigdon/main.dart';
+import 'package:billyrigdon/models/config_model.dart';
+import 'package:billyrigdon/app_data.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  TestWidgetsFlutterBinding.ensureInitialized();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  test('Config contains beats_by_arch and loads apps properly', () async {
+    final String configString = await rootBundle.loadString('assets/config.json');
+    final configJson = jsonDecode(configString);
+    final config = AppConfig.fromJson(configJson);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(config.profile.name, isNotEmpty);
+    expect(config.apps.any((a) => a.id == 'beats_by_arch'), isTrue);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    final apps = getApps(config);
+    final beatsApp = apps.firstWhere((a) => a.id == 'beats_by_arch');
+    expect(beatsApp.title, equals('Beats by Arch'));
+    expect(beatsApp.url, equals('https://beats.archerwoods.dev'));
   });
 }

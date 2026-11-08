@@ -570,31 +570,34 @@ class _DesktopScreenState extends State<DesktopScreen> {
         final int cols = availW >= 480 ? 5 : 4;
         final int rows = (apps.length / cols).ceil();
 
-        const topPadding = 10.0;
-        const bottomPadding = 6.0;
-        const horizontalPadding = 16.0;
+        final double vPad = (availH * 0.015).clamp(2.0, 10.0);
+        final topPadding = vPad;
+        final bottomPadding = vPad * 0.6;
+        final double horizontalPadding = (availW * 0.03).clamp(8.0, 16.0);
 
         final contentH = (availH - topPadding - bottomPadding).clamp(
-          120.0,
+          100.0,
           double.infinity,
         );
         final contentW = (availW - (horizontalPadding * 2)).clamp(
-          120.0,
+          100.0,
           double.infinity,
         );
 
         final cellW = contentW / cols;
         final cellH = contentH / rows;
 
-        // Proportional sizing based on cell dimensions so all apps always fit
+        // Proportional sizing based on cell dimensions so all apps always fit without scrolling
         final minDim = min(cellW, cellH);
-        final iconBoxSize = (minDim * 0.50).clamp(28.0, 56.0);
-        final iconGlyphSize = (iconBoxSize * 0.56).clamp(15.0, 30.0);
-        final fontSize = (iconBoxSize * 0.22).clamp(9.0, 11.5);
-        final iconRadius = (iconBoxSize * 0.28).clamp(7.0, 16.0);
+        final maxBoxFromH = (cellH - 16.0).clamp(16.0, 56.0);
+        final iconBoxSize = min(minDim * 0.50, maxBoxFromH).clamp(20.0, 54.0);
+        final iconGlyphSize = (iconBoxSize * 0.56).clamp(12.0, 28.0);
+        final fontSize = (iconBoxSize * 0.22).clamp(8.5, 11.5);
+        final iconRadius = (iconBoxSize * 0.28).clamp(6.0, 15.0);
+        final spacing = (cellH * 0.04).clamp(1.0, 4.0);
 
         return Padding(
-          padding: const EdgeInsets.only(
+          padding: EdgeInsets.only(
             top: topPadding,
             bottom: bottomPadding,
             left: horizontalPadding,
@@ -621,6 +624,8 @@ class _DesktopScreenState extends State<DesktopScreen> {
                   glyphSize: iconGlyphSize,
                   fontSize: fontSize,
                   borderRadius: iconRadius,
+                  spacing: spacing,
+                  cellW: cellW,
                 );
               },
             ),
@@ -637,6 +642,8 @@ class _DesktopScreenState extends State<DesktopScreen> {
     required double glyphSize,
     required double fontSize,
     required double borderRadius,
+    required double spacing,
+    required double cellW,
   }) {
     return GestureDetector(
       onTap: () => system.openApp(
@@ -675,9 +682,9 @@ class _DesktopScreenState extends State<DesktopScreen> {
                       size: glyphSize * 0.9,
                     ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: spacing),
             SizedBox(
-              width: boxSize * 1.5,
+              width: (cellW - 4.0).clamp(boxSize, cellW),
               child: Text(
                 app.title,
                 textAlign: TextAlign.center,

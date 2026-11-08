@@ -321,6 +321,29 @@
         "Certbot TLS 1.3 Security: HTTPS encryption with automated certificate renewal.",
         "Host Firewall Hardening: Default DENY with rate-limited HTTP/HTTPS."
       ]
+    },
+    {
+      "id": "beats_by_arch",
+      "title": "Beats by Arch",
+      "subtitle": "Web Audio Binaural Beat Synthesis Engine",
+      "url": "https://beats.archerwoods.dev",
+      "icon": "graphic_eq",
+      "color": "0xFF7C4DFF",
+      "architectureBadge": "Flutter Web • Web Audio API • JS Interop • Dart 3",
+      "caseStudy": [
+        "Real-Time Binaural Beat Synthesis: Engineered an ultra-low-latency binaural beat generator powered by Flutter Web and native Web Audio API oscillators and stereo panning, eliminating audio buffer looping, pops, and phase artifacts.",
+        "Resilient Background Playback: Integrated MediaSession API, audio keepalive destination nodes, and Screen Wake Lock API to ensure seamless, continuous playback when browser tabs are hidden, backgrounded, or devices are locked.",
+        "Precision Cognitive Timing: Built wall-clock synchronized sleep timers (Date.now()) with exponential volume fade-out and customizable frequency sliders spanning Delta, Theta, Alpha, Beta, and Gamma brainwave states."
+      ],
+      "devopsStudy": [
+        "Automated Production Pipeline: Synchronized Flutter Web release builds to GCP via WE-IAC static_sites Ansible role.",
+        "SSL & Reverse Proxy Automation: Automatic TLS 1.3 Let's Encrypt certificate issuance via Certbot and hardened Nginx rate limiting on beats.archerwoods.dev.",
+        "Zero-Downtime Releases: Streamlined tag-based deployment pipeline (ansible-playbook playbook.yml -e site=beats)."
+      ],
+      "sysadminStudy": [
+        "Hardened Nginx Host: Static caching headers, gzip/brotli asset compression, and leaky-bucket rate limiting (50 r/s burst).",
+        "Edge Firewall Isolation: Ingress strictly gated through Cloudflare CDN/proxy with automated TLS renewal."
+      ]
     }
   ],
   "experience": [

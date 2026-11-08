@@ -159,6 +159,13 @@ dynamic _getIconData(String iconName) {
       return Icons.smartphone;
     case 'album':
       return Icons.album;
+    case 'graphic_eq':
+    case 'equalizer':
+    case 'audio':
+      return Icons.graphic_eq_rounded;
+    case 'waves':
+    case 'wave':
+      return Icons.waves_rounded;
     case 'headphones':
       return Icons.headphones;
     case 'book':

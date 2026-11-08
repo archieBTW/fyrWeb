@@ -100,6 +100,14 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
         'url': 'https://fyr.software',
         'external': true,
       },
+      {
+        'name': 'beats_by_arch.html',
+        'icon': Icons.html,
+        'color': const Color(0xFF7C4DFF),
+        'isFolder': false,
+        'url': 'https://beats.archerwoods.dev',
+        'external': true,
+      },
     ],
     'Infrastructure': [
       {
@@ -146,6 +154,14 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
         'color': Colors.purple,
         'isFolder': false,
         'url': 'https://violetapparition.com',
+        'external': true,
+      },
+      {
+        'name': 'beats_by_arch.app',
+        'icon': Icons.headphones,
+        'color': const Color(0xFF7C4DFF),
+        'isFolder': false,
+        'url': 'https://beats.archerwoods.dev',
         'external': true,
       },
     ],
