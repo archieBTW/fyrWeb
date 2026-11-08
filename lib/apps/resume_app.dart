@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:universal_html/html.dart' as html;
 import '../models/config_model.dart';
 
 class ResumeApp extends StatelessWidget {
@@ -14,290 +12,297 @@ class ResumeApp extends StatelessWidget {
   Future<void> _generatePdf(AppConfig config) async {
     final pdf = pw.Document();
 
-    final font = await PdfGoogleFonts.interRegular();
-    final boldFont = await PdfGoogleFonts.interBold();
-    final italicFont = await PdfGoogleFonts.interItalic();
-
-    final theme = pw.ThemeData.withFont(
-      base: font,
-      bold: boldFont,
-      italic: italicFont,
-    );
+    pw.ThemeData theme;
+    try {
+      final font = await PdfGoogleFonts.interRegular();
+      final boldFont = await PdfGoogleFonts.interBold();
+      final italicFont = await PdfGoogleFonts.interItalic();
+      theme = pw.ThemeData.withFont(
+        base: font,
+        bold: boldFont,
+        italic: italicFont,
+      );
+    } catch (_) {
+      theme = pw.ThemeData.base();
+    }
 
     final primaryColor = PdfColor.fromHex('#4B0082'); // Indigo/Deep Purple
     final textColor = PdfColors.grey800;
+    const marginH = 32.0;
+    const marginV = 28.0;
+    final pageFormat = PdfPageFormat.letter;
+    final contentWidth = pageFormat.width - (marginH * 2);
 
     pdf.addPage(
-      pw.MultiPage(
+      pw.Page(
         pageTheme: pw.PageTheme(
+          pageFormat: pageFormat,
           theme: theme,
-          margin: const pw.EdgeInsets.all(40),
+          margin: const pw.EdgeInsets.symmetric(
+            horizontal: marginH,
+            vertical: marginV,
+          ),
         ),
         build: (pw.Context context) {
-          return [
-            // Header Section (no background color)
-            pw.Container(
-              padding: const pw.EdgeInsets.only(bottom: 40),
-              child: pw.Row(
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
+          return pw.FittedBox(
+            fit: pw.BoxFit.scaleDown,
+            alignment: pw.Alignment.topLeft,
+            child: pw.SizedBox(
+              width: contentWidth,
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Expanded(
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  // Header Section (no background color)
+                  pw.Container(
+                    padding: const pw.EdgeInsets.only(bottom: 18),
+                    child: pw.Row(
+                      crossAxisAlignment: pw.CrossAxisAlignment.center,
                       children: [
-                        pw.Text(
-                          config.profile.name,
-                          style: pw.TextStyle(
-                            fontSize: 32,
-                            fontWeight: pw.FontWeight.bold,
-                            color: primaryColor,
-                            letterSpacing: 2,
+                        pw.Expanded(
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              pw.Text(
+                                config.profile.name,
+                                style: pw.TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: pw.FontWeight.bold,
+                                  color: primaryColor,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
+                              pw.SizedBox(height: 4),
+                              pw.Text(
+                                config.profile.title,
+                                style: const pw.TextStyle(
+                                  fontSize: 15,
+                                  color: PdfColors.grey700,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        pw.SizedBox(height: 8),
-                        pw.Text(
-                          config.profile.title,
-                          style: pw.TextStyle(
-                            fontSize: 18,
-                            color: PdfColors.grey700,
-                          ),
+                        pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.end,
+                          children: [
+                            if (config.profile.email.isNotEmpty) ...[
+                              pw.Text(
+                                config.profile.email,
+                                style: pw.TextStyle(
+                                  color: primaryColor,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              pw.SizedBox(height: 3),
+                            ],
+                            if (config.profile.location.isNotEmpty) ...[
+                              pw.Text(
+                                config.profile.location,
+                                style: pw.TextStyle(
+                                  color: primaryColor,
+                                  fontSize: 11,
+                                ),
+                              ),
+                              pw.SizedBox(height: 3),
+                            ],
+                            pw.Text(
+                              'github.com/archieBTW',
+                              style: pw.TextStyle(
+                                color: primaryColor,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.end,
+
+                  // Body Content
+                  pw.Row(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      if (config.profile.email.isNotEmpty) ...[
-                        pw.Text(
-                          config.profile.email,
-                          style: pw.TextStyle(
-                            color: primaryColor,
-                            fontSize: 12,
-                          ),
+                      // Left Column: Experience & Education
+                      pw.Expanded(
+                        flex: 19,
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text(
+                              'PROFESSIONAL EXPERIENCE',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                                fontSize: 11,
+                                color: primaryColor,
+                              ),
+                            ),
+                            pw.SizedBox(height: 8),
+                            ...config.experience.map(
+                              (e) => pw.Column(
+                                crossAxisAlignment:
+                                    pw.CrossAxisAlignment.start,
+                                children: [
+                                  pw.Text(
+                                    e.role,
+                                    style: pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold,
+                                      fontSize: 10.5,
+                                      color: PdfColors.black,
+                                    ),
+                                  ),
+                                  pw.SizedBox(height: 2),
+                                  pw.Row(
+                                    mainAxisAlignment:
+                                        pw.MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      pw.Text(
+                                        e.company,
+                                        style: pw.TextStyle(
+                                          fontStyle: pw.FontStyle.italic,
+                                          color: PdfColors.grey700,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                      pw.Text(
+                                        e.period,
+                                        style: pw.TextStyle(
+                                          color: primaryColor,
+                                          fontSize: 9.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  pw.SizedBox(height: 3),
+                                  pw.Text(
+                                    e.description,
+                                    style: pw.TextStyle(
+                                      fontSize: 10,
+                                      color: textColor,
+                                      lineSpacing: 1.25,
+                                    ),
+                                  ),
+                                  pw.SizedBox(height: 11),
+                                ],
+                              ),
+                            ),
+
+                            pw.SizedBox(height: 4),
+                            pw.Text(
+                              'EDUCATION',
+                              style: pw.TextStyle(
+                                fontWeight: pw.FontWeight.bold,
+                                fontSize: 11,
+                                color: primaryColor,
+                              ),
+                            ),
+                            pw.SizedBox(height: 6),
+                            ...config.education.map(
+                              (e) => pw.Column(
+                                crossAxisAlignment:
+                                    pw.CrossAxisAlignment.start,
+                                children: [
+                                  pw.Row(
+                                    mainAxisAlignment:
+                                        pw.MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      pw.Text(
+                                        e.school,
+                                        style: pw.TextStyle(
+                                          fontWeight: pw.FontWeight.bold,
+                                          fontSize: 10.5,
+                                        ),
+                                      ),
+                                      pw.Text(
+                                        e.period,
+                                        style: pw.TextStyle(
+                                          color: primaryColor,
+                                          fontSize: 9.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (e.degree.isNotEmpty) ...[
+                                    pw.SizedBox(height: 2),
+                                    pw.Text(
+                                      e.degree,
+                                      style: pw.TextStyle(
+                                        fontStyle: pw.FontStyle.italic,
+                                        color: PdfColors.grey700,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                  pw.SizedBox(height: 8),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        pw.SizedBox(height: 4),
-                      ],
-                      if (config.profile.location.isNotEmpty) ...[
-                        pw.Text(
-                          config.profile.location,
-                          style: pw.TextStyle(
-                            color: primaryColor,
-                            fontSize: 12,
-                          ),
+                      ),
+
+                      pw.SizedBox(width: 24),
+
+                      // Right Column: Skills & Certifications
+                      pw.Expanded(
+                        flex: 11,
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            ...config.skills.map(
+                              (skillGroup) => pw.Column(
+                                crossAxisAlignment:
+                                    pw.CrossAxisAlignment.start,
+                                children: [
+                                  pw.Text(
+                                    skillGroup.category.toUpperCase(),
+                                    style: pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold,
+                                      fontSize: 10,
+                                      color: primaryColor,
+                                    ),
+                                  ),
+                                  pw.SizedBox(height: 3),
+                                  pw.Text(
+                                    skillGroup.items.join(' • '),
+                                    style: const pw.TextStyle(
+                                      fontSize: 9,
+                                      color: PdfColors.grey800,
+                                      lineSpacing: 1.25,
+                                    ),
+                                  ),
+                                  pw.SizedBox(height: 10),
+                                ],
+                              ),
+                            ),
+
+                            if (config.certifications.isNotEmpty) ...[
+                              pw.Text(
+                                'CERTIFICATIONS',
+                                style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold,
+                                  fontSize: 10,
+                                  color: primaryColor,
+                                ),
+                              ),
+                              pw.SizedBox(height: 3),
+                              pw.Text(
+                                config.certifications.join(' • '),
+                                style: const pw.TextStyle(
+                                  fontSize: 9,
+                                  color: PdfColors.grey800,
+                                  lineSpacing: 1.25,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
-                        pw.SizedBox(height: 4),
-                      ],
-                      pw.Text(
-                        'github.com/archieBTW',
-                        style: pw.TextStyle(color: primaryColor, fontSize: 12),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-
-            // Body Content
-            pw.Row(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                // Left Column: Experience & Education
-                pw.Expanded(
-                  flex: 2,
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text(
-                        'PROFESSIONAL EXPERIENCE',
-                        style: pw.TextStyle(
-                          fontWeight: pw.FontWeight.bold,
-                          fontSize: 11,
-                          color: primaryColor,
-                        ),
-                      ),
-                      pw.SizedBox(height: 12),
-                      ...config.experience
-                          .map(
-                            (e) => pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              children: [
-                                pw.Text(
-                                  e.role,
-                                  style: pw.TextStyle(
-                                    fontWeight: pw.FontWeight.bold,
-                                    fontSize: 11,
-                                    color: PdfColors.black,
-                                  ),
-                                ),
-                                pw.SizedBox(height: 2),
-                                pw.Row(
-                                  mainAxisAlignment:
-                                      pw.MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    pw.Text(
-                                      e.company,
-                                      style: pw.TextStyle(
-                                        fontStyle: pw.FontStyle.italic,
-                                        color: PdfColors.grey700,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                    pw.Text(
-                                      e.period,
-                                      style: pw.TextStyle(
-                                        color: primaryColor,
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                pw.SizedBox(height: 6),
-                                pw.Text(
-                                  e.description,
-                                  style: pw.TextStyle(
-                                    fontSize: 11,
-                                    color: textColor,
-                                    lineSpacing: 1.5,
-                                  ),
-                                ),
-                                pw.SizedBox(height: 20),
-                              ],
-                            ),
-                          )
-                          .toList(),
-
-                      pw.SizedBox(height: 10),
-                      pw.Text(
-                        'EDUCATION',
-                        style: pw.TextStyle(
-                          fontWeight: pw.FontWeight.bold,
-                          fontSize: 11,
-                          color: primaryColor,
-                        ),
-                      ),
-                      pw.SizedBox(height: 12),
-                      ...config.education
-                          .map(
-                            (e) => pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              children: [
-                                pw.Row(
-                                  mainAxisAlignment:
-                                      pw.MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    pw.Text(
-                                      e.school,
-                                      style: pw.TextStyle(
-                                        fontWeight: pw.FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    pw.Text(
-                                      e.period,
-                                      style: pw.TextStyle(
-                                        color: primaryColor,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                if (e.degree.isNotEmpty) ...[
-                                  pw.SizedBox(height: 2),
-                                  pw.Text(
-                                    e.degree,
-                                    style: pw.TextStyle(
-                                      fontStyle: pw.FontStyle.italic,
-                                      color: PdfColors.grey700,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                                pw.SizedBox(height: 16),
-                              ],
-                            ),
-                          )
-                          .toList(),
-                    ],
-                  ),
-                ),
-
-                pw.SizedBox(width: 40),
-
-                // Right Column: Skills & Certifications
-                pw.Expanded(
-                  flex: 1,
-                  child: pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      ...config.skills
-                          .map(
-                            (skillGroup) => pw.Column(
-                              crossAxisAlignment: pw.CrossAxisAlignment.start,
-                              children: [
-                                pw.Text(
-                                  skillGroup.category.toUpperCase(),
-                                  style: pw.TextStyle(
-                                    fontWeight: pw.FontWeight.bold,
-                                    fontSize: 11,
-                                    color: primaryColor,
-                                  ),
-                                ),
-                                pw.SizedBox(height: 6),
-                                pw.Wrap(
-                                  spacing: 6,
-                                  runSpacing: 6,
-                                  children: skillGroup.items
-                                      .map(
-                                        (s) => pw.Text(
-                                          s,
-                                          style: pw.TextStyle(
-                                            fontSize: 10,
-                                            color: PdfColors.grey800,
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                                ),
-                                pw.SizedBox(height: 16),
-                              ],
-                            ),
-                          )
-                          .toList(),
-
-                      if (config.certifications.isNotEmpty) ...[
-                        pw.SizedBox(height: 10),
-                        pw.Text(
-                          'CERTIFICATIONS',
-                          style: pw.TextStyle(
-                            fontWeight: pw.FontWeight.bold,
-                            fontSize: 11,
-                            color: primaryColor,
-                          ),
-                        ),
-                        pw.SizedBox(height: 12),
-                        pw.Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: config.certifications
-                              .map(
-                                (c) => pw.Text(
-                                  c,
-                                  style: pw.TextStyle(
-                                    fontSize: 10,
-                                    color: PdfColors.grey800,
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ];
+          );
         },
       ),
     );
@@ -306,20 +311,7 @@ class ResumeApp extends StatelessWidget {
     final filename =
         '${config.profile.name.toLowerCase().replaceAll(' ', '_')}_resume.pdf';
 
-    if (kIsWeb) {
-      final blob = html.Blob([bytes], 'application/pdf');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.document.createElement('a') as html.AnchorElement
-        ..href = url
-        ..style.display = 'none'
-        ..download = filename;
-      html.document.body?.children.add(anchor);
-      anchor.click();
-      html.document.body?.children.remove(anchor);
-      html.Url.revokeObjectUrl(url);
-    } else {
-      await Printing.sharePdf(bytes: bytes, filename: filename);
-    }
+    await Printing.sharePdf(bytes: bytes, filename: filename);
   }
 
   pw.Widget _buildSectionHeader(String title, PdfColor color) {
