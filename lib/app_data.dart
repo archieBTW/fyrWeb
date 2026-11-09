@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'apps/contact_app.dart';
 import 'apps/terminal_app.dart';
-import 'apps/file_explorer_app.dart';
-import 'apps/settings_app.dart';
+import 'apps/fyrfiles_app.dart';
+import 'apps/fyrsettings_app.dart';
+import 'apps/browser_app.dart';
 import 'apps/resume_app.dart';
 import 'apps/code_editor_app.dart';
 import 'apps/photo_album_app.dart';
@@ -17,7 +18,8 @@ class AppInfo {
   final String id;
   final String title;
   final String? subtitle;
-  final Widget? content;
+  final Widget? _content;
+  final Widget Function()? contentBuilder;
   final dynamic icon;
   final Color color;
   final String? url;
@@ -31,7 +33,8 @@ class AppInfo {
     required this.id,
     required this.title,
     this.subtitle,
-    this.content,
+    Widget? content,
+    this.contentBuilder,
     required this.icon,
     this.color = Colors.blue,
     this.url,
@@ -40,15 +43,66 @@ class AppInfo {
     this.sysadminStudy,
     this.architectureBadge,
     this.tags,
-  });
+  }) : _content = content;
+
+  Widget? get content => contentBuilder != null ? contentBuilder!() : _content;
 }
 
 List<AppInfo> getApps(AppConfig config) {
   final List<AppInfo> systemApps = [
     AppInfo(
+      id: 'browser',
+      title: 'fyrBrowser',
+      contentBuilder: () => const BrowserApp(url: 'https://duckduckgo.com'),
+      icon: 'assets/icons/browser.png',
+      color: Colors.blueAccent,
+    ),
+    AppInfo(
+      id: 'terminal',
+      title: 'fyrTerm',
+      contentBuilder: () => const TerminalApp(),
+      icon: 'assets/icons/terminal.png',
+      color: Colors.black,
+    ),
+    AppInfo(
+      id: 'files',
+      title: 'fyrFiles',
+      contentBuilder: () => const FyrFilesApp(),
+      icon: 'assets/icons/folderfile.png',
+      color: Colors.blue,
+    ),
+    AppInfo(
+      id: 'code',
+      title: 'fyrCode',
+      contentBuilder: () => const CodeEditorApp(),
+      icon: 'assets/icons/code.png',
+      color: const Color(0xFF1E1E1E),
+    ),
+    AppInfo(
+      id: 'photos',
+      title: 'fyrPhotos',
+      contentBuilder: () => const PhotoAlbumApp(),
+      icon: 'assets/icons/photos.png',
+      color: Colors.purple,
+    ),
+    AppInfo(
+      id: 'music',
+      title: 'fyrMusic',
+      contentBuilder: () => const MusicPlayerApp(),
+      icon: 'assets/icons/music.png',
+      color: Colors.teal,
+    ),
+    AppInfo(
+      id: 'settings',
+      title: 'fyrSettings',
+      contentBuilder: () => const FyrSettingsApp(),
+      icon: 'assets/icons/settings.png',
+      color: Colors.grey,
+    ),
+    AppInfo(
       id: 'resume',
       title: 'Resume',
-      content: const ResumeApp(),
+      contentBuilder: () => const ResumeApp(),
       icon: Icons.description_outlined,
       color: Colors.orange,
     ),
@@ -56,50 +110,15 @@ List<AppInfo> getApps(AppConfig config) {
       id: 'infra_monitor',
       title: 'Infra Monitor',
       subtitle: 'GCP Cloud & SysAdmin Telemetry',
-      content: const InfraMonitorApp(),
+      contentBuilder: () => const InfraMonitorApp(),
       icon: Icons.dns_rounded,
       color: const Color(0xFF00B0FF),
-    ),
-    AppInfo(
-      id: 'terminal',
-      title: 'Terminal',
-      content: const TerminalApp(),
-      icon: Icons.terminal,
-      color: Colors.black,
-    ),
-    AppInfo(
-      id: 'files',
-      title: 'File Explorer',
-      content: const FileExplorerApp(),
-      icon: Icons.folder,
-      color: Colors.blue,
-    ),
-    AppInfo(
-      id: 'code',
-      title: 'Source Code',
-      content: const CodeEditorApp(),
-      icon: Icons.code,
-      color: const Color(0xFF1E1E1E),
-    ),
-    AppInfo(
-      id: 'photos',
-      title: 'Photos',
-      content: const PhotoAlbumApp(),
-      icon: Icons.photo_album,
-      color: Colors.purple,
-    ),
-    AppInfo(
-      id: 'music',
-      title: 'Music Player',
-      content: const MusicPlayerApp(),
-      icon: Icons.headphones,
-      color: Colors.teal,
     ),
     AppInfo(
       id: 'grand_theft_ant',
       title: 'Grand Theft Ant',
       subtitle: '3D Open-World Bug Simulation',
-      content: const GrandTheftAntApp(),
+      contentBuilder: () => const GrandTheftAntApp(),
       icon: Icons.sports_esports_rounded,
       color: const Color(0xFF7FA650),
     ),
@@ -109,13 +128,6 @@ List<AppInfo> getApps(AppConfig config) {
       content: const ContactApp(),
       icon: Icons.mail_outline,
       color: Colors.green,
-    ),
-    AppInfo(
-      id: 'settings',
-      title: 'Settings',
-      content: const SettingsApp(),
-      icon: Icons.settings,
-      color: Colors.grey,
     ),
   ];
 
@@ -144,61 +156,23 @@ dynamic _getIconData(String iconName) {
     case 'computer':
       return Icons.computer;
     case 'people':
-    case 'group':
-    case 'social':
       return Icons.people_alt_rounded;
     case 'code':
       return Icons.code;
-    case 'language':
-      return Icons.language;
+    case 'article':
+      return Icons.article_rounded;
+    case 'game':
+      return Icons.sports_esports_rounded;
+    case 'cloud':
+      return Icons.cloud;
+    case 'chart':
+      return Icons.bar_chart_rounded;
     case 'github':
       return FontAwesomeIcons.github;
-    case 'link':
-      return Icons.link;
-    case 'smartphone':
-      return Icons.smartphone;
-    case 'album':
-      return Icons.album;
-    case 'graphic_eq':
-    case 'equalizer':
-    case 'audio':
-      return Icons.graphic_eq_rounded;
-    case 'waves':
-    case 'wave':
-      return Icons.waves_rounded;
+    case 'linkedin':
+      return FontAwesomeIcons.linkedin;
     case 'headphones':
-      return Icons.headphones;
-    case 'book':
-      return Icons.book;
-    case 'favorite':
-      return Icons.favorite;
-    case 'newspaper':
-      return Icons.newspaper;
-    case 'speedometer':
-    case 'speed':
-    case 'gauge':
-      return Icons.speed;
-    case 'cloud':
-      return Icons.cloud_done_rounded;
-    case 'dns':
-    case 'server':
-      return Icons.dns_rounded;
-    case 'terminal':
-      return Icons.terminal_rounded;
-    case 'docker':
-      return FontAwesomeIcons.docker;
-    case 'shield':
-    case 'security':
-      return Icons.shield_outlined;
-    case 'layers':
-      return Icons.layers_rounded;
-    case 'gamepad':
-    case 'game':
-    case 'sports_esports':
-      return Icons.sports_esports_rounded;
-    case 'bug':
-    case 'ant':
-      return Icons.pest_control_rounded;
+      return Icons.headphones_rounded;
     default:
       return Icons.apps;
   }

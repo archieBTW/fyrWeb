@@ -1,7 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'window_manager.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'fyr_theme.dart';
+import 'widgets/portfolio_app_icon.dart';
 
 class WindowFrame extends StatelessWidget {
   final WindowData windowData;
@@ -11,6 +13,8 @@ class WindowFrame extends StatelessWidget {
   final VoidCallback onFocus;
   final Function(Offset) onPositionChanged;
   final Function(Size) onSizeChanged;
+  final Rect? tilingRect;
+  final bool isDockFixed;
 
   const WindowFrame({
     super.key,
@@ -21,284 +25,404 @@ class WindowFrame extends StatelessWidget {
     required this.onFocus,
     required this.onPositionChanged,
     required this.onSizeChanged,
+    this.tilingRect,
+    this.isDockFixed = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final surfaceColor = Theme.of(context).colorScheme.surface;
-    final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
+    final isDark = FyrTheme.isDark;
+    final accentColor = FyrTheme.accentColor;
+    final isTiled = tilingRect != null;
+    final screenSize = MediaQuery.of(context).size;
 
-    Widget windowContent = GestureDetector(
-      onTap: onFocus,
-      child: Container(
-        width: windowData.isMaximized ? null : windowData.size.width,
-        height: windowData.isMaximized ? null : windowData.size.height,
+    final double maxBottomOffset = (windowData.isMaximized && isDockFixed) ? 84.0 : 0.0;
+    final double targetWidth = windowData.isMaximized
+        ? screenSize.width
+        : (isTiled ? tilingRect!.width : windowData.size.width);
+    final double targetHeight = windowData.isMaximized
+        ? (screenSize.height - 56.0 - maxBottomOffset)
+        : (isTiled ? tilingRect!.height : windowData.size.height);
+    final double targetLeft = windowData.isMaximized
+        ? 0.0
+        : (isTiled ? tilingRect!.left : windowData.position.dx);
+    final double targetTop = windowData.isMaximized
+        ? 56.0
+        : (isTiled ? tilingRect!.top : windowData.position.dy);
+
+    final String appId = windowData.appId.toLowerCase();
+    final bool isSettings = appId == 'fyrsettings' ||
+                            windowData.title.toLowerCase().contains('settings');
+    final bool isBrowser = appId == 'browser' ||
+                           windowData.title.toLowerCase().contains('browser');
+    final Color topBarColor = isBrowser ? const Color(0xFF1F1F23) : FyrTheme.surfaceColor;
+
+    Widget topBarContent;
+    if (isSettings) {
+      topBarContent = Row(
+        children: [
+          Container(
+            width: 260,
+            height: 42,
+            color: accentColor.withValues(alpha: 0.82),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                _WindowControl(
+                  color: Colors.redAccent,
+                  onTap: onClose,
+                  icon: Icons.close,
+                ),
+                const SizedBox(width: 8),
+                _WindowControl(
+                  color: Colors.amber.shade300,
+                  onTap: onMinimize,
+                  icon: Icons.remove,
+                ),
+                const SizedBox(width: 8),
+                _WindowControl(
+                  color: Colors.greenAccent,
+                  onTap: onMaximize,
+                  icon: windowData.isMaximized
+                      ? Icons.close_fullscreen
+                      : Icons.fullscreen,
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  'Settings',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Container(
+              height: 42,
+              color: FyrTheme.bgColor,
+            ),
+          ),
+        ],
+      );
+    } else {
+      topBarContent = Container(
+        height: 42,
+        width: double.infinity,
+        color: topBarColor,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // macOS style traffic light dots
+            _WindowControl(
+              color: Colors.redAccent,
+              onTap: onClose,
+              icon: Icons.close,
+            ),
+            const SizedBox(width: 8),
+            _WindowControl(
+              color: Colors.amber.shade300,
+              onTap: onMinimize,
+              icon: Icons.remove,
+            ),
+            const SizedBox(width: 8),
+            _WindowControl(
+              color: Colors.greenAccent,
+              onTap: onMaximize,
+              icon: windowData.isMaximized
+                  ? Icons.close_fullscreen
+                  : Icons.fullscreen,
+            ),
+            const SizedBox(width: 16),
+            _buildAppIcon(),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                windowData.title,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  color: FyrTheme.textColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            if (isTiled)
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Icon(
+                  Icons.grid_view,
+                  size: 14,
+                  color: FyrTheme.textColorMuted,
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
+    Widget windowContent = Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (_) => onFocus(),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
+          color: isSettings ? Colors.transparent : FyrTheme.surfaceColor,
           borderRadius: BorderRadius.circular(windowData.isMaximized ? 0 : 12),
+          border: Border.all(
+            color: windowData.isFocused
+                ? accentColor
+                : (isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.15)),
+            width: windowData.isFocused ? 3.5 : 1.5,
+          ),
           boxShadow: windowData.isMaximized
               ? []
               : [
                   BoxShadow(
-                    color: windowData.isFocused
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.3)
-                        : Colors.black.withValues(alpha: isDark ? 0.2 : 0.1),
-                    blurRadius: windowData.isFocused ? 40 : 30,
-                    spreadRadius: windowData.isFocused ? 8 : 5,
+                    color: Colors.black.withValues(alpha: 0.5),
+                    blurRadius: 30,
+                    spreadRadius: 0, // No spread on active or inactive windows
+                    offset: const Offset(0, 8),
                   ),
                 ],
         ),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(
-                  windowData.isMaximized ? 0 : 12,
-                ),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onPanUpdate: windowData.isMaximized
-                          ? null
-                          : (details) {
-                              onPositionChanged(
-                                windowData.position + details.delta,
-                              );
-                            },
-                      onDoubleTap: onMaximize,
-                      child: Container(
-                        height: 38,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? Colors.black.withValues(alpha: 0.9)
-                              : Colors.white.withValues(alpha: 0.95),
-                          border: Border(
-                            bottom: BorderSide(
-                              color: onSurfaceColor.withValues(alpha: 0.05),
-                            ),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Row(
-                            children: [
-                              _WindowControl(
-                                color: Colors.redAccent,
-                                onTap: onClose,
-                                icon: Icons.close,
-                              ),
-                              const SizedBox(width: 8),
-                              _WindowControl(
-                                color: Colors.orangeAccent,
-                                onTap: onMinimize,
-                                icon: Icons.remove,
-                              ),
-                              const SizedBox(width: 8),
-                              _WindowControl(
-                                color: Colors.greenAccent,
-                                onTap: onMaximize,
-                                icon: windowData.isMaximized
-                                    ? Icons.close_fullscreen
-                                    : Icons.fullscreen,
-                              ),
-                              const SizedBox(width: 12),
-                              windowData.icon is IconData
-                                  ? Icon(
-                                      windowData.icon,
-                                      color: onSurfaceColor.withValues(
-                                        alpha: 0.7,
-                                      ),
-                                      size: 14,
-                                    )
-                                  : FaIcon(
-                                      windowData.icon,
-                                      color: onSurfaceColor.withValues(
-                                        alpha: 0.7,
-                                      ),
-                                      size: 12,
-                                    ),
-                              const SizedBox(width: 8),
-                              Text(
-                                windowData.title,
-                                style: GoogleFonts.inter(
-                                  color: onSurfaceColor.withValues(alpha: 0.9),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const Spacer(),
-                              const SizedBox(width: 60),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        color: surfaceColor.withValues(alpha: 0.9),
+        clipBehavior: Clip.antiAlias,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  // Window Header / Titlebar - Natural continuation of the app
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onPanUpdate: (windowData.isMaximized || isTiled)
+                        ? null
+                        : (details) {
+                            onPositionChanged(
+                              windowData.position + details.delta,
+                            );
+                          },
+                    onDoubleTap: onMaximize,
+                    child: topBarContent,
+                  ),
+                  // Window Body - State preserved via KeyedSubtree
+                  Expanded(
+                    child: Container(
+                      color: isSettings ? Colors.transparent : FyrTheme.surfaceColor,
+                      child: KeyedSubtree(
+                        key: ValueKey('win_subtree_${windowData.id}'),
                         child: windowData.content,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
 
-            // Resize Handles
-            if (!windowData.isMaximized) ...[
-              // Right Edge
-              Positioned(
-                right: 0,
-                top: 0,
-                bottom: 15,
-                width: 6,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.resizeLeftRight,
-                  child: GestureDetector(
-                    onPanUpdate: (details) {
-                      onSizeChanged(
-                        Size(
-                          (windowData.size.width + details.delta.dx).clamp(
-                            300.0,
-                            1200.0,
-                          ),
-                          windowData.size.height,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              // Left Edge
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 15,
-                width: 6,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.resizeLeftRight,
-                  child: GestureDetector(
-                    onPanUpdate: (details) {
-                      final newWidth =
-                          (windowData.size.width - details.delta.dx).clamp(
-                            300.0,
-                            1200.0,
+              // Resize Handles (only active in floating mode and when not maximized)
+              if (!windowData.isMaximized && !isTiled) ...[
+                // Top Edge Handle
+                Positioned(
+                  top: 0,
+                  left: 14,
+                  right: 14,
+                  height: 7,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.resizeUpDown,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanUpdate: (details) {
+                        final newHeight = (windowData.size.height - details.delta.dy).clamp(240.0, 1600.0);
+                        if (newHeight != windowData.size.height) {
+                          onSizeChanged(Size(windowData.size.width, newHeight));
+                          onPositionChanged(
+                            windowData.position + Offset(0, details.delta.dy),
                           );
-                      if (newWidth != windowData.size.width) {
-                        onSizeChanged(Size(newWidth, windowData.size.height));
-                        onPositionChanged(
-                          windowData.position + Offset(details.delta.dx, 0),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ),
-              // Bottom Edge
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 15,
-                height: 6,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.resizeUpDown,
-                  child: GestureDetector(
-                    onPanUpdate: (details) {
-                      onSizeChanged(
-                        Size(
-                          windowData.size.width,
-                          (windowData.size.height + details.delta.dy).clamp(
-                            200.0,
-                            800.0,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-              // Top Edge
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 6,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.resizeUpDown,
-                  child: GestureDetector(
-                    onPanUpdate: (details) {
-                      final newHeight =
-                          (windowData.size.height - details.delta.dy).clamp(
-                            200.0,
-                            800.0,
-                          );
-                      if (newHeight != windowData.size.height) {
-                        onSizeChanged(Size(windowData.size.width, newHeight));
-                        onPositionChanged(
-                          windowData.position + Offset(0, details.delta.dy),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ),
-              // Bottom Right Corner
-              Positioned(
-                right: 0,
-                bottom: 0,
-                width: 15,
-                height: 15,
-                child: MouseRegion(
-                  cursor: SystemMouseCursors.resizeUpLeftDownRight,
-                  child: GestureDetector(
-                    onPanUpdate: (details) {
-                      onSizeChanged(
-                        Size(
-                          (windowData.size.width + details.delta.dx).clamp(
-                            300.0,
-                            1200.0,
-                          ),
-                          (windowData.size.height + details.delta.dy).clamp(
-                            200.0,
-                            800.0,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      color: Colors.transparent,
-                      child: const Icon(
-                        Icons.drag_handle,
-                        size: 12,
-                        color: Colors.white24,
-                      ),
+                        }
+                      },
                     ),
                   ),
                 ),
-              ),
+                // Top Left Corner
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  width: 14,
+                  height: 14,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.resizeUpLeftDownRight,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanUpdate: (details) {
+                        final newWidth = (windowData.size.width - details.delta.dx).clamp(360.0, 2400.0);
+                        final newHeight = (windowData.size.height - details.delta.dy).clamp(240.0, 1600.0);
+                        onSizeChanged(Size(newWidth, newHeight));
+                        onPositionChanged(
+                          windowData.position + Offset(details.delta.dx, details.delta.dy),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                // Top Right Corner
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  width: 14,
+                  height: 14,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.resizeUpRightDownLeft,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanUpdate: (details) {
+                        final newWidth = (windowData.size.width + details.delta.dx).clamp(360.0, 2400.0);
+                        final newHeight = (windowData.size.height - details.delta.dy).clamp(240.0, 1600.0);
+                        onSizeChanged(Size(newWidth, newHeight));
+                        onPositionChanged(
+                          windowData.position + Offset(0, details.delta.dy),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                // Right Edge
+                Positioned(
+                  right: 0,
+                  top: 14,
+                  bottom: 14,
+                  width: 8,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.resizeLeftRight,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanUpdate: (details) {
+                        onSizeChanged(
+                          Size(
+                            (windowData.size.width + details.delta.dx).clamp(360.0, 2400.0),
+                            windowData.size.height,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                // Left Edge
+                Positioned(
+                  left: 0,
+                  top: 14,
+                  bottom: 14,
+                  width: 8,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.resizeLeftRight,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanUpdate: (details) {
+                        final newWidth = (windowData.size.width - details.delta.dx).clamp(360.0, 2400.0);
+                        if (newWidth != windowData.size.width) {
+                          onSizeChanged(Size(newWidth, windowData.size.height));
+                          onPositionChanged(
+                            windowData.position + Offset(details.delta.dx, 0),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                // Bottom Edge
+                Positioned(
+                  bottom: 0,
+                  left: 14,
+                  right: 14,
+                  height: 8,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.resizeUpDown,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanUpdate: (details) {
+                        onSizeChanged(
+                          Size(
+                            windowData.size.width,
+                            (windowData.size.height + details.delta.dy).clamp(240.0, 1600.0),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                // Bottom Right Corner
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  width: 18,
+                  height: 18,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.resizeUpLeftDownRight,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanUpdate: (details) {
+                        onSizeChanged(
+                          Size(
+                            (windowData.size.width + details.delta.dx).clamp(360.0, 2400.0),
+                            (windowData.size.height + details.delta.dy).clamp(240.0, 1600.0),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                // Bottom Left Corner
+                Positioned(
+                  left: 0,
+                  bottom: 0,
+                  width: 18,
+                  height: 18,
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.resizeUpRightDownLeft,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanUpdate: (details) {
+                        final newWidth = (windowData.size.width - details.delta.dx).clamp(360.0, 2400.0);
+                        final newHeight = (windowData.size.height + details.delta.dy).clamp(240.0, 1600.0);
+                        onSizeChanged(Size(newWidth, newHeight));
+                        onPositionChanged(
+                          windowData.position + Offset(details.delta.dx, 0),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
 
-    if (windowData.isMaximized) {
-      return Positioned(
-        left: 0,
-        top: 35,
-        right: 0,
-        bottom: 0,
-        child: windowContent,
-      );
-    }
-
-    return Positioned(
-      left: windowData.position.dx,
-      top: windowData.position.dy,
+    // Single unified AnimatedPositioned preserves Flutter widget element & state across maximizes & retiles
+    return AnimatedPositioned(
+      key: ValueKey('win_anim_pos_${windowData.id}'),
+      duration: (windowData.isMaximized || isTiled)
+          ? const Duration(milliseconds: 200)
+          : Duration.zero,
+      curve: Curves.easeOutCubic,
+      left: targetLeft,
+      top: targetTop,
+      width: targetWidth,
+      height: targetHeight,
       child: windowContent,
+    );
+  }
+
+  Widget _buildAppIcon() {
+    return PortfolioAppIcon(
+      appId: windowData.appId,
+      icon: windowData.icon,
+      size: 16,
     );
   }
 }
@@ -324,19 +448,21 @@ class _WindowControlState extends State<_WindowControl> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
+      cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
         child: Container(
-          width: 12,
-          height: 12,
+          width: 14,
+          height: 14,
           decoration: BoxDecoration(
             color: widget.color,
             shape: BoxShape.circle,
+            border: Border.all(color: Colors.black26, width: 0.5),
           ),
           child: _isHovered
-              ? Center(child: Icon(widget.icon, size: 8, color: Colors.black54))
+              ? Center(child: Icon(widget.icon, size: 9, color: Colors.black87))
               : null,
         ),
       ),

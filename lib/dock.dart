@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'app_data.dart';
 import 'package:provider/provider.dart';
 import 'models/config_model.dart';
@@ -107,7 +106,6 @@ class _DockIconState extends State<_DockIcon> {
   Widget build(BuildContext context) {
     final s = widget.scale.clamp(0.40, 1.4);
     final iconSize = (28.0 * s).clamp(13.0, 38.0);
-    final faIconSize = (26.0 * s).clamp(12.0, 36.0);
     final containerPadding = (8.0 * s).clamp(3.0, 12.0);
     final itemHorizontalPadding = (3.0 * s).clamp(1.0, 6.0);
     final borderRadius = (12.0 * s).clamp(5.0, 16.0);
@@ -152,13 +150,17 @@ class _DockIconState extends State<_DockIcon> {
                         ),
                     ],
                   ),
-                  child: widget.icon is IconData
-                      ? Icon(widget.icon, color: Colors.white, size: iconSize)
-                      : FaIcon(
-                          widget.icon,
-                          color: Colors.white,
-                          size: faIconSize,
-                        ),
+                  child: widget.icon is String && (widget.icon as String).startsWith('assets/')
+                      ? Image.asset(
+                          widget.icon as String,
+                          width: iconSize,
+                          height: iconSize,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => Icon(Icons.apps, color: Colors.white, size: iconSize),
+                        )
+                      : (widget.icon is IconData
+                          ? Icon(widget.icon as IconData, color: Colors.white, size: iconSize)
+                          : Icon(Icons.apps, color: Colors.white, size: iconSize)),
                 ),
                 if (_isHovered && s > 0.75) SizedBox(height: 2 * s),
               ],

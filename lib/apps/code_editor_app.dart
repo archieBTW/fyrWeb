@@ -1,16 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
-import 'package:flutter_highlight/themes/vs2015.dart';
 import '../generated/source_code.dart';
+import '../fyr_theme.dart';
+
+final Map<String, TextStyle> catppuccinTheme = {
+  'root': TextStyle(
+    backgroundColor: FyrTheme.bgColor,
+    color: FyrTheme.textColor,
+    height: 1.5,
+  ),
+  'keyword': TextStyle(
+    color: FyrTheme.accentColor, // Mauve
+    fontWeight: FontWeight.bold,
+  ),
+  'object': const TextStyle(color: Color(0xFFF9E2AF)), // Yellow
+  'built_in': const TextStyle(color: Color(0xFF89B4FA)), // Blue
+  'type': const TextStyle(color: Color(0xFFF9E2AF), fontWeight: FontWeight.w500),
+  'literal': const TextStyle(color: Color(0xFFFAB387)), // Peach
+  'number': const TextStyle(color: Color(0xFFFAB387)), // Peach
+  'string': const TextStyle(color: Color(0xFFA6E3A1)), // Green
+  'title': const TextStyle(color: Color(0xFF89B4FA)), // Blue
+  'title.class': const TextStyle(color: Color(0xFFF9E2AF), fontWeight: FontWeight.bold),
+  'title.function': const TextStyle(color: Color(0xFF89B4FA)),
+  'class': const TextStyle(color: Color(0xFFF9E2AF)),
+  'function': const TextStyle(color: Color(0xFF89B4FA)),
+  'comment': const TextStyle(
+    color: Color(0xFF6C7086), // Surface 2
+    fontStyle: FontStyle.italic,
+  ),
+  'meta': const TextStyle(color: Color(0xFF94E2D5)), // Teal
+  'operator': const TextStyle(color: Color(0xFF89DCEB)), // Sky
+  'property': const TextStyle(color: Color(0xFFB4BEFE)), // Lavender
+  'variable': TextStyle(color: FyrTheme.textColor),
+  'attr': const TextStyle(color: Color(0xFFF2CDCD)), // Flamingo
+};
 
 class FileNode {
   final String name;
   final String? fullPath;
   final List<FileNode> children;
+  bool isExpanded;
 
-  FileNode({required this.name, this.fullPath, List<FileNode>? children})
-    : children = children ?? [];
+  FileNode({
+    required this.name,
+    this.fullPath,
+    List<FileNode>? children,
+    this.isExpanded = true,
+  }) : children = children ?? [];
 
   bool get isFile => fullPath != null;
 }
@@ -23,7 +60,20 @@ class CodeEditorApp extends StatefulWidget {
 }
 
 class _CodeEditorAppState extends State<CodeEditorApp> {
-  String? _selectedFile = 'lib/main.dart';
+  final List<String> _openFiles = [
+    'lib/main.dart',
+    'lib/desktop_screen.dart',
+    'lib/window_manager.dart',
+  ];
+  String? _activeFile = 'lib/main.dart';
+  bool _showSearch = false;
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  final Map<String, int> _fileErrorCounts = {
+    'lib/apps/browser_app.dart': 0,
+    'lib/desktop_screen.dart': 0,
+  };
 
   String _detectLanguage(String? path) {
     if (path == null) return 'dart';
@@ -33,409 +83,486 @@ class _CodeEditorAppState extends State<CodeEditorApp> {
     if (lower.endsWith('.tf')) return 'yaml';
     if (lower.endsWith('.conf') || lower.endsWith('.j2')) return 'nginx';
     if (lower.endsWith('.sh') || lower.endsWith('.bash')) return 'bash';
+    if (lower.endsWith('.md')) return 'markdown';
     return 'dart';
   }
 
-  Widget _buildCodeViewer(String content, bool isDesktop) {
-    final lines = content.split('\n');
-    final double fontSize = isDesktop ? 13 : 11;
+  void _openFile(String path) {
+    setState(() {
+      if (!_openFiles.contains(path)) {
+        _openFiles.add(path);
+      }
+      _activeFile = path;
+    });
+  }
 
-    return SelectionArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Line numbers
-              SelectionContainer.disabled(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: List.generate(lines.length, (index) {
-                    return Text(
-                      '${index + 1}',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: fontSize,
-                        color: Colors.white38,
-                        height: 1.5,
-                      ),
-                    );
-                  }),
-                ),
-              ),
-              const SizedBox(width: 16),
-              // Code
-              HighlightView(
-                content,
-                language: _detectLanguage(_selectedFile),
-                theme: vs2015Theme,
-                padding: EdgeInsets.zero,
-                textStyle: GoogleFonts.jetBrainsMono(
-                  fontSize: fontSize,
-                  height: 1.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+  void _closeTab(String path) {
+    setState(() {
+      final index = _openFiles.indexOf(path);
+      _openFiles.remove(path);
+      if (_activeFile == path) {
+        if (_openFiles.isNotEmpty) {
+          _activeFile = _openFiles[(index - 1).clamp(0, _openFiles.length - 1)];
+        } else {
+          _activeFile = null;
+        }
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth >= 768.0;
+    final isDesktop = screenWidth >= 650.0;
+    final content = _activeFile != null ? (sourceCodeFiles[_activeFile!] ?? '// File not found') : null;
 
-    final fileTreeWidget = _FileTreeWidget(
-      files: sourceCodeFiles,
-      selectedFile: _selectedFile,
-      onFileSelected: (path) {
-        setState(() {
-          _selectedFile = path;
-        });
-      },
-    );
-
-    final String? fileName = _selectedFile?.split('/').last;
-    final content = _selectedFile != null
-        ? sourceCodeFiles[_selectedFile!]
-        : null;
-
-    final codeViewerWidget = Container(
-      color: const Color(0xFF1E1E1E), // VSCode-like dark background
-      width: double.infinity,
-      height: double.infinity,
+    return Container(
+      color: FyrTheme.bgColor,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (fileName != null)
+          // Search bar (if toggled via Ctrl+Shift+F or search icon)
+          if (_showSearch)
             Container(
-              color: const Color(0xFF252526),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              color: FyrTheme.cardColor,
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF1E1E1E),
-                      border: Border(
-                        top: BorderSide(color: Colors.blueAccent, width: 2),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 12,
+                        color: FyrTheme.textColor,
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          fileName,
-                          style: GoogleFonts.jetBrainsMono(
-                            color: Colors.white,
-                            fontSize: 13,
-                          ),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: 'Search files or symbols...',
+                        hintStyle: TextStyle(color: FyrTheme.textColorMuted),
+                        prefixIcon: Icon(Icons.search, size: 14, color: FyrTheme.textColorMuted),
+                        prefixIconConstraints: const BoxConstraints(minWidth: 28, minHeight: 24),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(6),
+                          borderSide: BorderSide(color: FyrTheme.dividerColor),
                         ),
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.close,
-                          size: 14,
-                          color: Colors.white54,
-                        ),
-                      ],
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                      ),
+                      onChanged: (val) {
+                        setState(() {
+                          _searchQuery = val.trim().toLowerCase();
+                        });
+                      },
                     ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: Icon(Icons.close, size: 14, color: FyrTheme.textColorMuted),
+                    onPressed: () {
+                      setState(() {
+                        _showSearch = false;
+                        _searchQuery = '';
+                        _searchController.clear();
+                      });
+                    },
                   ),
                 ],
               ),
             ),
-          Expanded(
-            child: content == null
-                ? Center(
-                    child: Text(
-                      'Select a file to view its source code.',
-                      style: GoogleFonts.jetBrainsMono(color: Colors.white54),
-                    ),
-                  )
-                : _buildCodeViewer(content, isDesktop),
-          ),
-        ],
-      ),
-    );
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF1E1E1E),
-      body: isDesktop
-          ? Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: 250, child: fileTreeWidget),
-                Expanded(child: codeViewerWidget),
-              ],
-            )
-          : Column(
-              children: [
-                Theme(
-                  data: Theme.of(
-                    context,
-                  ).copyWith(dividerColor: Colors.transparent),
-                  child: ExpansionTile(
-                    title: Text(
-                      'Explorer: $_selectedFile',
-                      style: GoogleFonts.jetBrainsMono(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    iconColor: Colors.white70,
-                    collapsedIconColor: Colors.white70,
-                    backgroundColor: const Color(0xFF252526),
-                    collapsedBackgroundColor: const Color(0xFF252526),
+          // Main Body: File Tree (Desktop) + Tabs + Editor
+          Expanded(
+            child: isDesktop
+                ? Row(
                     children: [
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.4,
+                      // Left File Tree (if desktop)
+                      SizedBox(
+                        width: 240,
+                        child: Container(
+                          color: FyrTheme.sidebarColor,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.folder_copy_outlined, size: 14, color: FyrTheme.accentColor),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'WORKSPACE',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: FyrTheme.textColorMuted,
+                                        letterSpacing: 1.1,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    InkWell(
+                                      onTap: () => setState(() => _showSearch = !_showSearch),
+                                      child: Icon(
+                                        Icons.search,
+                                        size: 14,
+                                        color: _showSearch ? FyrTheme.accentColor : FyrTheme.textColorMuted,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Divider(height: 1, color: FyrTheme.dividerColor),
+                              Expanded(
+                                child: _buildFileTree(),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: _FileTreeWidget(
-                          files: sourceCodeFiles,
-                          selectedFile: _selectedFile,
-                          hideTitle: true,
-                          onFileSelected: (path) {
-                            setState(() {
-                              _selectedFile = path;
-                            });
-                          },
+                      ),
+                      VerticalDivider(width: 1, thickness: 1, color: FyrTheme.dividerColor),
+
+                      // Right Pane: Tab bar + Editor + Status bar
+                      Expanded(
+                        child: _buildEditorPane(isDesktop, content),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      // Mobile Dropdown File Tree
+                      Theme(
+                        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                        child: ExpansionTile(
+                          title: Row(
+                            children: [
+                              Icon(Icons.folder_open, size: 16, color: FyrTheme.accentColor),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Explorer: ${_activeFile ?? "Select file"}',
+                                  style: GoogleFonts.jetBrainsMono(
+                                    color: FyrTheme.textColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          iconColor: FyrTheme.textColorMuted,
+                          collapsedIconColor: FyrTheme.textColorMuted,
+                          backgroundColor: FyrTheme.sidebarColor,
+                          collapsedBackgroundColor: FyrTheme.sidebarColor,
+                          children: [
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight: MediaQuery.of(context).size.height * 0.40,
+                              ),
+                              child: Container(
+                                color: FyrTheme.sidebarColor,
+                                child: _buildFileTree(),
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
+                      Expanded(
+                        child: _buildEditorPane(isDesktop, content),
                       ),
                     ],
                   ),
-                ),
-                Expanded(child: codeViewerWidget),
-              ],
-            ),
-    );
-  }
-}
-
-class _FileTreeWidget extends StatelessWidget {
-  final Map<String, String> files;
-  final String? selectedFile;
-  final ValueChanged<String> onFileSelected;
-  final bool hideTitle;
-
-  const _FileTreeWidget({
-    required this.files,
-    this.selectedFile,
-    required this.onFileSelected,
-    this.hideTitle = false,
-  });
-
-  FileNode _buildTree() {
-    final root = FileNode(name: 'fyrWeb');
-    final libNode = FileNode(name: 'lib');
-    root.children.add(libNode);
-
-    for (final path in files.keys) {
-      final cleanPath = path.startsWith('lib/') ? path.substring(4) : path;
-      final parts = cleanPath.split('/');
-      var current = libNode;
-      for (var i = 0; i < parts.length; i++) {
-        final part = parts[i];
-        final isFile = i == parts.length - 1;
-
-        var child = current.children.cast<FileNode?>().firstWhere(
-          (n) => n!.name == part,
-          orElse: () => null,
-        );
-        if (child == null) {
-          child = FileNode(name: part, fullPath: isFile ? path : null);
-          current.children.add(child);
-        }
-        current = child;
-      }
-    }
-
-    _sortNode(libNode);
-    return root;
-  }
-
-  void _sortNode(FileNode node) {
-    node.children.sort((a, b) {
-      if (a.isFile && !b.isFile) return 1;
-      if (!a.isFile && b.isFile) return -1;
-      return a.name.compareTo(b.name);
-    });
-    for (final child in node.children) {
-      _sortNode(child);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final root = _buildTree();
-    return Container(
-      color: const Color(0xFF252526), // VSCode sidebar color
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!hideTitle)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Text(
-                'EXPLORER',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 11,
-                  color: Colors.white54,
-                  letterSpacing: 1.2,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                _TreeNodeWidget(
-                  node: root,
-                  level: 0,
-                  selectedFile: selectedFile,
-                  onFileSelected: onFileSelected,
-                  initiallyExpanded: true,
-                ),
-              ],
-            ),
           ),
         ],
       ),
     );
   }
-}
 
-class _TreeNodeWidget extends StatefulWidget {
-  final FileNode node;
-  final int level;
-  final String? selectedFile;
-  final ValueChanged<String> onFileSelected;
-  final bool initiallyExpanded;
+  Widget _buildEditorPane(bool isDesktop, String? content) {
+    return Column(
+      children: [
+        // Tab Bar
+        if (_openFiles.isNotEmpty)
+          Container(
+            height: 36,
+            color: FyrTheme.isDark ? const Color(0xFF000000) : FyrTheme.cardColor,
+            child: Row(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _openFiles.length,
+                    itemBuilder: (context, index) {
+                      final path = _openFiles[index];
+                      final filename = path.split('/').last;
+                      final isActive = path == _activeFile;
 
-  const _TreeNodeWidget({
-    required this.node,
-    required this.level,
-    required this.selectedFile,
-    required this.onFileSelected,
-    this.initiallyExpanded = false,
-  });
+                      return GestureDetector(
+                        onTap: () => setState(() => _activeFile = path),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          decoration: BoxDecoration(
+                            color: isActive ? FyrTheme.bgColor : FyrTheme.cardColor,
+                            border: Border(
+                              top: BorderSide(
+                                color: isActive ? FyrTheme.accentColor : Colors.transparent,
+                                width: 2,
+                              ),
+                              right: BorderSide(
+                                color: FyrTheme.dividerColor,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              _getFileIcon(filename),
+                              const SizedBox(width: 6),
+                              Text(
+                                filename,
+                                style: GoogleFonts.jetBrainsMono(
+                                  color: isActive ? FyrTheme.textColor : FyrTheme.textColorMuted,
+                                  fontSize: 12,
+                                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () => _closeTab(path),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 13,
+                                  color: isActive ? FyrTheme.textColor : FyrTheme.textColorMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.search,
+                    size: 15,
+                    color: _showSearch ? FyrTheme.accentColor : FyrTheme.textColorMuted,
+                  ),
+                  tooltip: 'Search (Ctrl+Shift+F)',
+                  onPressed: () => setState(() => _showSearch = !_showSearch),
+                ),
+              ],
+            ),
+          ),
 
-  @override
-  State<_TreeNodeWidget> createState() => _TreeNodeWidgetState();
-}
+        // Code Editor Pane
+        Expanded(
+          child: _activeFile == null || content == null
+              ? Center(
+                  child: Text(
+                    'Select a file from the explorer to view',
+                    style: TextStyle(color: FyrTheme.textColorMuted),
+                  ),
+                )
+              : _buildCodeView(content, isDesktop),
+        ),
 
-class _TreeNodeWidgetState extends State<_TreeNodeWidget> {
-  late bool _isExpanded;
-
-  @override
-  void initState() {
-    super.initState();
-    _isExpanded = widget.initiallyExpanded || widget.level <= 1;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.node.isFile) {
-      final isSelected = widget.node.fullPath == widget.selectedFile;
-      return InkWell(
-        onTap: () => widget.onFileSelected(widget.node.fullPath!),
-        child: Container(
-          color: isSelected
-              ? Colors.white.withOpacity(0.1)
-              : Colors.transparent,
-          padding: EdgeInsets.only(
-            left: 16.0 + (widget.level * 12.0),
-            top: 4,
-            bottom: 4,
-            right: 8,
+        // Bottom Status Bar (1:1 replica of fyrCode)
+        Container(
+          height: 24,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: FyrTheme.isDark ? const Color(0xFF000000) : FyrTheme.cardColor,
+            border: Border(
+              top: BorderSide(color: FyrTheme.dividerColor, width: 0.8),
+            ),
           ),
           child: Row(
             children: [
-              const Icon(
-                Icons.insert_drive_file,
-                size: 14,
-                color: Colors.white70,
+              Text(
+                'Ln 1, Col 1',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 10,
+                  color: FyrTheme.textColorMuted,
+                ),
               ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  widget.node.name,
-                  style: GoogleFonts.jetBrainsMono(
-                    fontSize: 13,
-                    color: isSelected ? Colors.white : Colors.white70,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+              const SizedBox(width: 12),
+              Text(
+                'Spaces: 2',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 10,
+                  color: FyrTheme.textColorMuted,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'UTF-8',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 10,
+                  color: FyrTheme.textColorMuted,
+                ),
+              ),
+              const Spacer(),
+              Icon(Icons.call_split, size: 11, color: FyrTheme.textColorMuted),
+              const SizedBox(width: 4),
+              Text(
+                'main',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 10,
+                  color: FyrTheme.textColorMuted,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Text(
+                _detectLanguage(_activeFile).toUpperCase(),
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: FyrTheme.accentColor,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Icon(Icons.check_circle_outline, size: 11, color: Colors.greenAccent),
+              const SizedBox(width: 4),
+              Text(
+                'Ready',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 10,
+                  color: Colors.greenAccent,
                 ),
               ),
             ],
           ),
         ),
-      );
-    } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          InkWell(
-            onTap: () {
-              setState(() {
-                _isExpanded = !_isExpanded;
-              });
-            },
-            child: Container(
-              padding: EdgeInsets.only(
-                left: 8.0 + (widget.level * 12.0),
-                top: 4,
-                bottom: 4,
-                right: 8,
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    _isExpanded
-                        ? Icons.keyboard_arrow_down
-                        : Icons.keyboard_arrow_right,
-                    size: 16,
-                    color: Colors.white54,
+      ],
+    );
+  }
+
+  Widget _buildFileTree() {
+    final filteredKeys = sourceCodeFiles.keys.where((k) {
+      if (_searchQuery.isEmpty) return true;
+      return k.toLowerCase().contains(_searchQuery);
+    }).toList();
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      itemCount: filteredKeys.length,
+      itemBuilder: (context, index) {
+        final path = filteredKeys[index];
+        final filename = path.split('/').last;
+        final isSelected = path == _activeFile;
+        final errorCount = _fileErrorCounts[path] ?? 0;
+
+        return InkWell(
+          onTap: () => _openFile(path),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+            color: isSelected ? FyrTheme.accentColor.withValues(alpha: 0.12) : Colors.transparent,
+            child: Row(
+              children: [
+                _getFileIcon(filename),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    path,
+                    style: GoogleFonts.jetBrainsMono(
+                      fontSize: 11,
+                      color: isSelected ? FyrTheme.accentColor : FyrTheme.textColor,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(width: 2),
-                  const Icon(
-                    Icons.folder,
-                    size: 14,
-                    color: Color(0xFF9E75FF),
-                  ), // purple folder
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      widget.node.name,
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 13,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+                ),
+                if (errorCount > 0)
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFED8796),
+                      shape: BoxShape.circle,
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
           ),
-          if (_isExpanded)
-            ...widget.node.children.map(
-              (child) => _TreeNodeWidget(
-                node: child,
-                level: widget.level + 1,
-                selectedFile: widget.selectedFile,
-                onFileSelected: widget.onFileSelected,
-              ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCodeView(String content, bool isDesktop) {
+    final lines = content.split('\n');
+    final double fontSize = isDesktop ? 12.5 : 11.0;
+
+    return Container(
+      color: FyrTheme.bgColor,
+      child: SelectionArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(12.0),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Line numbers gutter
+                SelectionContainer.disabled(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: List.generate(lines.length, (index) {
+                      return Text(
+                        '${index + 1}',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: fontSize,
+                          color: FyrTheme.textColorMuted.withValues(alpha: 0.6),
+                          height: 1.5,
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                // Code gutter divider
+                Container(
+                  width: 1,
+                  height: lines.length * (fontSize * 1.5),
+                  color: FyrTheme.dividerColor.withValues(alpha: 0.4),
+                ),
+                const SizedBox(width: 14),
+                // Highlighted Code
+                HighlightView(
+                  content,
+                  language: _detectLanguage(_activeFile),
+                  theme: catppuccinTheme,
+                  padding: EdgeInsets.zero,
+                  textStyle: GoogleFonts.jetBrainsMono(
+                    fontSize: fontSize,
+                    height: 1.5,
+                  ),
+                ),
+              ],
             ),
-        ],
-      );
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _getFileIcon(String filename) {
+    final lower = filename.toLowerCase();
+    if (lower.endsWith('.dart')) {
+      return const Icon(Icons.code, size: 14, color: Color(0xFF89DCEB));
     }
+    if (lower.endsWith('.yaml') || lower.endsWith('.yml')) {
+      return const Icon(Icons.settings, size: 14, color: Color(0xFFF9E2AF));
+    }
+    if (lower.endsWith('.json')) {
+      return const Icon(Icons.data_object, size: 14, color: Color(0xFFFAB387));
+    }
+    if (lower.endsWith('.md') || lower.endsWith('.txt')) {
+      return const Icon(Icons.description_outlined, size: 14, color: Color(0xFFF5E0DC));
+    }
+    if (lower.endsWith('.sh') || lower.endsWith('.bash')) {
+      return const Icon(Icons.terminal, size: 14, color: Color(0xFFA6E3A1));
+    }
+    return Icon(Icons.insert_drive_file_outlined, size: 14, color: FyrTheme.textColorMuted);
   }
 }

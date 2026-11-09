@@ -314,26 +314,6 @@ class ResumeApp extends StatelessWidget {
     await Printing.sharePdf(bytes: bytes, filename: filename);
   }
 
-  pw.Widget _buildSectionHeader(String title, PdfColor color) {
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Text(
-          title,
-          style: pw.TextStyle(
-            fontSize: 14,
-            fontWeight: pw.FontWeight.bold,
-            color: color,
-            letterSpacing: 1.2,
-          ),
-        ),
-        pw.SizedBox(height: 4),
-        pw.Container(height: 2, width: 30, color: color),
-        pw.SizedBox(height: 16),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final config = context.watch<AppConfig>();

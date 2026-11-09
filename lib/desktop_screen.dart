@@ -2,20 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'system_settings.dart';
-import 'top_bar.dart';
-import 'dock.dart';
 import 'window_manager.dart';
 import 'window_frame.dart';
-import 'app_menu.dart';
-import 'quick_settings.dart';
 import 'system_controller.dart';
 import 'app_data.dart';
 import 'models/config_model.dart';
+import 'widgets/taskbar/fyrtaskbar.dart';
+import 'widgets/taskbar/start_menu_popup.dart';
+import 'widgets/taskbar/calendar_menu_popup.dart';
+import 'widgets/taskbar/quick_settings_popup.dart';
+import 'widgets/dock/fyrdock.dart';
+import 'widgets/fyrsearch/fyrsearch_screen.dart';
+import 'widgets/fyroverview/fyroverview_screen.dart';
+import 'apps/fyrsettings_app.dart';
+import 'fyr_theme.dart';
 import 'dart:ui';
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class DesktopScreen extends StatefulWidget {
   const DesktopScreen({super.key});
@@ -25,8 +29,11 @@ class DesktopScreen extends StatefulWidget {
 }
 
 class _DesktopScreenState extends State<DesktopScreen> {
-  bool _showAppMenu = false;
+  bool _showStartMenu = false;
+  bool _showCalendar = false;
   bool _showQuickSettings = false;
+  bool _showSearch = false;
+  bool _showOverview = false;
   bool _isDockHovered = false;
   bool _didPrecacheAssets = false;
   ModalRoute<dynamic>? _route;
@@ -44,7 +51,9 @@ class _DesktopScreenState extends State<DesktopScreen> {
 
   Future<void> _precacheCriticalImages() async {
     final config = context.read<AppConfig>();
+    unawaited(precacheImage(const AssetImage('assets/space.jpg'), context));
     unawaited(precacheImage(const AssetImage('assets/wallpaper.jpg'), context));
+    unawaited(precacheImage(const AssetImage('assets/icons/fyr_icon.png'), context));
     if (config.profile.profilePic.isNotEmpty) {
       unawaited(precacheImage(AssetImage(config.profile.profilePic), context));
     }
@@ -86,16 +95,26 @@ class _DesktopScreenState extends State<DesktopScreen> {
           _historyEntry = null;
           if (!mounted) return;
           final windowManager = context.read<WindowManager>();
+          if (_showOverview || _showSearch) {
+            setState(() {
+              _showOverview = false;
+              _showSearch = false;
+            });
+            return;
+          }
+          if (_showStartMenu || _showCalendar || _showQuickSettings) {
+            setState(() {
+              _showStartMenu = false;
+              _showCalendar = false;
+              _showQuickSettings = false;
+            });
+            return;
+          }
           final openWindows = windowManager.windows
               .where((w) => !w.isMinimized)
               .toList();
           if (openWindows.isNotEmpty) {
             windowManager.closeWindow(openWindows.last.id);
-          } else if (_showAppMenu || _showQuickSettings) {
-            setState(() {
-              _showAppMenu = false;
-              _showQuickSettings = false;
-            });
           }
         },
       );
@@ -121,8 +140,12 @@ class _DesktopScreenState extends State<DesktopScreen> {
     final focusedWindowForPop = openWindowsForPop.isNotEmpty
         ? openWindowsForPop.last
         : null;
-    final hasActiveOverlay =
-        focusedWindowForPop != null || _showAppMenu || _showQuickSettings;
+    final hasActiveOverlay = focusedWindowForPop != null ||
+        _showStartMenu ||
+        _showCalendar ||
+        _showQuickSettings ||
+        _showSearch ||
+        _showOverview;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateHistoryEntry(hasActiveOverlay);
@@ -141,33 +164,18 @@ class _DesktopScreenState extends State<DesktopScreen> {
 
           final screenHeight = MediaQuery.of(context).size.height;
           final screenWidth = MediaQuery.of(context).size.width;
-          final isMaximized = openWindows.any((w) => w.isMaximized);
 
-          // Dynamic dock dimensions matching Dock scaling
-          const baseItemWidth = 56.0;
-          const baseDockPadding = 18.0;
-          final maxDockWidth = (screenWidth - 32.0).clamp(
-            240.0,
-            double.infinity,
-          );
-          final idealContentWidth =
-              (apps.length * baseItemWidth) + baseDockPadding;
-          final autoScale = (maxDockWidth / idealContentWidth).clamp(0.40, 1.0);
-          final effectiveDockScale = autoScale * settings.dockScale;
-          final currentDockHeight = (70.0 * effectiveDockScale).clamp(
-            38.0,
-            95.0,
-          );
+          // Dock autohide should only hide the dock when a window goes over it
+          final dockZone = Rect.fromLTWH(0, screenHeight - 88, screenWidth, 88);
+          final isWindowOverDock = openWindows.any((w) {
+            if (w.isMinimized) return false;
+            if (w.isMaximized) return true;
+            final winRect = Rect.fromLTWH(w.position.dx, w.position.dy, w.size.width, w.size.height);
+            return winRect.overlaps(dockZone);
+          });
 
-          final isIntersectingDock = openWindows.any(
-            (w) =>
-                !w.isMaximized &&
-                (w.position.dy + w.size.height) >
-                    (screenHeight - (currentDockHeight + 24)),
-          );
-          final hideDock =
-              ((isMaximized || isIntersectingDock) && !_isDockHovered) ||
-              (settings.dockAutoHide && !_isDockHovered);
+          // Fixed dock keeps the dock up the entire time. Autohide only hides when window goes over it.
+          final hideDock = settings.dockAutoHide && isWindowOverDock && !_isDockHovered;
 
           return Stack(
             children: [
@@ -175,7 +183,8 @@ class _DesktopScreenState extends State<DesktopScreen> {
                 child: GestureDetector(
                   onTap: () {
                     setState(() {
-                      _showAppMenu = false;
+                      _showStartMenu = false;
+                      _showCalendar = false;
                       _showQuickSettings = false;
                     });
                   },
@@ -214,82 +223,445 @@ class _DesktopScreenState extends State<DesktopScreen> {
     SystemController system,
     bool hideDock,
   ) {
-    return Stack(
-      children: [
-        ...windowManager.windows
-            .where((w) => !w.isMinimized)
-            .map(
-              (w) => WindowFrame(
-                key: ValueKey(w.id),
-                windowData: w,
-                onClose: () => windowManager.closeWindow(w.id),
-                onMinimize: () => windowManager.minimizeWindow(w.id),
-                onMaximize: () => windowManager.toggleMaximize(w.id),
-                onFocus: () => windowManager.focusWindow(w.id),
-                onPositionChanged: (pos) =>
-                    windowManager.updatePosition(w.id, pos),
-                onSizeChanged: (size) => windowManager.updateSize(w.id, size),
-              ),
+    final screenSize = MediaQuery.of(context).size;
+    final currentWs = windowManager.currentWorkspace;
+    final activeWindows = windowManager
+        .getWindowsForWorkspace(currentWs)
+        .where((w) => !w.isMinimized)
+        .toList();
+
+    final Map<String, Rect> tilingRects = windowManager.isTilingMode
+        ? windowManager.calculateTilingRects(
+            screenSize: screenSize,
+            topBarHeight: 56.0,
+            bottomReserved: hideDock ? 0.0 : 84.0,
+          )
+        : {};
+
+    return Focus(
+      autofocus: true,
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent) return KeyEventResult.ignored;
+
+        // Escape closes overlays
+        if (event.logicalKey == LogicalKeyboardKey.escape) {
+          if (_showOverview || _showSearch || _showStartMenu || _showCalendar || _showQuickSettings) {
+            setState(() {
+              _showOverview = false;
+              _showSearch = false;
+              _showStartMenu = false;
+              _showCalendar = false;
+              _showQuickSettings = false;
+            });
+            return KeyEventResult.handled;
+          }
+        }
+
+        final isMeta = HardwareKeyboard.instance.isMetaPressed;
+        final isAlt = HardwareKeyboard.instance.isAltPressed;
+        final isControl = HardwareKeyboard.instance.isControlPressed;
+        final isShift = HardwareKeyboard.instance.isShiftPressed;
+
+        // Never intercept if Control is pressed (preserves app/terminal shortcuts like Ctrl+V, Ctrl+C, Ctrl+E, Ctrl+A)
+        if (isControl) return KeyEventResult.ignored;
+
+        // Never intercept if an editable input/text field currently has focus
+        final focusNode = FocusManager.instance.primaryFocus;
+        if (focusNode != null && focusNode.context?.widget is EditableText) {
+          return KeyEventResult.ignored;
+        }
+
+        // Mod key is Alt (Option on macOS, Alt on Linux/Windows) or Super/Meta
+        final isMod = isAlt || isMeta;
+        if (!isMod) return KeyEventResult.ignored;
+
+        // If Meta/Cmd is pressed without Alt, protect standard OS/browser shortcuts (Cmd+V, Cmd+C, Cmd+Z, etc.)
+        if (isMeta && !isAlt) {
+          if (event.logicalKey == LogicalKeyboardKey.keyV ||
+              event.logicalKey == LogicalKeyboardKey.keyC ||
+              event.logicalKey == LogicalKeyboardKey.keyX ||
+              event.logicalKey == LogicalKeyboardKey.keyZ ||
+              event.logicalKey == LogicalKeyboardKey.keyA ||
+              event.logicalKey == LogicalKeyboardKey.keyW ||
+              event.logicalKey == LogicalKeyboardKey.keyR) {
+            return KeyEventResult.ignored;
+          }
+        }
+          // $mod + q: kill focused window
+          if (event.logicalKey == LogicalKeyboardKey.keyQ) {
+            windowManager.closeFocusedWindow();
+            return KeyEventResult.handled;
+          }
+
+          // $mod + m: toggle tiling/floating mode
+          if (event.logicalKey == LogicalKeyboardKey.keyM) {
+            windowManager.toggleTilingMode();
+            return KeyEventResult.handled;
+          }
+
+          // $mod + f: toggle maximize
+          if (event.logicalKey == LogicalKeyboardKey.keyF && !isShift) {
+            windowManager.toggleMaximizeFocusedWindow();
+            return KeyEventResult.handled;
+          }
+
+          // $mod + v: split vertical (splitv)
+          if (event.logicalKey == LogicalKeyboardKey.keyV) {
+            windowManager.setSplitLayout('splitv');
+            return KeyEventResult.handled;
+          }
+
+          // $mod + h: split horizontal (splith)
+          if (event.logicalKey == LogicalKeyboardKey.keyH) {
+            windowManager.setSplitLayout('splith');
+            return KeyEventResult.handled;
+          }
+
+          // $mod + e: toggle split layout
+          if (event.logicalKey == LogicalKeyboardKey.keyE) {
+            windowManager.toggleSplitLayout();
+            return KeyEventResult.handled;
+          }
+
+          // $mod + r: retile windows into perfect grid
+          if (event.logicalKey == LogicalKeyboardKey.keyR) {
+            windowManager.retileWorkspace();
+            return KeyEventResult.handled;
+          }
+
+          // $mod + space: toggle search
+          if (event.logicalKey == LogicalKeyboardKey.space) {
+            setState(() {
+              _showSearch = !_showSearch;
+              _showOverview = false;
+              _showStartMenu = false;
+              _showCalendar = false;
+              _showQuickSettings = false;
+            });
+            return KeyEventResult.handled;
+          }
+
+          // $mod + Tab: toggle overview
+          if (event.logicalKey == LogicalKeyboardKey.tab) {
+            setState(() {
+              _showOverview = !_showOverview;
+              _showSearch = false;
+              _showStartMenu = false;
+              _showCalendar = false;
+              _showQuickSettings = false;
+            });
+            return KeyEventResult.handled;
+          }
+
+          // $mod + t: open terminal
+          if (event.logicalKey == LogicalKeyboardKey.keyT) {
+            final appList = getApps(context.read<AppConfig>());
+            final termApp = appList.firstWhere((a) => a.id == 'terminal');
+            windowManager.openNewInstance('terminal', 'fyrTerm', termApp.content!, termApp.icon);
+            return KeyEventResult.handled;
+          }
+
+          // $mod + Shift + Arrows: resize tiled window (same shortcut as fyrDE)
+          if (isShift) {
+            if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+              windowManager.resizeFocusedTiledWindow(-1, 0);
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+              windowManager.resizeFocusedTiledWindow(1, 0);
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+              windowManager.resizeFocusedTiledWindow(0, -1);
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+              windowManager.resizeFocusedTiledWindow(0, 1);
+              return KeyEventResult.handled;
+            }
+          } else {
+            // $mod + Arrows: cycle focus
+            if (event.logicalKey == LogicalKeyboardKey.arrowLeft || event.logicalKey == LogicalKeyboardKey.arrowUp) {
+              windowManager.focusPreviousWindow();
+              return KeyEventResult.handled;
+            }
+            if (event.logicalKey == LogicalKeyboardKey.arrowRight || event.logicalKey == LogicalKeyboardKey.arrowDown) {
+              windowManager.focusNextWindow();
+              return KeyEventResult.handled;
+            }
+          }
+
+          // $mod + 1..9: switch workspace, or $mod + Shift + 1..9: move container
+          final digitKeys = [
+            LogicalKeyboardKey.digit1,
+            LogicalKeyboardKey.digit2,
+            LogicalKeyboardKey.digit3,
+            LogicalKeyboardKey.digit4,
+            LogicalKeyboardKey.digit5,
+            LogicalKeyboardKey.digit6,
+            LogicalKeyboardKey.digit7,
+            LogicalKeyboardKey.digit8,
+            LogicalKeyboardKey.digit9,
+          ];
+          for (int i = 0; i < digitKeys.length; i++) {
+            if (event.logicalKey == digitKeys[i]) {
+              final wsNum = i + 1;
+              if (isShift) {
+                windowManager.moveFocusedWindowToWorkspace(wsNum);
+              } else {
+                windowManager.switchWorkspace(wsNum);
+              }
+              return KeyEventResult.handled;
+            }
+          }
+
+        return KeyEventResult.ignored;
+      },
+      child: Stack(
+        children: [
+          // Windows in current workspace
+          ...activeWindows.map(
+            (w) => WindowFrame(
+              key: ValueKey(w.id),
+              windowData: w,
+              tilingRect: windowManager.isTilingMode ? tilingRects[w.id] : null,
+              isDockFixed: !settings.dockAutoHide,
+              onClose: () => windowManager.closeWindow(w.id),
+              onMinimize: () => windowManager.minimizeWindow(w.id),
+              onMaximize: () => windowManager.toggleMaximize(w.id),
+              onFocus: () => windowManager.focusWindow(w.id),
+              onPositionChanged: (pos) => windowManager.updatePosition(w.id, pos),
+              onSizeChanged: (size) => windowManager.updateSize(w.id, size),
             ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: TopBar(
-            onMenuTap: () {
-              setState(() {
-                _showAppMenu = !_showAppMenu;
-                _showQuickSettings = false;
-              });
-            },
-            onQuickSettingsTap: () {
-              setState(() {
-                _showQuickSettings = !_showQuickSettings;
-                _showAppMenu = false;
-              });
-            },
-          ),
-        ),
-
-        if (_showAppMenu)
-          Positioned(
-            top: 35,
-            left: 10,
-            child: AppMenu(
-              onOpenApp: system.openApp,
-              onClose: () => setState(() => _showAppMenu = false),
-            ),
           ),
 
-        if (_showQuickSettings)
-          Positioned(top: 35, right: 10, child: const QuickSettings()),
+          // Tiling Mode Resizing Divider (for 2 tiled windows)
+          if (windowManager.isTilingMode && activeWindows.length == 2)
+            _buildTilingDivider(context, screenSize, windowManager, hideDock),
 
-        if (settings.dockAutoHide || hideDock)
+          // Top Taskbar (56px) - 1:1 replica of fyrDE fyrtaskbar
           Positioned(
-            bottom: 0,
+            top: 0,
             left: 0,
             right: 0,
-            height: 28,
-            child: MouseRegion(
-              onEnter: (_) => setState(() => _isDockHovered = true),
-              child: const SizedBox.expand(),
+            child: FyrTaskbar(
+              onToggleStartMenu: () {
+                setState(() {
+                  _showStartMenu = !_showStartMenu;
+                  _showCalendar = false;
+                  _showQuickSettings = false;
+                });
+              },
+              onToggleCalendar: () {
+                setState(() {
+                  _showCalendar = !_showCalendar;
+                  _showStartMenu = false;
+                  _showQuickSettings = false;
+                });
+              },
+              onToggleQuickSettings: () {
+                setState(() {
+                  _showQuickSettings = !_showQuickSettings;
+                  _showStartMenu = false;
+                  _showCalendar = false;
+                });
+              },
+              onToggleOverview: () {
+                setState(() {
+                  _showOverview = !_showOverview;
+                  _showStartMenu = false;
+                  _showCalendar = false;
+                  _showQuickSettings = false;
+                  _showSearch = false;
+                });
+              },
             ),
           ),
 
-        AnimatedPositioned(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeInOut,
-          bottom: hideDock ? -100 : 20,
-          left: 0,
-          right: 0,
-          child: MouseRegion(
-            onEnter: (_) => setState(() => _isDockHovered = true),
-            onExit: (_) => setState(() => _isDockHovered = false),
-            child: Dock(onOpenApp: system.openApp),
+          // Start Menu Popup
+          if (_showStartMenu)
+            Positioned(
+              top: 56,
+              left: 0,
+              bottom: 0,
+              child: StartMenuPopup(
+                onClose: () => setState(() => _showStartMenu = false),
+                onOpenApp: system.openApp,
+              ),
+            ),
+
+          // Calendar & Notifications Menu Popup (under clock)
+          if (_showCalendar)
+            Positioned(
+              top: 56,
+              left: 0,
+              right: 0,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: CalendarMenuPopup(
+                  onClose: () => setState(() => _showCalendar = false),
+                  onOpenCalendar: () => system.openApp(
+                    'calendar',
+                    'fyrCalendar',
+                    null,
+                    'assets/icons/calendar.png',
+                  ),
+                ),
+              ),
+            ),
+
+          // Quick Settings Popup (top right corner)
+          if (_showQuickSettings)
+            Positioned(
+              top: 56,
+              right: 0,
+              child: QuickSettingsPopup(
+                onClose: () => setState(() => _showQuickSettings = false),
+                onOpenSettings: () => system.openApp(
+                  'settings',
+                  'fyrSettings',
+                  const FyrSettingsApp(),
+                  'assets/icons/settings.png',
+                ),
+              ),
+            ),
+
+          // Dock Hover detection zone if autohide
+          if (settings.dockAutoHide || hideDock)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 28,
+              child: MouseRegion(
+                onEnter: (_) => setState(() => _isDockHovered = true),
+                child: const SizedBox.expand(),
+              ),
+            ),
+
+          // Bottom Dock (64px) - 1:1 replica of fyrDE fyrdock
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            bottom: hideDock ? -100 : 0,
+            left: 0,
+            right: 0,
+            child: MouseRegion(
+              onEnter: (_) => setState(() => _isDockHovered = true),
+              onExit: (_) => setState(() => _isDockHovered = false),
+              child: FyrDock(
+                onOpenApp: system.openApp,
+                onOpenSearch: () {
+                  setState(() {
+                    _showSearch = true;
+                    _showStartMenu = false;
+                    _showCalendar = false;
+                    _showQuickSettings = false;
+                  });
+                },
+              ),
+            ),
+          ),
+
+          // Full-screen fyrSearch
+          if (_showSearch)
+            Positioned.fill(
+              child: FyrSearchScreen(
+                onClose: () => setState(() => _showSearch = false),
+                onOpenApp: system.openApp,
+              ),
+            ),
+
+          // Full-screen fyrOverview
+          if (_showOverview)
+            Positioned.fill(
+              child: FyrOverviewScreen(
+                onClose: () => setState(() => _showOverview = false),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTilingDivider(
+    BuildContext context,
+    Size screenSize,
+    WindowManager windowManager,
+    bool hideDock,
+  ) {
+    const double outerGap = 20.0;
+    const double innerGap = 20.0;
+    const double topBarHeight = 56.0;
+    final double bottomReserved = hideDock ? 0.0 : 84.0;
+
+    final double totalWidth = screenSize.width - (2 * outerGap);
+    final double totalHeight = screenSize.height - topBarHeight - bottomReserved - (2 * outerGap);
+    if (totalWidth <= 0 || totalHeight <= 0) return const SizedBox.shrink();
+
+    final isHorizontalSplit = windowManager.splitLayout == 'splith';
+
+    if (isHorizontalSplit) {
+      final double availableW = totalWidth - innerGap;
+      final double leftW = availableW * windowManager.splitRatio;
+      final double dividerX = outerGap + leftW;
+
+      return Positioned(
+        left: dividerX,
+        top: topBarHeight + outerGap,
+        width: innerGap,
+        height: totalHeight,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.resizeColumn,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onPanUpdate: (details) {
+              windowManager.adjustSplitRatio(details.delta.dx / availableW);
+            },
+            child: Center(
+              child: Container(
+                width: 4,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: FyrTheme.accentColor.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
           ),
         ),
-      ],
-    );
+      );
+    } else {
+      final double availableH = totalHeight - innerGap;
+      final double topH = availableH * windowManager.splitRatio;
+      final double dividerY = topBarHeight + outerGap + topH;
+
+      return Positioned(
+        left: outerGap,
+        top: dividerY,
+        width: totalWidth,
+        height: innerGap,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.resizeRow,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onPanUpdate: (details) {
+              windowManager.adjustSplitRatio(details.delta.dy / availableH);
+            },
+            child: Center(
+              child: Container(
+                width: 48,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: FyrTheme.accentColor.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildWallpaper(SystemSettings settings) {
@@ -300,7 +672,8 @@ class _DesktopScreenState extends State<DesktopScreen> {
         fit: BoxFit.cover,
         gaplessPlayback: true,
         errorBuilder: (context, error, stackTrace) =>
-            Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover, gaplessPlayback: true),
+            Image.asset('assets/space.jpg', fit: BoxFit.cover, gaplessPlayback: true,
+              errorBuilder: (_, __, ___) => Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover)),
       );
     } else if (settings.wallpaperPath.startsWith('assets')) {
       imageWidget = Image.asset(
@@ -308,7 +681,8 @@ class _DesktopScreenState extends State<DesktopScreen> {
         fit: BoxFit.cover,
         gaplessPlayback: true,
         errorBuilder: (context, error, stackTrace) =>
-            Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover, gaplessPlayback: true),
+            Image.asset('assets/space.jpg', fit: BoxFit.cover, gaplessPlayback: true,
+              errorBuilder: (_, __, ___) => Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover)),
       );
     } else if (settings.wallpaperPath.startsWith('http://') ||
         settings.wallpaperPath.startsWith('https://')) {
@@ -317,10 +691,11 @@ class _DesktopScreenState extends State<DesktopScreen> {
         fit: BoxFit.cover,
         gaplessPlayback: true,
         errorBuilder: (context, error, stackTrace) =>
-            Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover, gaplessPlayback: true),
+            Image.asset('assets/space.jpg', fit: BoxFit.cover, gaplessPlayback: true),
       );
     } else {
-      imageWidget = Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover, gaplessPlayback: true);
+      imageWidget = Image.asset('assets/space.jpg', fit: BoxFit.cover, gaplessPlayback: true,
+        errorBuilder: (_, __, ___) => Image.asset('assets/wallpaper.jpg', fit: BoxFit.cover));
     }
 
     if (settings.wallpaperBlur > 0.1) {
@@ -540,13 +915,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
                       ),
                     ],
                   ),
-                  child: app.icon is IconData
-                      ? Icon(app.icon, color: Colors.white, size: glyphSize)
-                      : FaIcon(
-                          app.icon,
-                          color: Colors.white,
-                          size: glyphSize * 0.9,
-                        ),
+                  child: _buildMobileGlyph(app.icon, glyphSize),
                 ),
               );
             }).toList(),
@@ -674,13 +1043,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
                   ),
                 ],
               ),
-              child: app.icon is IconData
-                  ? Icon(app.icon, color: Colors.white, size: glyphSize)
-                  : FaIcon(
-                      app.icon,
-                      color: Colors.white,
-                      size: glyphSize * 0.9,
-                    ),
+              child: _buildMobileGlyph(app.icon, glyphSize),
             ),
             SizedBox(height: spacing),
             SizedBox(
@@ -707,6 +1070,34 @@ class _DesktopScreenState extends State<DesktopScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMobileGlyph(dynamic icon, double size) {
+    if (icon is String && icon.startsWith('assets/')) {
+      return Image.asset(
+        icon,
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => Icon(
+          Icons.apps,
+          color: Colors.white,
+          size: size,
+        ),
+      );
+    }
+    if (icon is IconData) {
+      return Icon(
+        icon,
+        color: Colors.white,
+        size: size,
+      );
+    }
+    return Icon(
+      Icons.apps,
+      color: Colors.white,
+      size: size,
     );
   }
 }

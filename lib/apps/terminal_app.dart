@@ -563,7 +563,7 @@ class _TerminalAppState extends State<TerminalApp> {
     return GestureDetector(
       onTap: () => _focusNode.requestFocus(),
       child: Container(
-        color: isDark ? const Color(0xFF0C0E12) : Colors.black87,
+        color: isDark ? const Color(0xFF000000) : Colors.black87,
         padding: const EdgeInsets.all(14),
         child: SingleChildScrollView(
           controller: _scrollController,

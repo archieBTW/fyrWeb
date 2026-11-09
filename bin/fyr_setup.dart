@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:args/args.dart';
-import 'package:path/path.dart' as p;
 
 const String configPath = 'assets/config.json';
 

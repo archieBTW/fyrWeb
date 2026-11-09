@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services/wallpaper_storage/wallpaper_storage.dart';
+import 'fyr_theme.dart';
 
 class SystemSettings extends ChangeNotifier {
   SharedPreferences? _prefs;
@@ -11,8 +12,8 @@ class SystemSettings extends ChangeNotifier {
 
   // Appearance & Wallpaper
   bool _isDarkMode = true;
-  Color _accentColor = const Color(0xFF9C27B0); // Modern purple
-  String _wallpaperPath = 'assets/wallpaper.jpg';
+  Color _accentColor = const Color(0xFF800080); // FyrDE purple
+  String _wallpaperPath = 'assets/space.jpg';
   Uint8List? _wallpaperBytes;
   bool _isCustomWallpaper = false;
   double _wallpaperBlur = 0.0;
@@ -102,6 +103,8 @@ class SystemSettings extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error loading SystemSettings: $e');
     }
+    FyrTheme.setThemeMode(_isDarkMode ? ThemeMode.dark : ThemeMode.light);
+    FyrTheme.setAccentColor(_accentColor);
     _isInitialized = true;
     notifyListeners();
   }
@@ -119,12 +122,14 @@ class SystemSettings extends ChangeNotifier {
   void setDarkMode(bool value) {
     _isDarkMode = value;
     _prefs?.setBool('isDarkMode', value);
+    FyrTheme.setThemeMode(value ? ThemeMode.dark : ThemeMode.light);
     notifyListeners();
   }
 
   void setAccentColor(Color color) {
     _accentColor = color;
     _prefs?.setInt('accentColor', color.toARGB32());
+    FyrTheme.setAccentColor(color);
     notifyListeners();
   }
 
