@@ -422,12 +422,12 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                           children: [
                             Expanded(
                               child: GestureDetector(
-                                onTap: () => FyrTheme.setThemeMode(ThemeMode.light),
+                                onTap: () => setState(() => settings.setDarkMode(false)),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                    color: !FyrTheme.isDark ? accentColor : FyrTheme.cardColor,
+                                    color: !settings.isDarkMode ? accentColor : FyrTheme.cardColor,
                                     borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(8),
                                       bottomLeft: Radius.circular(8),
@@ -437,7 +437,7 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                                   child: Text(
                                     'Light',
                                     style: TextStyle(
-                                      color: !FyrTheme.isDark ? Colors.white : FyrTheme.textColor,
+                                      color: !settings.isDarkMode ? Colors.white : FyrTheme.textColor,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -446,12 +446,12 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                             ),
                             Expanded(
                               child: GestureDetector(
-                                onTap: () => FyrTheme.setThemeMode(ThemeMode.dark),
+                                onTap: () => setState(() => settings.setDarkMode(true)),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                    color: FyrTheme.isDark ? accentColor : FyrTheme.cardColor,
+                                    color: settings.isDarkMode ? accentColor : FyrTheme.cardColor,
                                     borderRadius: const BorderRadius.only(
                                       topRight: Radius.circular(8),
                                       bottomRight: Radius.circular(8),
@@ -461,7 +461,7 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                                   child: Text(
                                     'Dark',
                                     style: TextStyle(
-                                      color: FyrTheme.isDark ? Colors.white : FyrTheme.textColor,
+                                      color: settings.isDarkMode ? Colors.white : FyrTheme.textColor,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -486,11 +486,11 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                         Row(
                           children: [
                             GestureDetector(
-                              onTap: () => FyrTheme.setThemeMode(ThemeMode.light),
+                              onTap: () => setState(() => settings.setDarkMode(false)),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                 decoration: BoxDecoration(
-                                  color: !FyrTheme.isDark ? accentColor : FyrTheme.cardColor,
+                                  color: !settings.isDarkMode ? accentColor : FyrTheme.cardColor,
                                   borderRadius: const BorderRadius.only(
                                     topLeft: Radius.circular(8),
                                     bottomLeft: Radius.circular(8),
@@ -500,18 +500,18 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                                 child: Text(
                                   'Light',
                                   style: TextStyle(
-                                    color: !FyrTheme.isDark ? Colors.white : FyrTheme.textColor,
+                                    color: !settings.isDarkMode ? Colors.white : FyrTheme.textColor,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => FyrTheme.setThemeMode(ThemeMode.dark),
+                              onTap: () => setState(() => settings.setDarkMode(true)),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                                 decoration: BoxDecoration(
-                                  color: FyrTheme.isDark ? accentColor : FyrTheme.cardColor,
+                                  color: settings.isDarkMode ? accentColor : FyrTheme.cardColor,
                                   borderRadius: const BorderRadius.only(
                                     topRight: Radius.circular(8),
                                     bottomRight: Radius.circular(8),
@@ -521,7 +521,7 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                                 child: Text(
                                   'Dark',
                                   style: TextStyle(
-                                    color: FyrTheme.isDark ? Colors.white : FyrTheme.textColor,
+                                    color: settings.isDarkMode ? Colors.white : FyrTheme.textColor,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -704,7 +704,7 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                               onChanged: (val) {
                                 setState(() => _pullColorFromBg = val);
                                 if (val) {
-                                  FyrTheme.setAccentColor(const Color(0xFF800080));
+                                  settings.setAccentColor(const Color(0xFF800080));
                                 }
                               },
                               activeColor: accentColor,
@@ -736,7 +736,7 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                               onChanged: (val) {
                                 setState(() => _pullColorFromBg = val);
                                 if (val) {
-                                  FyrTheme.setAccentColor(const Color(0xFF800080));
+                                  settings.setAccentColor(const Color(0xFF800080));
                                 }
                               },
                               activeColor: accentColor,
@@ -770,13 +770,13 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                               ),
                               const SizedBox(height: 16),
                               _buildColorSlider('Red', r, Colors.red, (val) {
-                                FyrTheme.setAccentColor(Color.fromARGB(255, val.toInt(), g, b));
+                                settings.setAccentColor(Color.fromARGB(255, val.toInt(), g, b));
                               }),
                               _buildColorSlider('Green', g, Colors.green, (val) {
-                                FyrTheme.setAccentColor(Color.fromARGB(255, r, val.toInt(), b));
+                                settings.setAccentColor(Color.fromARGB(255, r, val.toInt(), b));
                               }),
                               _buildColorSlider('Blue', b, Colors.blue, (val) {
-                                FyrTheme.setAccentColor(Color.fromARGB(255, r, g, val.toInt()));
+                                settings.setAccentColor(Color.fromARGB(255, r, g, val.toInt()));
                               }),
                             ],
                           ),
