@@ -35,10 +35,6 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
   static const List<Map<String, String>> _defaultWallpapers = [
     {
       'name': 'Deep Space',
-      'path': 'assets/space.jpg',
-    },
-    {
-      'name': 'Cyberpunk Neon',
       'path': 'assets/wallpaper.jpg',
     },
     {

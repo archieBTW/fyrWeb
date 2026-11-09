@@ -26,34 +26,14 @@ class _BrowserAppState extends State<BrowserApp> {
 
   final List<Map<String, dynamic>> _portfolioProjects = [
     {
-      'title': 'Beats by Arch — Lo-Fi & Instrumental Music Streaming Platform',
-      'url': 'https://beats.archerwoods.dev',
-      'displayUrl': 'beats.archerwoods.dev',
-      'icon': Icons.music_note,
-      'badge': 'Flutter Web • Audio Engine • Nginx • GCP',
+      'title': 'archBTW. — Terminal-Themed Music & Media Platform',
+      'url': 'https://archBTW.sh',
+      'displayUrl': 'archBTW.sh',
+      'icon': Icons.album,
+      'badge': 'Flutter Web • Nginx • Certbot • UFW • Terraform',
       'description':
-          'High-fidelity audio streaming application with real-time waveform visualization, playlist curation, and low-latency audio delivery on Arch Linux & Web. Automated zero-downtime Nginx reloads and Cloudflare DNS automation.',
-      'highlights': ['Audio Engine', 'Zero-Downtime', 'GCP', 'Flutter'],
-    },
-    {
-      'title': 'friend.ly — Retro Social Customization & Modern WASM Reels',
-      'url': 'https://friendly.archerwoods.dev',
-      'displayUrl': 'friendly.archerwoods.dev',
-      'icon': Icons.people,
-      'badge': 'Blazor WASM • Spring Boot 3 • PostgreSQL 16 • S3/GCS',
-      'description':
-          'Full-stack social platform blending vintage 2005 MySpace profile HTML/CSS freedom with modern vertical video reels (/reels) and real-time watch telemetry. 15 normalized PostgreSQL tables, S3 media quarantine, and automated Ansible deployment.',
-      'highlights': ['Clean Architecture', 'WASM Reels', 'Spring Boot 3', 'PostgreSQL 16'],
-    },
-    {
-      'title': 'bybl — AI-Powered Bible Study Platform & Research Assistant',
-      'url': 'https://bybl.dev',
-      'displayUrl': 'bybl.dev',
-      'icon': Icons.menu_book,
-      'badge': 'Flutter • Go REST • PostgreSQL • Gemini AI',
-      'description':
-          'AI-augmented research application using Gemini API with dynamic prompt injection, theological lens customization, custom verse journaling, and distraction-free cross-platform reading. Zero-trust container networking.',
-      'highlights': ['Gemini AI', 'Go REST API', 'Docker', 'Journaling'],
+          'Immersive terminal-emulator web experience housing streaming audio, merchandise catalog, real-time ASCII animations, and automated TLS 1.3 encryption with Certbot on GCP.',
+      'highlights': ['Terminal Emulator', 'ASCII Art', 'Certbot TLS 1.3', 'Nginx'],
     },
     {
       'title': 'LibreTrac — Mood, Sleep, and Cognition Telemetry Dashboard',
@@ -66,24 +46,24 @@ class _BrowserAppState extends State<BrowserApp> {
       'highlights': ['Time-Series Charts', 'AI Analytics', 'Habit Tracking'],
     },
     {
-      'title': 'archBTW. — Terminal-Themed Music & Media Platform',
-      'url': 'https://archBTW.sh',
-      'displayUrl': 'archBTW.sh',
-      'icon': Icons.album,
-      'badge': 'Flutter Web • Nginx • Certbot • UFW • Terraform',
+      'title': 'Beats by Arch — Lo-Fi & Instrumental Music Streaming Platform',
+      'url': 'https://beats.archerwoods.dev',
+      'displayUrl': 'beats.archerwoods.dev',
+      'icon': Icons.music_note,
+      'badge': 'Flutter Web • Audio Engine • Nginx • GCP',
       'description':
-          'Immersive terminal-emulator web experience housing streaming audio, merchandise catalog, real-time ASCII animations, and automated TLS 1.3 encryption with Certbot on GCP.',
-      'highlights': ['Terminal Emulator', 'ASCII Art', 'Certbot TLS 1.3', 'Nginx'],
+          'High-fidelity audio streaming application with real-time waveform visualization, playlist curation, and low-latency audio delivery on Arch Linux & Web. Automated zero-downtime Nginx reloads and Cloudflare DNS automation.',
+      'highlights': ['Audio Engine', 'Zero-Downtime', 'GCP', 'Flutter'],
     },
     {
-      'title': 'PyConTUI — Keyboard-Driven Terminal UI for Docker Management',
-      'url': 'https://github.com/archieBTW',
-      'displayUrl': 'github.com/archieBTW',
-      'icon': Icons.terminal,
-      'badge': 'Python • Textual • Docker SDK • ANSI',
+      'title': 'bybl — AI-Powered Bible Study Platform & Research Assistant',
+      'url': 'https://bybl.dev',
+      'displayUrl': 'bybl.dev',
+      'icon': Icons.menu_book,
+      'badge': 'Flutter • Go REST • PostgreSQL • Gemini AI',
       'description':
-          'Vim-style keyboard-driven terminal user interface for Docker container lifecycle orchestration, live log streams, and interactive exec shell connections. Headless remote SSH administration.',
-      'highlights': ['Vim Navigation', 'Docker SDK', 'Textual Python', 'ANSI TUI'],
+          'AI-augmented research application using Gemini API with dynamic prompt injection, theological lens customization, custom verse journaling, and distraction-free cross-platform reading. Zero-trust container networking.',
+      'highlights': ['Gemini AI', 'Go REST API', 'Docker', 'Journaling'],
     },
   ];
 
@@ -523,28 +503,10 @@ class _BrowserAppState extends State<BrowserApp> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Filter Tabs Bar (All, Projects, DevOps, Architecture)
-          Container(
-            padding: const EdgeInsets.only(left: 32, right: 32, top: 12, bottom: 2),
-            decoration: BoxDecoration(
-              color: const Color(0xFF18181C),
-              border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
-            ),
-            child: Row(
-              children: [
-                _buildSearchTab('All', true, accentColor),
-                _buildSearchTab('Projects', false, accentColor),
-                _buildSearchTab('DevOps', false, accentColor),
-                _buildSearchTab('Infrastructure', false, accentColor),
-                _buildSearchTab('Case Studies', false, accentColor),
-              ],
-            ),
-          ),
-
           // Results ScrollView
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(32, 16, 32, 32),
+              padding: const EdgeInsets.fromLTRB(32, 24, 32, 32),
               children: [
                 // Query stats
                 Text(
@@ -589,28 +551,6 @@ class _BrowserAppState extends State<BrowserApp> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSearchTab(String label, bool isSelected, Color accentColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: isSelected ? accentColor : Colors.transparent,
-            width: 2.5,
-          ),
-        ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? Colors.white : Colors.white54,
-        ),
       ),
     );
   }

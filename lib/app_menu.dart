@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'app_data.dart';
 import 'package:provider/provider.dart';
 import 'models/config_model.dart';
+import 'widgets/portfolio_app_icon.dart';
 
 class AppMenu extends StatelessWidget {
   final Function(String, String, Widget?, dynamic, {String? url}) onOpenApp;
@@ -46,17 +47,13 @@ class AppMenu extends StatelessWidget {
                     final app = apps[index];
                     return ListTile(
                       dense: true,
-                      leading: app.icon is String && (app.icon as String).startsWith('assets/')
-                          ? Image.asset(
-                              app.icon as String,
-                              width: 18,
-                              height: 18,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => Icon(Icons.apps, color: app.color, size: 18),
-                            )
-                          : (app.icon is IconData
-                              ? Icon(app.icon as IconData, color: app.color, size: 18)
-                              : Icon(Icons.apps, color: app.color, size: 18)),
+                      leading: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Center(
+                          child: PortfolioAppIcon(app: app, size: 20),
+                        ),
+                      ),
                       title: Text(
                         app.title,
                         style: GoogleFonts.inter(

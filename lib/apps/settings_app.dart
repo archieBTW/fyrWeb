@@ -26,16 +26,11 @@ class _SettingsAppState extends State<SettingsApp> {
   ];
 
   final List<Map<String, String>> _presets = [
-    {'name': 'Cyberpunk Neon', 'path': 'assets/wallpaper.jpg'},
+    {'name': 'Deep Space', 'path': 'assets/wallpaper.jpg'},
     {
       'name': 'Alpine Sunset',
       'path':
           'https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=1920',
-    },
-    {
-      'name': 'Deep Space',
-      'path':
-          'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=1920',
     },
     {
       'name': 'Cyber Grid',

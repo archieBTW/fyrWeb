@@ -173,6 +173,20 @@ dynamic _getIconData(String iconName) {
       return FontAwesomeIcons.linkedin;
     case 'headphones':
       return Icons.headphones_rounded;
+    case 'terminal':
+      return Icons.terminal_rounded;
+    case 'album':
+      return Icons.album_rounded;
+    case 'favorite':
+      return Icons.favorite_rounded;
+    case 'book':
+      return Icons.menu_book_rounded;
+    case 'newspaper':
+      return Icons.newspaper_rounded;
+    case 'speedometer':
+      return Icons.speed_rounded;
+    case 'graphic_eq':
+      return Icons.graphic_eq_rounded;
     default:
       return Icons.apps;
   }

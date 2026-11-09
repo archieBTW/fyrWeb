@@ -14,6 +14,7 @@ import 'widgets/taskbar/quick_settings_popup.dart';
 import 'widgets/dock/fyrdock.dart';
 import 'widgets/fyrsearch/fyrsearch_screen.dart';
 import 'widgets/fyroverview/fyroverview_screen.dart';
+import 'widgets/portfolio_app_icon.dart';
 import 'apps/fyrsettings_app.dart';
 import 'fyr_theme.dart';
 import 'dart:ui';
@@ -439,6 +440,43 @@ class _DesktopScreenState extends State<DesktopScreen> {
           if (windowManager.isTilingMode && activeWindows.length == 2)
             _buildTilingDivider(context, screenSize, windowManager, hideDock),
 
+          // Dock Hover detection zone if autohide
+          if (settings.dockAutoHide || hideDock)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 28,
+              child: MouseRegion(
+                onEnter: (_) => setState(() => _isDockHovered = true),
+                child: const SizedBox.expand(),
+              ),
+            ),
+
+          // Bottom Dock (64px) - 1:1 replica of fyrDE fyrdock
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            bottom: hideDock ? -100 : 0,
+            left: 0,
+            right: 0,
+            child: MouseRegion(
+              onEnter: (_) => setState(() => _isDockHovered = true),
+              onExit: (_) => setState(() => _isDockHovered = false),
+              child: FyrDock(
+                onOpenApp: system.openApp,
+                onOpenSearch: () {
+                  setState(() {
+                    _showSearch = true;
+                    _showStartMenu = false;
+                    _showCalendar = false;
+                    _showQuickSettings = false;
+                  });
+                },
+              ),
+            ),
+          ),
+
           // Top Taskbar (56px) - 1:1 replica of fyrDE fyrtaskbar
           Positioned(
             top: 0,
@@ -478,7 +516,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
             ),
           ),
 
-          // Start Menu Popup
+          // Start Menu Popup (renders in front of dock and taskbar)
           if (_showStartMenu)
             Positioned(
               top: 56,
@@ -525,43 +563,6 @@ class _DesktopScreenState extends State<DesktopScreen> {
                 ),
               ),
             ),
-
-          // Dock Hover detection zone if autohide
-          if (settings.dockAutoHide || hideDock)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: 28,
-              child: MouseRegion(
-                onEnter: (_) => setState(() => _isDockHovered = true),
-                child: const SizedBox.expand(),
-              ),
-            ),
-
-          // Bottom Dock (64px) - 1:1 replica of fyrDE fyrdock
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInOut,
-            bottom: hideDock ? -100 : 0,
-            left: 0,
-            right: 0,
-            child: MouseRegion(
-              onEnter: (_) => setState(() => _isDockHovered = true),
-              onExit: (_) => setState(() => _isDockHovered = false),
-              child: FyrDock(
-                onOpenApp: system.openApp,
-                onOpenSearch: () {
-                  setState(() {
-                    _showSearch = true;
-                    _showStartMenu = false;
-                    _showCalendar = false;
-                    _showQuickSettings = false;
-                  });
-                },
-              ),
-            ),
-          ),
 
           // Full-screen fyrSearch
           if (_showSearch)
@@ -790,6 +791,8 @@ class _DesktopScreenState extends State<DesktopScreen> {
                           onPressed: () =>
                               windowManager.closeWindow(focusedWindow.id),
                         ),
+                        const SizedBox(width: 4),
+                        PortfolioAppIcon(appId: focusedWindow.id, size: 22),
                         const SizedBox(width: 10),
                         Text(
                           focusedWindow.title,
@@ -865,8 +868,6 @@ class _DesktopScreenState extends State<DesktopScreen> {
   ) {
     final dockApps = apps.take(4).toList();
     final iconBoxSize = (height * 0.64).clamp(36.0, 54.0);
-    final glyphSize = (iconBoxSize * 0.56).clamp(18.0, 28.0);
-    final iconRadius = (iconBoxSize * 0.28).clamp(8.0, 15.0);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
@@ -900,22 +901,16 @@ class _DesktopScreenState extends State<DesktopScreen> {
                   app.icon,
                   url: app.url,
                 ),
-                child: Container(
+                child: SizedBox(
                   width: iconBoxSize,
                   height: iconBoxSize,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: app.color,
-                    borderRadius: BorderRadius.circular(iconRadius),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.25),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+                  child: Center(
+                    child: PortfolioAppIcon(
+                      app: app,
+                      size: iconBoxSize,
+                      solidBackground: true,
+                    ),
                   ),
-                  child: _buildMobileGlyph(app.icon, glyphSize),
                 ),
               );
             }).toList(),
@@ -960,9 +955,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
         final minDim = min(cellW, cellH);
         final maxBoxFromH = (cellH - 16.0).clamp(16.0, 56.0);
         final iconBoxSize = min(minDim * 0.50, maxBoxFromH).clamp(20.0, 54.0);
-        final iconGlyphSize = (iconBoxSize * 0.56).clamp(12.0, 28.0);
         final fontSize = (iconBoxSize * 0.22).clamp(8.5, 11.5);
-        final iconRadius = (iconBoxSize * 0.28).clamp(6.0, 15.0);
         final spacing = (cellH * 0.04).clamp(1.0, 4.0);
 
         return Padding(
@@ -990,9 +983,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
                   app,
                   system,
                   boxSize: iconBoxSize,
-                  glyphSize: iconGlyphSize,
                   fontSize: fontSize,
-                  borderRadius: iconRadius,
                   spacing: spacing,
                   cellW: cellW,
                 );
@@ -1008,9 +999,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
     AppInfo app,
     SystemController system, {
     required double boxSize,
-    required double glyphSize,
     required double fontSize,
-    required double borderRadius,
     required double spacing,
     required double cellW,
   }) {
@@ -1028,22 +1017,16 @@ class _DesktopScreenState extends State<DesktopScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               width: boxSize,
               height: boxSize,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: app.color,
-                borderRadius: BorderRadius.circular(borderRadius),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.25),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
+              child: Center(
+                child: PortfolioAppIcon(
+                  app: app,
+                  size: boxSize,
+                  solidBackground: true,
+                ),
               ),
-              child: _buildMobileGlyph(app.icon, glyphSize),
             ),
             SizedBox(height: spacing),
             SizedBox(
@@ -1070,34 +1053,6 @@ class _DesktopScreenState extends State<DesktopScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildMobileGlyph(dynamic icon, double size) {
-    if (icon is String && icon.startsWith('assets/')) {
-      return Image.asset(
-        icon,
-        width: size,
-        height: size,
-        fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) => Icon(
-          Icons.apps,
-          color: Colors.white,
-          size: size,
-        ),
-      );
-    }
-    if (icon is IconData) {
-      return Icon(
-        icon,
-        color: Colors.white,
-        size: size,
-      );
-    }
-    return Icon(
-      Icons.apps,
-      color: Colors.white,
-      size: size,
     );
   }
 }

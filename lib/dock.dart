@@ -3,6 +3,7 @@ import 'app_data.dart';
 import 'package:provider/provider.dart';
 import 'models/config_model.dart';
 import 'system_settings.dart';
+import 'widgets/portfolio_app_icon.dart';
 import 'dart:ui';
 
 class Dock extends StatelessWidget {
@@ -58,6 +59,7 @@ class Dock extends StatelessWidget {
               children: apps
                   .map(
                     (app) => _DockIcon(
+                      app: app,
                       icon: app.icon,
                       label: app.title,
                       color: app.color,
@@ -81,6 +83,7 @@ class Dock extends StatelessWidget {
 }
 
 class _DockIcon extends StatefulWidget {
+  final AppInfo? app;
   final dynamic icon;
   final String label;
   final Color color;
@@ -88,6 +91,7 @@ class _DockIcon extends StatefulWidget {
   final double scale;
 
   const _DockIcon({
+    this.app,
     required this.icon,
     required this.label,
     required this.color,
@@ -106,9 +110,7 @@ class _DockIconState extends State<_DockIcon> {
   Widget build(BuildContext context) {
     final s = widget.scale.clamp(0.40, 1.4);
     final iconSize = (28.0 * s).clamp(13.0, 38.0);
-    final containerPadding = (8.0 * s).clamp(3.0, 12.0);
     final itemHorizontalPadding = (3.0 * s).clamp(1.0, 6.0);
-    final borderRadius = (12.0 * s).clamp(5.0, 16.0);
 
     return Tooltip(
       message: widget.label,
@@ -134,33 +136,16 @@ class _DockIconState extends State<_DockIcon> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  padding: EdgeInsets.all(containerPadding),
-                  decoration: BoxDecoration(
-                    color: widget.color.withValues(alpha: 0.85),
-                    borderRadius: BorderRadius.circular(borderRadius),
-                    boxShadow: [
-                      if (_isHovered)
-                        BoxShadow(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.5),
-                          blurRadius: 10 * s,
-                          spreadRadius: 2 * s,
-                        ),
-                    ],
+                SizedBox(
+                  width: iconSize,
+                  height: iconSize,
+                  child: Center(
+                    child: PortfolioAppIcon(
+                      app: widget.app,
+                      icon: widget.icon,
+                      size: iconSize,
+                    ),
                   ),
-                  child: widget.icon is String && (widget.icon as String).startsWith('assets/')
-                      ? Image.asset(
-                          widget.icon as String,
-                          width: iconSize,
-                          height: iconSize,
-                          fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => Icon(Icons.apps, color: Colors.white, size: iconSize),
-                        )
-                      : (widget.icon is IconData
-                          ? Icon(widget.icon as IconData, color: Colors.white, size: iconSize)
-                          : Icon(Icons.apps, color: Colors.white, size: iconSize)),
                 ),
                 if (_isHovered && s > 0.75) SizedBox(height: 2 * s),
               ],
