@@ -79,9 +79,12 @@ class _QuickSettingsPopupState extends State<QuickSettingsPopup>
         child: Container(
           width: 472,
           decoration: BoxDecoration(
-            color: FyrTheme.bgColor.withValues(alpha: 0.45),
+            color: FyrTheme.bgColor.withValues(alpha: 0.35),
             borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(16)),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            border: Border(
+              left: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+              bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.4),

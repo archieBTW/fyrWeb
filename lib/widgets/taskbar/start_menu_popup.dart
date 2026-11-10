@@ -62,7 +62,7 @@ class _StartMenuPopupState extends State<StartMenuPopup>
           width: 400,
           constraints: const BoxConstraints(maxHeight: 700),
           decoration: BoxDecoration(
-            color: FyrTheme.bgColor.withValues(alpha: 0.45),
+            color: FyrTheme.bgColor.withValues(alpha: 0.35),
             borderRadius: const BorderRadius.only(
               bottomRight: Radius.circular(16),
             ),
@@ -87,44 +87,47 @@ class _StartMenuPopupState extends State<StartMenuPopup>
 
               // Apps List
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  itemCount: filteredApps.length,
-                  itemBuilder: (context, index) {
-                    final app = filteredApps[index];
-                    return ListTile(
-                      dense: true,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      hoverColor: FyrTheme.hoverColor,
-                      leading: _buildAppIcon(app),
-                      title: Text(
-                        app.title,
-                        style: TextStyle(
-                          color: FyrTheme.textColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      subtitle: app.subtitle != null
-                          ? Text(
-                              app.subtitle!,
-                              style: TextStyle(color: FyrTheme.textColorMuted, fontSize: 11),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          : null,
-                      onTap: () {
-                        widget.onClose();
-                        widget.onOpenApp(
-                          app.id,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    itemCount: filteredApps.length,
+                    itemBuilder: (context, index) {
+                      final app = filteredApps[index];
+                      return ListTile(
+                        dense: true,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        hoverColor: FyrTheme.hoverColor,
+                        leading: _buildAppIcon(app),
+                        title: Text(
                           app.title,
-                          app.content,
-                          app.icon,
-                          url: app.url,
-                        );
-                      },
-                    );
-                  },
+                          style: TextStyle(
+                            color: FyrTheme.textColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        subtitle: app.subtitle != null
+                            ? Text(
+                                app.subtitle!,
+                                style: TextStyle(color: FyrTheme.textColorMuted, fontSize: 11),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              )
+                            : null,
+                        onTap: () {
+                          widget.onClose();
+                          widget.onOpenApp(
+                            app.id,
+                            app.title,
+                            app.content,
+                            app.icon,
+                            url: app.url,
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
 

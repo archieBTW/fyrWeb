@@ -163,14 +163,14 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                               category.icon,
                               size: 16,
                               color: isSelected
-                                  ? Colors.white
+                                  ? FyrTheme.onColor(accentColor)
                                   : (FyrTheme.isDark ? Colors.white70 : Colors.black87),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               category.name,
                               style: TextStyle(
-                                color: isSelected ? Colors.white : FyrTheme.textColor,
+                                color: isSelected ? FyrTheme.onColor(accentColor) : FyrTheme.textColor,
                                 fontSize: 13,
                                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                               ),
@@ -202,6 +202,9 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
       );
     }
 
+    final onSidebarColor = FyrTheme.onColor(accentColor);
+    final onSidebarMuted = onSidebarColor == Colors.black87 ? Colors.black54 : Colors.white70;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Row(
@@ -221,16 +224,16 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Settings',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: onSidebarColor,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.menu_open, color: Colors.white),
+                          icon: Icon(Icons.menu_open, color: onSidebarColor),
                           onPressed: () => setState(() => _isSidebarCollapsed = true),
                         ),
                       ],
@@ -240,7 +243,7 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: IconButton(
-                      icon: const Icon(Icons.menu, color: Colors.white),
+                      icon: Icon(Icons.menu, color: onSidebarColor),
                       onPressed: () => setState(() => _isSidebarCollapsed = false),
                     ),
                   ),
@@ -277,8 +280,8 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                                 Icon(
                                   category.icon,
                                   color: isSelected
-                                      ? Colors.white
-                                      : Colors.white70,
+                                      ? onSidebarColor
+                                      : onSidebarMuted,
                                   size: 20,
                                 ),
                                 if (!_isSidebarCollapsed) ...[
@@ -288,8 +291,8 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                                       category.name,
                                       style: TextStyle(
                                         color: isSelected
-                                            ? Colors.white
-                                            : Colors.white70,
+                                            ? onSidebarColor
+                                            : onSidebarMuted,
                                         fontSize: 15,
                                         fontWeight: isSelected
                                             ? FontWeight.w600
@@ -366,7 +369,6 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
   // ==========================================
   // 1. Personalization Pane (Exact 1:1 replica of fyrDE personalization_pane.dart)
   // ==========================================
-  bool _pullColorFromBg = true;
 
   Widget _buildPersonalizationPane(SystemSettings settings, Color accentColor, bool isMobile) {
     final ImageProvider activeWallpaperImage;
@@ -433,7 +435,7 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                                   child: Text(
                                     'Light',
                                     style: TextStyle(
-                                      color: !settings.isDarkMode ? Colors.white : FyrTheme.textColor,
+                                      color: !settings.isDarkMode ? FyrTheme.onColor(accentColor) : FyrTheme.textColor,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -457,7 +459,7 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                                   child: Text(
                                     'Dark',
                                     style: TextStyle(
-                                      color: settings.isDarkMode ? Colors.white : FyrTheme.textColor,
+                                      color: settings.isDarkMode ? FyrTheme.onColor(accentColor) : FyrTheme.textColor,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -496,7 +498,7 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                                 child: Text(
                                   'Light',
                                   style: TextStyle(
-                                    color: !settings.isDarkMode ? Colors.white : FyrTheme.textColor,
+                                    color: !settings.isDarkMode ? FyrTheme.onColor(accentColor) : FyrTheme.textColor,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -517,7 +519,7 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                                 child: Text(
                                   'Dark',
                                   style: TextStyle(
-                                    color: settings.isDarkMode ? Colors.white : FyrTheme.textColor,
+                                    color: settings.isDarkMode ? FyrTheme.onColor(accentColor) : FyrTheme.textColor,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -696,12 +698,9 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                               style: TextStyle(color: FyrTheme.textColorMuted),
                             ),
                             Switch(
-                              value: _pullColorFromBg,
+                              value: settings.pullColorFromBg,
                               onChanged: (val) {
-                                setState(() => _pullColorFromBg = val);
-                                if (val) {
-                                  settings.setAccentColor(const Color(0xFF800080));
-                                }
+                                settings.setPullColorFromBg(val);
                               },
                               activeColor: accentColor,
                             ),
@@ -728,12 +727,9 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                               style: TextStyle(color: FyrTheme.textColorMuted),
                             ),
                             Switch(
-                              value: _pullColorFromBg,
+                              value: settings.pullColorFromBg,
                               onChanged: (val) {
-                                setState(() => _pullColorFromBg = val);
-                                if (val) {
-                                  settings.setAccentColor(const Color(0xFF800080));
-                                }
+                                settings.setPullColorFromBg(val);
                               },
                               activeColor: accentColor,
                             ),
@@ -750,18 +746,27 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                       final b = (color.toARGB32() & 0xFF);
 
                       return AbsorbPointer(
-                        absorbing: _pullColorFromBg,
+                        absorbing: settings.pullColorFromBg,
                         child: Opacity(
-                          opacity: _pullColorFromBg ? 0.6 : 1.0,
+                          opacity: settings.pullColorFromBg ? 0.6 : 1.0,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
                                 height: 40,
+                                alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   color: color,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(color: FyrTheme.textColor, width: 2),
+                                ),
+                                child: Text(
+                                  '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
+                                  style: TextStyle(
+                                    color: FyrTheme.onColor(color),
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.1,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -964,9 +969,9 @@ class _FyrSettingsAppState extends State<FyrSettingsApp> {
                         color: accentColor,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.check,
-                        color: Colors.white,
+                        color: FyrTheme.onColor(accentColor),
                         size: 12,
                       ),
                     ),

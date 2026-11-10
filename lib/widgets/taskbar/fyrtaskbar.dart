@@ -35,12 +35,6 @@ class FyrTaskbar extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             color: FyrTheme.bgColor.withValues(alpha: 0.35),
-            border: Border(
-              bottom: BorderSide(
-                color: Colors.white.withValues(alpha: 0.08),
-                width: 0.5,
-              ),
-            ),
           ),
           child: Stack(
         children: [
@@ -66,20 +60,23 @@ class FyrTaskbar extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                GestureDetector(
-                  onTap: onToggleStartMenu,
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    alignment: Alignment.center,
-                    child: Image.asset(
-                      'assets/icons/fyr_icon.png',
-                      width: 32,
-                      height: 32,
-                      errorBuilder: (_, __, ___) => Icon(
-                        Icons.local_fire_department,
-                        color: FyrTheme.accentColor,
-                        size: 28,
+                Tooltip(
+                  message: 'Start Menu (fyr)',
+                  child: GestureDetector(
+                    onTap: onToggleStartMenu,
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        'assets/icons/fyr_icon.png',
+                        width: 32,
+                        height: 32,
+                        errorBuilder: (_, __, ___) => Icon(
+                          Icons.local_fire_department,
+                          color: FyrTheme.accentColor,
+                          size: 28,
+                        ),
                       ),
                     ),
                   ),

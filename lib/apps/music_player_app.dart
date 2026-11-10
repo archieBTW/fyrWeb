@@ -1,181 +1,45 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../system_settings.dart';
+import '../services/music_audio/music_audio.dart';
+import '../fyr_theme.dart';
 
-class MusicPlayerApp extends StatefulWidget {
+class MusicPlayerApp extends StatelessWidget {
   const MusicPlayerApp({super.key});
-
-  @override
-  State<MusicPlayerApp> createState() => _MusicPlayerAppState();
-}
-
-class _MusicPlayerAppState extends State<MusicPlayerApp> {
-  late Future<List<String>> _tracksFuture;
-  List<String> _tracks = [];
-  
-  late AudioPlayer _audioPlayer;
-  int _currentTrackIndex = 0;
-  bool _isPlaying = false;
-  Duration _duration = Duration.zero;
-  Duration _position = Duration.zero;
-
-  StreamSubscription? _durationSubscription;
-  StreamSubscription? _positionSubscription;
-  StreamSubscription? _playerCompleteSubscription;
-  StreamSubscription? _playerStateSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    _audioPlayer = AudioPlayer();
-    _setupAudioListeners();
-    _tracksFuture = _loadTracks();
-  }
-
-  Future<List<String>> _loadTracks() async {
-    final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-    final tracks = assetManifest
-        .listAssets()
-        .where(
-          (key) =>
-              key.startsWith('assets/music/') &&
-              (key.endsWith('.m4a') ||
-                  key.endsWith('.mp3') ||
-                  key.endsWith('.wav')),
-        )
-        .toList();
-    
-    // Sort tracks by name
-    tracks.sort();
-    
-    if (tracks.isNotEmpty && mounted) {
-      setState(() {
-        _tracks = tracks;
-      });
-      final relativePath = tracks.first.replaceFirst('assets/', '');
-      unawaited(_audioPlayer.setSource(AssetSource(relativePath)));
-    }
-    return tracks;
-  }
-
-  void _setupAudioListeners() {
-    _durationSubscription = _audioPlayer.onDurationChanged.listen((d) {
-      if (mounted) setState(() => _duration = d);
-    });
-
-    _positionSubscription = _audioPlayer.onPositionChanged.listen((p) {
-      if (mounted) setState(() => _position = p);
-    });
-
-    _playerCompleteSubscription = _audioPlayer.onPlayerComplete.listen((event) {
-      if (mounted) _next();
-    });
-
-    _playerStateSubscription = _audioPlayer.onPlayerStateChanged.listen((state) {
-      if (mounted) {
-        setState(() {
-          _isPlaying = state == PlayerState.playing;
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _durationSubscription?.cancel();
-    _positionSubscription?.cancel();
-    _playerCompleteSubscription?.cancel();
-    _playerStateSubscription?.cancel();
-    _audioPlayer.dispose();
-    super.dispose();
-  }
-
-  Future<void> _playPause() async {
-    if (_tracks.isEmpty) return;
-    
-    if (_isPlaying) {
-      await _audioPlayer.pause();
-    } else {
-      if (_position == Duration.zero && _duration == Duration.zero) {
-        await _playTrack();
-      } else {
-        await _audioPlayer.resume();
-      }
-    }
-  }
-
-  Future<void> _playTrack() async {
-    if (_tracks.isEmpty) return;
-    
-    final trackPath = _tracks[_currentTrackIndex];
-    // audioplayers AssetSource expects a path relative to 'assets/' by default
-    final relativePath = trackPath.replaceFirst('assets/', '');
-    
-    await _audioPlayer.setSource(AssetSource(relativePath));
-    await _audioPlayer.resume();
-  }
-
-  Future<void> _next() async {
-    if (_tracks.isEmpty) return;
-    setState(() {
-      _currentTrackIndex = (_currentTrackIndex + 1) % _tracks.length;
-    });
-    await _playTrack();
-  }
-
-  Future<void> _previous() async {
-    if (_tracks.isEmpty) return;
-    setState(() {
-      _currentTrackIndex = (_currentTrackIndex - 1 + _tracks.length) % _tracks.length;
-    });
-    await _playTrack();
-  }
-
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "$twoDigitMinutes:$twoDigitSeconds";
-  }
-
-  String _cleanTrackName(String name) {
-    // Extract filename from path and remove extension
-    final fileName = name.split('/').last;
-    return fileName.replaceAll('.wav', '').replaceAll('.m4a', '').replaceAll('_', ' ');
-  }
 
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SystemSettings>();
+    final music = context.watch<MusicService>();
     final accentColor = settings.accentColor;
     final onSurfaceColor = Theme.of(context).colorScheme.onSurface;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return FutureBuilder<List<String>>(
-      future: _tracksFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    final tracks = music.tracks;
 
-        if (_tracks.isEmpty) {
-          return Center(
-            child: Text(
-              'No music found in assets/music/',
-              style: GoogleFonts.inter(
-                color: onSurfaceColor.withOpacity(0.5),
-              ),
-            ),
-          );
-        }
+    if (!music.isInitialized && tracks.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-        return Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    if (tracks.isEmpty) {
+      return Center(
+        child: Text(
+          'No music found in assets/music/',
+          style: GoogleFonts.inter(
+            color: onSurfaceColor.withValues(alpha: 0.5),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(32.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 'Now Playing',
@@ -185,29 +49,42 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 24),
-              _buildPlayerControls(accentColor, onSurfaceColor),
-              const SizedBox(height: 32),
-              Expanded(
-                child: _buildTracklist(accentColor, onSurfaceColor),
-              ),
+              if (music.isPlaying)
+                _buildPlayingIndicator(accentColor),
             ],
           ),
-        );
-      },
+          const SizedBox(height: 24),
+          _buildPlayerControls(context, music, accentColor, onSurfaceColor),
+          const SizedBox(height: 32),
+          Expanded(
+            child: _buildTracklist(context, music, accentColor, onSurfaceColor, isDark),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildPlayerControls(Color accentColor, Color onSurfaceColor) {
-    final trackName = _tracks.isNotEmpty ? _cleanTrackName(_tracks[_currentTrackIndex]) : 'Unknown';
-    
+  Widget _buildPlayerControls(
+    BuildContext context,
+    MusicService music,
+    Color accentColor,
+    Color onSurfaceColor,
+  ) {
+    final trackName = music.currentTrackTitle.isNotEmpty
+        ? music.currentTrackTitle
+        : 'Unknown Track';
+
+    final position = music.position;
+    final duration = music.duration;
+    final isPlaying = music.isPlaying;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: onSurfaceColor.withOpacity(0.05),
+        color: onSurfaceColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: onSurfaceColor.withOpacity(0.1),
+          color: onSurfaceColor.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
@@ -228,9 +105,9 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
           Row(
             children: [
               Text(
-                _formatDuration(_position),
+                MusicService.formatDuration(position),
                 style: GoogleFonts.jetBrainsMono(
-                  color: onSurfaceColor.withOpacity(0.5),
+                  color: onSurfaceColor.withValues(alpha: 0.5),
                   fontSize: 12,
                 ),
               ),
@@ -239,26 +116,28 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
                   data: SliderThemeData(
                     trackHeight: 2,
                     activeTrackColor: accentColor,
-                    inactiveTrackColor: onSurfaceColor.withOpacity(0.1),
+                    inactiveTrackColor: onSurfaceColor.withValues(alpha: 0.1),
                     thumbColor: accentColor,
                     thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
                     overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
                   ),
                   child: Slider(
-                    value: _position.inMilliseconds.toDouble(),
-                    max: _duration.inMilliseconds.toDouble() > 0
-                        ? _duration.inMilliseconds.toDouble()
+                    value: position.inMilliseconds
+                        .toDouble()
+                        .clamp(0.0, (duration.inMilliseconds > 0 ? duration.inMilliseconds : 1).toDouble()),
+                    max: duration.inMilliseconds.toDouble() > 0
+                        ? duration.inMilliseconds.toDouble()
                         : 1.0,
                     onChanged: (value) {
-                      _audioPlayer.seek(Duration(milliseconds: value.toInt()));
+                      music.seek(Duration(milliseconds: value.toInt()));
                     },
                   ),
                 ),
               ),
               Text(
-                _formatDuration(_duration),
+                MusicService.formatDuration(duration),
                 style: GoogleFonts.jetBrainsMono(
-                  color: onSurfaceColor.withOpacity(0.5),
+                  color: onSurfaceColor.withValues(alpha: 0.5),
                   fontSize: 12,
                 ),
               ),
@@ -272,19 +151,26 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
                 icon: const Icon(Icons.skip_previous),
                 color: onSurfaceColor,
                 iconSize: 32,
-                onPressed: _previous,
+                onPressed: () => music.previous(),
               ),
               const SizedBox(width: 16),
               Container(
                 decoration: BoxDecoration(
                   color: accentColor,
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: accentColor.withValues(alpha: 0.35),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
                 child: IconButton(
-                  icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
-                  color: Colors.white,
+                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                  color: FyrTheme.onColor(accentColor),
                   iconSize: 40,
-                  onPressed: _playPause,
+                  onPressed: () => music.playPause(),
                 ),
               ),
               const SizedBox(width: 16),
@@ -292,7 +178,7 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
                 icon: const Icon(Icons.skip_next),
                 color: onSurfaceColor,
                 iconSize: 32,
-                onPressed: _next,
+                onPressed: () => music.next(),
               ),
             ],
           ),
@@ -301,14 +187,24 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
     );
   }
 
-  Widget _buildTracklist(Color accentColor, Color onSurfaceColor) {
+  Widget _buildTracklist(
+    BuildContext context,
+    MusicService music,
+    Color accentColor,
+    Color onSurfaceColor,
+    bool isDark,
+  ) {
+    final tracks = music.tracks;
+    final currentIndex = music.currentTrackIndex;
+    final isPlaying = music.isPlaying;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Tracks',
           style: GoogleFonts.inter(
-            color: onSurfaceColor.withOpacity(0.5),
+            color: onSurfaceColor.withValues(alpha: 0.5),
             fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
@@ -316,35 +212,45 @@ class _MusicPlayerAppState extends State<MusicPlayerApp> {
         const SizedBox(height: 16),
         Expanded(
           child: ListView.builder(
-            itemCount: _tracks.length,
+            itemCount: tracks.length,
             itemBuilder: (context, index) {
-              final track = _tracks[index];
-              final isCurrent = index == _currentTrackIndex;
-              final trackName = _cleanTrackName(track);
-              
+              final track = tracks[index];
+              final isCurrent = index == currentIndex;
+              final trackName = MusicService.cleanTrackName(track);
+
+              final Color activeTitleColor;
+              if (isCurrent) {
+                if (!isDark && accentColor.computeLuminance() > 0.55) {
+                  activeTitleColor = Colors.black87;
+                } else {
+                  activeTitleColor = accentColor;
+                }
+              } else {
+                activeTitleColor = onSurfaceColor;
+              }
+
               return ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                tileColor: isCurrent ? accentColor.withOpacity(0.1) : Colors.transparent,
-                leading: isCurrent && _isPlaying
+                tileColor: isCurrent ? accentColor.withValues(alpha: 0.12) : Colors.transparent,
+                leading: isCurrent && isPlaying
                     ? _buildPlayingIndicator(accentColor)
                     : Icon(
                         Icons.music_note,
-                        color: isCurrent ? accentColor : onSurfaceColor.withOpacity(0.3),
+                        color: isCurrent ? accentColor : onSurfaceColor.withValues(alpha: 0.3),
                       ),
                 title: Text(
                   trackName.toUpperCase(),
                   style: GoogleFonts.inter(
-                    color: isCurrent ? accentColor : onSurfaceColor,
+                    color: activeTitleColor,
                     fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
                     fontSize: 14,
                   ),
                 ),
                 onTap: () {
-                  setState(() => _currentTrackIndex = index);
-                  _playTrack();
+                  music.playTrackAtIndex(index);
                 },
               );
             },
@@ -379,7 +285,8 @@ class _PlayingBar extends StatefulWidget {
   State<_PlayingBar> createState() => _PlayingBarState();
 }
 
-class _PlayingBarState extends State<_PlayingBar> with SingleTickerProviderStateMixin {
+class _PlayingBarState extends State<_PlayingBar>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -409,8 +316,8 @@ class _PlayingBarState extends State<_PlayingBar> with SingleTickerProviderState
           width: 3,
           height: 4 + (12 * _controller.value),
           decoration: BoxDecoration(
-             color: widget.color,
-             borderRadius: BorderRadius.circular(2),
+            color: widget.color,
+            borderRadius: BorderRadius.circular(2),
           ),
         );
       },

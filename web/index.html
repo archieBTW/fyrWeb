@@ -303,6 +303,156 @@
         if (callback) callback(dataUrl);
       }
     };
+
+    // Background Music Audio Engine with MediaSession API integration
+    window.fyrMusicPlayer = (function() {
+      let audio = null;
+      let onPosCb = null;
+      let onDurCb = null;
+      let onStateCb = null;
+      let onEndedCb = null;
+      let onMediaActionCb = null;
+      let curTitle = '';
+      let curArtist = 'Archer Woods';
+      let pendingPlay = false;
+
+      function ensureAudio() {
+        if (!audio) {
+          audio = document.createElement('audio');
+          audio.id = 'fyr-background-audio';
+          audio.preload = 'auto';
+          audio.setAttribute('playsinline', '');
+          audio.setAttribute('webkit-playsinline', '');
+          audio.style.display = 'none';
+          document.body.appendChild(audio);
+
+          audio.addEventListener('timeupdate', function() {
+            if (onPosCb) onPosCb(audio.currentTime);
+          });
+          audio.addEventListener('durationchange', function() {
+            if (onDurCb && !isNaN(audio.duration)) onDurCb(audio.duration);
+          });
+          audio.addEventListener('loadedmetadata', function() {
+            if (onDurCb && !isNaN(audio.duration)) onDurCb(audio.duration);
+          });
+          audio.addEventListener('play', function() {
+            if (onStateCb) onStateCb(true);
+            updateMediaSessionState('playing');
+          });
+          audio.addEventListener('pause', function() {
+            if (onStateCb) onStateCb(false);
+            updateMediaSessionState('paused');
+          });
+          audio.addEventListener('ended', function() {
+            if (onEndedCb) onEndedCb();
+          });
+          audio.addEventListener('error', function(e) {
+            console.warn('HTML5 Audio error:', e);
+            if (audio.src && audio.src.indexOf('assets/assets/') !== -1) {
+              const fallback = audio.src.replace('assets/assets/', 'assets/');
+              audio.src = fallback;
+              audio.load();
+              if (pendingPlay) {
+                audio.play().catch(function() {});
+              }
+            }
+          });
+
+          setupMediaSession();
+        }
+        return audio;
+      }
+
+      function setupMediaSession() {
+        if ('mediaSession' in navigator) {
+          try {
+            navigator.mediaSession.setActionHandler('play', function() {
+              if (onMediaActionCb) onMediaActionCb('play');
+              else if (audio) audio.play();
+            });
+            navigator.mediaSession.setActionHandler('pause', function() {
+              if (onMediaActionCb) onMediaActionCb('pause');
+              else if (audio) audio.pause();
+            });
+            navigator.mediaSession.setActionHandler('previoustrack', function() {
+              if (onMediaActionCb) onMediaActionCb('previoustrack');
+            });
+            navigator.mediaSession.setActionHandler('nexttrack', function() {
+              if (onMediaActionCb) onMediaActionCb('nexttrack');
+            });
+            navigator.mediaSession.setActionHandler('seekto', function(details) {
+              if (details && details.seekTime !== undefined) {
+                if (audio) audio.currentTime = details.seekTime;
+                if (onMediaActionCb) onMediaActionCb('seekto:' + details.seekTime);
+              }
+            });
+          } catch(e) {}
+        }
+      }
+
+      function updateMediaSessionState(state) {
+        if ('mediaSession' in navigator) {
+          try {
+            navigator.mediaSession.playbackState = state;
+          } catch(e) {}
+        }
+      }
+
+      function setMetadata(title, artist) {
+        curTitle = title || curTitle;
+        curArtist = artist || curArtist;
+        if ('mediaSession' in navigator && window.MediaMetadata) {
+          try {
+            navigator.mediaSession.metadata = new MediaMetadata({
+              title: curTitle,
+              artist: curArtist,
+              album: 'Beats by Arch',
+              artwork: [
+                { src: 'icons/Icon-192.png', sizes: '192x192', type: 'image/png' },
+                { src: 'icons/Icon-512.png', sizes: '512x512', type: 'image/png' }
+              ]
+            });
+          } catch(e) {}
+        }
+      }
+
+      return {
+        setSource: function(src, title, artist) {
+          const a = ensureAudio();
+          pendingPlay = false;
+          a.src = src;
+          a.load();
+          if (title) setMetadata(title, artist);
+        },
+        play: function() {
+          const a = ensureAudio();
+          pendingPlay = true;
+          return a.play().then(function() {
+            pendingPlay = false;
+            updateMediaSessionState('playing');
+          }).catch(function(e) {
+            console.warn('Playback error:', e);
+          });
+        },
+        pause: function() {
+          pendingPlay = false;
+          if (audio) audio.pause();
+          updateMediaSessionState('paused');
+        },
+        seek: function(seconds) {
+          if (audio) audio.currentTime = seconds;
+        },
+        setVolume: function(volume) {
+          if (audio) audio.volume = Math.max(0, Math.min(1, volume));
+        },
+        setMetadata: setMetadata,
+        onPosition: function(cb) { onPosCb = cb; },
+        onDuration: function(cb) { onDurCb = cb; },
+        onState: function(cb) { onStateCb = cb; },
+        onEnded: function(cb) { onEndedCb = cb; },
+        onMediaAction: function(cb) { onMediaActionCb = cb; }
+      };
+    })();
   </script>
 </head>
 <body>

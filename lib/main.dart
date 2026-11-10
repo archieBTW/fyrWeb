@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'system_settings.dart';
 import 'window_manager.dart';
 import 'system_controller.dart';
+import 'services/music_audio/music_audio.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'models/config_model.dart';
@@ -26,6 +27,7 @@ void main() async {
         Provider<AppConfig>.value(value: config),
         ChangeNotifierProvider<SystemSettings>.value(value: settings),
         ChangeNotifierProvider.value(value: windowManager),
+        ChangeNotifierProvider<MusicService>.value(value: MusicService.instance),
         ChangeNotifierProvider(
           create: (_) => SystemController(windowManager: windowManager),
         ),

@@ -1,8 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../fyr_theme.dart';
 import '../../models/fyr_notification.dart';
+import '../../services/music_audio/music_audio.dart';
 
 class CalendarMenuPopup extends StatefulWidget {
   final VoidCallback onClose;
@@ -123,7 +125,7 @@ class _CalendarMenuPopupState extends State<CalendarMenuPopup>
             maxHeight: (screenHeight - 76).clamp(300.0, 720.0),
           ),
           decoration: BoxDecoration(
-            color: FyrTheme.bgColor.withValues(alpha: 0.45),
+            color: FyrTheme.bgColor.withValues(alpha: 0.35),
             borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(16),
               bottomRight: Radius.circular(16),
@@ -345,7 +347,10 @@ class _CalendarMenuPopupState extends State<CalendarMenuPopup>
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text('Ringing Pixel 9...'),
+                                content: Text(
+                                  'Ringing Pixel 9...',
+                                  style: TextStyle(color: FyrTheme.onAccentColor),
+                                ),
                                 backgroundColor: FyrTheme.accentColor,
                                 duration: const Duration(milliseconds: 1400),
                               ),
@@ -364,7 +369,12 @@ class _CalendarMenuPopupState extends State<CalendarMenuPopup>
 
                   Divider(height: 1, color: FyrTheme.cardColor),
 
-                  // 5. Notifications Section - Exact 1:1 replica of fyrDE notification card
+                  // 5. Now Playing Section (Media Controls in notifications dropdown)
+                  _buildNowPlayingSection(context, context.watch<MusicService>()),
+
+                  Divider(height: 1, color: FyrTheme.cardColor),
+
+                  // 6. Notifications Section - Exact 1:1 replica of fyrDE notification card
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
                     child: Row(
@@ -435,6 +445,169 @@ class _CalendarMenuPopupState extends State<CalendarMenuPopup>
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNowPlayingSection(BuildContext context, MusicService music) {
+    if (music.tracks.isEmpty) return const SizedBox.shrink();
+
+    final accentColor = FyrTheme.accentColor;
+    final trackName = music.currentTrackTitle.isNotEmpty
+        ? music.currentTrackTitle
+        : 'Unknown Track';
+    final isPlaying = music.isPlaying;
+    final position = music.position;
+    final duration = music.duration;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: FyrTheme.cardColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isPlaying
+                ? accentColor.withValues(alpha: 0.35)
+                : FyrTheme.dividerColor,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    isPlaying
+                        ? Icons.music_note_rounded
+                        : Icons.pause_circle_outline_rounded,
+                    color: accentColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        trackName.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: FyrTheme.textColor,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Archer Woods • Beats by Arch',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: FyrTheme.textColorMuted,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.skip_previous_rounded, size: 20),
+                  color: FyrTheme.textColor,
+                  onPressed: () => music.previous(),
+                  tooltip: 'Previous Track',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+                ),
+                const SizedBox(width: 2),
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
+                      isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                      size: 18,
+                      color: FyrTheme.onColor(accentColor),
+                    ),
+                    onPressed: () => music.playPause(),
+                    tooltip: isPlaying ? 'Pause' : 'Play',
+                  ),
+                ),
+                const SizedBox(width: 2),
+                IconButton(
+                  icon: const Icon(Icons.skip_next_rounded, size: 20),
+                  color: FyrTheme.textColor,
+                  onPressed: () => music.next(),
+                  tooltip: 'Next Track',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Text(
+                  MusicService.formatDuration(position),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: FyrTheme.textColorMuted,
+                  ),
+                ),
+                Expanded(
+                  child: SliderTheme(
+                    data: SliderThemeData(
+                      trackHeight: 2,
+                      activeTrackColor: accentColor,
+                      inactiveTrackColor: FyrTheme.dividerColor,
+                      thumbColor: accentColor,
+                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4),
+                      overlayShape: const RoundSliderOverlayShape(overlayRadius: 8),
+                    ),
+                    child: Slider(
+                      value: position.inMilliseconds.toDouble().clamp(
+                            0.0,
+                            (duration.inMilliseconds > 0
+                                    ? duration.inMilliseconds
+                                    : 1)
+                                .toDouble(),
+                          ),
+                      max: duration.inMilliseconds.toDouble() > 0
+                          ? duration.inMilliseconds.toDouble()
+                          : 1.0,
+                      onChanged: (val) {
+                        music.seek(Duration(milliseconds: val.toInt()));
+                      },
+                    ),
+                  ),
+                ),
+                Text(
+                  MusicService.formatDuration(duration),
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: FyrTheme.textColorMuted,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

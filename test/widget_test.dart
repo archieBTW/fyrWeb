@@ -10,6 +10,7 @@ import 'package:billyrigdon/widgets/portfolio_app_icon.dart';
 import 'package:billyrigdon/window_manager.dart';
 import 'package:billyrigdon/system_controller.dart';
 import 'package:billyrigdon/desktop_screen.dart';
+import 'package:billyrigdon/services/music_audio/music_audio.dart';
 import 'package:billyrigdon/widgets/taskbar/start_menu_popup.dart';
 import 'package:billyrigdon/widgets/dock/fyrdock.dart';
 import 'package:provider/provider.dart';
@@ -123,19 +124,22 @@ void main() {
           ChangeNotifierProvider<SystemSettings>.value(value: settings),
           ChangeNotifierProvider<WindowManager>.value(value: windowManager),
           ChangeNotifierProvider<SystemController>.value(value: systemController),
+          ChangeNotifierProvider<MusicService>.value(value: MusicService.instance),
         ],
         child: const MaterialApp(
           home: DesktopScreen(),
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     // Tap start button on FyrTaskbar
     final startButton = find.byTooltip('Start Menu (fyr)');
     expect(startButton, findsOneWidget);
     await tester.tap(startButton);
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     // Verify StartMenuPopup and FyrDock are both present
     expect(find.byType(StartMenuPopup), findsOneWidget);
@@ -168,5 +172,7 @@ void main() {
     expect(startMenuIndex, isNonNegative);
     // startMenuIndex > dockIndex guarantees StartMenuPopup paints in front of FyrDock
     expect(startMenuIndex, greaterThan(dockIndex));
+
+    await tester.pumpWidget(const SizedBox());
   });
 }

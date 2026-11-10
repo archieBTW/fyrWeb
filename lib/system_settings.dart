@@ -1,8 +1,9 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services/wallpaper_storage/wallpaper_storage.dart';
+import 'utils/color_extractor.dart';
 import 'fyr_theme.dart';
 
 class SystemSettings extends ChangeNotifier {
@@ -13,6 +14,7 @@ class SystemSettings extends ChangeNotifier {
   // Appearance & Wallpaper
   bool _isDarkMode = true;
   Color _accentColor = const Color(0xFF800080); // FyrDE purple
+  bool _pullColorFromBg = true;
   String _wallpaperPath = 'assets/space.jpg';
   Uint8List? _wallpaperBytes;
   bool _isCustomWallpaper = false;
@@ -20,7 +22,7 @@ class SystemSettings extends ChangeNotifier {
   double _wallpaperDim = 0.0;
 
   // Desktop & Dock
-  bool _dockAutoHide = false;
+  bool _dockAutoHide = true;
   double _dockScale = 1.0;
 
   // Date & Time
@@ -42,6 +44,7 @@ class SystemSettings extends ChangeNotifier {
   bool get isInitialized => _isInitialized;
   bool get isDarkMode => _isDarkMode;
   Color get accentColor => _accentColor;
+  bool get pullColorFromBg => _pullColorFromBg;
   String get wallpaperPath => _wallpaperPath;
   Uint8List? get wallpaperBytes => _wallpaperBytes;
   bool get isCustomWallpaper => _isCustomWallpaper;
@@ -71,11 +74,12 @@ class SystemSettings extends ChangeNotifier {
       if (p != null) {
         _isDarkMode = p.getBool('isDarkMode') ?? true;
         _accentColor = Color(p.getInt('accentColor') ?? 0xFF9C27B0);
+        _pullColorFromBg = p.getBool('pullColorFromBg') ?? true;
         _wallpaperPath = p.getString('wallpaperPath') ?? 'assets/wallpaper.jpg';
         _isCustomWallpaper = p.getBool('isCustomWallpaper') ?? false;
         _wallpaperBlur = p.getDouble('wallpaperBlur') ?? 0.0;
         _wallpaperDim = p.getDouble('wallpaperDim') ?? 0.0;
-        _dockAutoHide = p.getBool('dockAutoHide') ?? false;
+        _dockAutoHide = p.getBool('dockAutoHide') ?? true;
         _dockScale = p.getDouble('dockScale') ?? 1.0;
         _use24HourClock = p.getBool('use24HourClock') ?? false;
         _showClockSeconds = p.getBool('showClockSeconds') ?? false;
@@ -100,12 +104,42 @@ class SystemSettings extends ChangeNotifier {
           _decodeWallpaper(_wallpaperPath);
         }
       }
+
+      if (_pullColorFromBg) {
+        await extractAndApplyWallpaperColor(notify: false);
+      }
     } catch (e) {
       debugPrint('Error loading SystemSettings: $e');
     }
     FyrTheme.setThemeMode(_isDarkMode ? ThemeMode.dark : ThemeMode.light);
     FyrTheme.setAccentColor(_accentColor);
     _isInitialized = true;
+    notifyListeners();
+  }
+
+  Future<void> extractAndApplyWallpaperColor({bool notify = true}) async {
+    try {
+      final extracted = await WallpaperColorExtractor.extractColor(
+        path: _wallpaperPath,
+        bytes: _wallpaperBytes,
+      );
+      if (extracted != null) {
+        _accentColor = extracted;
+        _prefs?.setInt('accentColor', extracted.toARGB32());
+        FyrTheme.setAccentColor(extracted);
+        if (notify) notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error extracting wallpaper color: $e');
+    }
+  }
+
+  void setPullColorFromBg(bool value) {
+    _pullColorFromBg = value;
+    _prefs?.setBool('pullColorFromBg', value);
+    if (value) {
+      extractAndApplyWallpaperColor(notify: true);
+    }
     notifyListeners();
   }
 
@@ -126,8 +160,12 @@ class SystemSettings extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setAccentColor(Color color) {
+  void setAccentColor(Color color, {bool fromPull = false}) {
     _accentColor = color;
+    if (!fromPull) {
+      _pullColorFromBg = false;
+      _prefs?.setBool('pullColorFromBg', false);
+    }
     _prefs?.setInt('accentColor', color.toARGB32());
     FyrTheme.setAccentColor(color);
     notifyListeners();
@@ -145,6 +183,9 @@ class SystemSettings extends ChangeNotifier {
     _prefs?.setString('wallpaperPath', path);
     _prefs?.setBool('isCustomWallpaper', false);
     _storageService.clearWallpaper();
+    if (_pullColorFromBg) {
+      await extractAndApplyWallpaperColor(notify: false);
+    }
     notifyListeners();
   }
 
@@ -175,6 +216,10 @@ class SystemSettings extends ChangeNotifier {
         _prefs?.remove('cachedWallpaperData');
       }
 
+      if (_pullColorFromBg) {
+        await extractAndApplyWallpaperColor(notify: false);
+      }
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error saving custom wallpaper: $e');
@@ -201,6 +246,9 @@ class SystemSettings extends ChangeNotifier {
     _prefs?.setDouble('wallpaperBlur', 0.0);
     _prefs?.setDouble('wallpaperDim', 0.0);
     await _storageService.clearWallpaper();
+    if (_pullColorFromBg) {
+      await extractAndApplyWallpaperColor(notify: false);
+    }
     notifyListeners();
   }
 
@@ -285,12 +333,13 @@ class SystemSettings extends ChangeNotifier {
   Future<void> resetAllSettings() async {
     _isDarkMode = true;
     _accentColor = const Color(0xFF9C27B0);
+    _pullColorFromBg = true;
     _wallpaperPath = 'assets/wallpaper.jpg';
     _wallpaperBytes = null;
     _isCustomWallpaper = false;
     _wallpaperBlur = 0.0;
     _wallpaperDim = 0.0;
-    _dockAutoHide = false;
+    _dockAutoHide = true;
     _dockScale = 1.0;
     _use24HourClock = false;
     _showClockSeconds = false;

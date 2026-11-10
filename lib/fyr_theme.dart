@@ -12,6 +12,15 @@ class FyrTheme {
   static Color get accentColor => accentColorNotifier.value;
   static ThemeMode get themeMode => themeModeNotifier.value;
 
+  static Color get onAccentColor =>
+      accentColor.computeLuminance() > 0.55 ? Colors.black87 : Colors.white;
+
+  static Color onColor(Color color) =>
+      color.computeLuminance() > 0.55 ? Colors.black87 : Colors.white;
+
+  static Color get onAccentColorMuted =>
+      accentColor.computeLuminance() > 0.55 ? Colors.black54 : Colors.white70;
+
   static bool get isDark => themeMode == ThemeMode.dark;
   static Color get textColor => isDark ? Colors.white : Colors.black87;
   static Color get textColorMuted => isDark ? Colors.white70 : Colors.black54;

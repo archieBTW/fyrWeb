@@ -91,7 +91,7 @@ class WindowFrame extends StatelessWidget {
                 Text(
                   'Settings',
                   style: GoogleFonts.inter(
-                    color: Colors.white,
+                    color: FyrTheme.onColor(accentColor),
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
@@ -173,12 +173,12 @@ class WindowFrame extends StatelessWidget {
         height: double.infinity,
         decoration: BoxDecoration(
           color: isSettings ? Colors.transparent : FyrTheme.surfaceColor,
-          borderRadius: BorderRadius.circular(windowData.isMaximized ? 0 : 12),
+          borderRadius: BorderRadius.circular(windowData.isMaximized ? 0 : 22),
           border: Border.all(
             color: windowData.isFocused
                 ? accentColor
                 : (isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.15)),
-            width: windowData.isFocused ? 3.5 : 1.5,
+            width: windowData.isFocused ? 5.0 : 1.5,
           ),
           boxShadow: windowData.isMaximized
               ? []
@@ -189,6 +189,12 @@ class WindowFrame extends StatelessWidget {
                     spreadRadius: 0, // No spread on active or inactive windows
                     offset: const Offset(0, 8),
                   ),
+                  if (windowData.isFocused)
+                    BoxShadow(
+                      color: accentColor.withValues(alpha: 0.25),
+                      blurRadius: 16,
+                      spreadRadius: 1,
+                    ),
                 ],
         ),
         clipBehavior: Clip.antiAlias,

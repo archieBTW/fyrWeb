@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../system_settings.dart';
+import '../fyr_theme.dart';
 
 class SettingsApp extends StatefulWidget {
   const SettingsApp({super.key});
@@ -386,53 +387,80 @@ class _SettingsAppState extends State<SettingsApp> {
             description:
                 'Controls highlight tint across window headers, buttons, dock, and indicators.',
             isNarrow: isNarrow,
-            child: Wrap(
-              spacing: isNarrow ? 10 : 14,
-              runSpacing: isNarrow ? 10 : 14,
-              crossAxisAlignment: WrapCrossAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ..._accentPalette.map((palette) {
-                  final col = palette['color'] as Color;
-                  final isSelected =
-                      settings.accentColor.toARGB32() == col.toARGB32();
-                  final dotSize = isNarrow ? 32.0 : 36.0;
-                  return Tooltip(
-                    message: palette['name'] as String,
-                    child: GestureDetector(
-                      onTap: () => settings.setAccentColor(col),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: dotSize,
-                        height: dotSize,
-                        decoration: BoxDecoration(
-                          color: col,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isSelected
-                                ? Colors.white
-                                : Colors.transparent,
-                            width: 3,
-                          ),
-                          boxShadow: [
-                            if (isSelected)
-                              BoxShadow(
-                                color: col.withValues(alpha: 0.6),
-                                blurRadius: 10,
-                                spreadRadius: 2,
-                              ),
-                          ],
-                        ),
-                        child: isSelected
-                            ? Icon(
-                                Icons.check,
-                                size: isNarrow ? 16 : 18,
-                                color: Colors.white,
-                              )
-                            : null,
-                      ),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    'Pull accent color from wallpaper',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: onSurfaceColor,
                     ),
-                  );
-                }),
+                  ),
+                  subtitle: Text(
+                    'Automatically match system accent color to current wallpaper',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: onSurfaceColor.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  value: settings.pullColorFromBg,
+                  activeTrackColor: settings.accentColor,
+                  onChanged: (val) => settings.setPullColorFromBg(val),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: isNarrow ? 10 : 14,
+                  runSpacing: isNarrow ? 10 : 14,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    ..._accentPalette.map((palette) {
+                      final col = palette['color'] as Color;
+                      final isSelected =
+                          settings.accentColor.toARGB32() == col.toARGB32();
+                      final dotSize = isNarrow ? 32.0 : 36.0;
+                      return Tooltip(
+                        message: palette['name'] as String,
+                        child: GestureDetector(
+                          onTap: () => settings.setAccentColor(col),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: dotSize,
+                            height: dotSize,
+                            decoration: BoxDecoration(
+                              color: col,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isSelected
+                                    ? FyrTheme.onColor(col)
+                                    : Colors.transparent,
+                                width: 3,
+                              ),
+                              boxShadow: [
+                                if (isSelected)
+                                  BoxShadow(
+                                    color: col.withValues(alpha: 0.6),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  ),
+                              ],
+                            ),
+                            child: isSelected
+                                ? Icon(
+                                    Icons.check,
+                                    size: isNarrow ? 16 : 18,
+                                    color: FyrTheme.onColor(col),
+                                  )
+                                : null,
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
               ],
             ),
           ),
@@ -637,7 +665,7 @@ class _SettingsAppState extends State<SettingsApp> {
                           onPressed: () => _applyCustomUrl(settings),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: settings.accentColor,
-                            foregroundColor: Colors.white,
+                            foregroundColor: FyrTheme.onColor(settings.accentColor),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 18,
                               vertical: 12,
@@ -709,7 +737,7 @@ class _SettingsAppState extends State<SettingsApp> {
                         onPressed: () => _applyCustomUrl(settings),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: settings.accentColor,
-                          foregroundColor: Colors.white,
+                          foregroundColor: FyrTheme.onColor(settings.accentColor),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 18,
                             vertical: 16,
