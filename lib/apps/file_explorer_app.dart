@@ -231,10 +231,11 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(24),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: isMobile ? 3 : 6,
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: isMobile ? 100 : 115,
+                crossAxisSpacing: isMobile ? 10 : 16,
+                mainAxisSpacing: isMobile ? 12 : 16,
+                childAspectRatio: isMobile ? 0.85 : 0.88,
               ),
               itemCount: files.length,
               itemBuilder: (context, index) {

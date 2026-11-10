@@ -600,11 +600,11 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
   Widget _buildGridView(List<Map<String, dynamic>> files, bool isMobile, Color accentColor) {
     return GridView.builder(
       padding: EdgeInsets.all(isMobile ? 12 : 24),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: isMobile ? 3 : 5,
-        crossAxisSpacing: isMobile ? 10 : 20,
-        mainAxisSpacing: isMobile ? 12 : 24,
-        childAspectRatio: isMobile ? 0.85 : 0.9,
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: isMobile ? 100 : 115,
+        crossAxisSpacing: isMobile ? 10 : 16,
+        mainAxisSpacing: isMobile ? 12 : 16,
+        childAspectRatio: isMobile ? 0.85 : 0.88,
       ),
       itemCount: files.length,
       itemBuilder: (context, index) {
