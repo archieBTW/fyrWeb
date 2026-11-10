@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:billyrigdon/apps/code_editor_app.dart';
 
 void main() {
@@ -83,5 +84,34 @@ void main() {
 
     // Tree should now be restored
     expect(find.text('WORKSPACE'), findsOneWidget);
+  });
+
+  testWidgets('Line numbers and code stay anchored to the left against the file tree on resize', (tester) async {
+    for (final width in [700.0, 1100.0, 1500.0, 2000.0]) {
+      tester.view.physicalSize = Size(width, 900);
+      tester.view.devicePixelRatio = 1.0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: width,
+              height: 900,
+              child: const CodeEditorApp(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final line1 = tester.getTopLeft(find.text('1'));
+      final code = tester.getTopLeft(find.byType(HighlightView));
+
+      // Tree is 240 wide by default, divider is 6. The line numbers gutter should be
+      // anchored immediately next to the divider (around x = 246 + 10px gutter padding)
+      // and NOT floating in the middle of a 1500px or 2000px screen!
+      expect(line1.dx, lessThanOrEqualTo(270.0));
+      expect(code.dx, lessThanOrEqualTo(310.0));
+    }
   });
 }

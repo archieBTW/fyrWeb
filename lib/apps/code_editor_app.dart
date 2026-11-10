@@ -175,6 +175,7 @@ class _CodeEditorAppState extends State<CodeEditorApp> {
           Expanded(
             child: isDesktop
                 ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Left File Tree (if desktop and not collapsed)
                       if (!_isTreeCollapsed) ...[
@@ -320,6 +321,7 @@ class _CodeEditorAppState extends State<CodeEditorApp> {
 
   Widget _buildEditorPane(bool isDesktop, String? content) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Tab Bar
         Container(
@@ -438,61 +440,64 @@ class _CodeEditorAppState extends State<CodeEditorApp> {
               top: BorderSide(color: FyrTheme.dividerColor, width: 0.8),
             ),
           ),
-          child: Row(
-            children: [
-              Text(
-                'Ln 1, Col 1',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
-                  color: FyrTheme.textColorMuted,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                Text(
+                  'Ln 1, Col 1',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 10,
+                    color: FyrTheme.textColorMuted,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Spaces: 2',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
-                  color: FyrTheme.textColorMuted,
+                const SizedBox(width: 12),
+                Text(
+                  'Spaces: 2',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 10,
+                    color: FyrTheme.textColorMuted,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'UTF-8',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
-                  color: FyrTheme.textColorMuted,
+                const SizedBox(width: 12),
+                Text(
+                  'UTF-8',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 10,
+                    color: FyrTheme.textColorMuted,
+                  ),
                 ),
-              ),
-              const Spacer(),
-              Icon(Icons.call_split, size: 11, color: FyrTheme.textColorMuted),
-              const SizedBox(width: 4),
-              Text(
-                'main',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
-                  color: FyrTheme.textColorMuted,
+                const SizedBox(width: 24),
+                Icon(Icons.call_split, size: 11, color: FyrTheme.textColorMuted),
+                const SizedBox(width: 4),
+                Text(
+                  'main',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 10,
+                    color: FyrTheme.textColorMuted,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 14),
-              Text(
-                _detectLanguage(_activeFile).toUpperCase(),
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: FyrTheme.accentColor,
+                const SizedBox(width: 14),
+                Text(
+                  _detectLanguage(_activeFile).toUpperCase(),
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: FyrTheme.accentColor,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 14),
-              Icon(Icons.check_circle_outline, size: 11, color: Colors.greenAccent),
-              const SizedBox(width: 4),
-              Text(
-                'Ready',
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: 10,
-                  color: Colors.greenAccent,
+                const SizedBox(width: 14),
+                Icon(Icons.check_circle_outline, size: 11, color: Colors.greenAccent),
+                const SizedBox(width: 4),
+                Text(
+                  'Ready',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 10,
+                    color: Colors.greenAccent,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
@@ -721,47 +726,51 @@ class _CodeEditorAppState extends State<CodeEditorApp> {
     final double fontSize = isDesktop ? 12.5 : 11.0;
 
     return Container(
+      width: double.infinity,
       color: FyrTheme.bgColor,
+      alignment: Alignment.topLeft,
       child: SelectionArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, right: 12.0),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Line numbers gutter
-                SelectionContainer.disabled(
-                  child: Container(
-                    padding: const EdgeInsets.only(left: 10.0, right: 14.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: List.generate(lines.length, (index) {
-                        return Text(
-                          '${index + 1}',
-                          style: GoogleFonts.jetBrainsMono(
-                            fontSize: fontSize,
-                            color: FyrTheme.textColorMuted.withValues(alpha: 0.45),
-                            height: 1.5,
-                          ),
-                        );
-                      }),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Line numbers gutter (anchored to the left side against the file tree)
+              SelectionContainer.disabled(
+                child: Container(
+                  padding: const EdgeInsets.only(left: 10.0, right: 14.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: List.generate(lines.length, (index) {
+                      return Text(
+                        '${index + 1}',
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: fontSize,
+                          color: FyrTheme.textColorMuted.withValues(alpha: 0.45),
+                          height: 1.5,
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ),
+              // Highlighted Code (anchored next to line numbers, scrollable horizontally if needed)
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: HighlightView(
+                    content,
+                    language: _detectLanguage(_activeFile),
+                    theme: catppuccinTheme,
+                    padding: EdgeInsets.zero,
+                    textStyle: GoogleFonts.jetBrainsMono(
+                      fontSize: fontSize,
+                      height: 1.5,
                     ),
                   ),
                 ),
-                // Highlighted Code (starts immediately after line numbers, no extra divider line!)
-                HighlightView(
-                  content,
-                  language: _detectLanguage(_activeFile),
-                  theme: catppuccinTheme,
-                  padding: EdgeInsets.zero,
-                  textStyle: GoogleFonts.jetBrainsMono(
-                    fontSize: fontSize,
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
