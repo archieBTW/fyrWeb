@@ -23,14 +23,42 @@ class FyrSettingsApp extends StatefulWidget {
     this.onMaximize,
   });
 
+  /// Global notifier tracking the sidebar collapsed state so that the host
+  /// WindowFrame topbar can animate its colored section in lockstep.
+  static final ValueNotifier<bool> isSidebarCollapsedNotifier =
+      ValueNotifier<bool>(false);
+
   @override
   State<FyrSettingsApp> createState() => _FyrSettingsAppState();
 }
 
 class _FyrSettingsAppState extends State<FyrSettingsApp> {
   int _selectedIndex = 4; // Default to Personalization to match desktop focus
-  bool _isSidebarCollapsed = false;
   bool _isUploadingWallpaper = false;
+
+  bool get _isSidebarCollapsed =>
+      FyrSettingsApp.isSidebarCollapsedNotifier.value;
+  set _isSidebarCollapsed(bool value) {
+    if (FyrSettingsApp.isSidebarCollapsedNotifier.value != value) {
+      FyrSettingsApp.isSidebarCollapsedNotifier.value = value;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    FyrSettingsApp.isSidebarCollapsedNotifier.addListener(_onSidebarChanged);
+  }
+
+  @override
+  void dispose() {
+    FyrSettingsApp.isSidebarCollapsedNotifier.removeListener(_onSidebarChanged);
+    super.dispose();
+  }
+
+  void _onSidebarChanged() {
+    if (mounted) setState(() {});
+  }
 
   static const List<Map<String, String>> _defaultWallpapers = [
     {

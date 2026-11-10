@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'window_manager.dart';
 import 'fyr_theme.dart';
 import 'widgets/portfolio_app_icon.dart';
+import 'apps/fyrsettings_app.dart';
 
 class WindowFrame extends StatelessWidget {
   final WindowData windowData;
@@ -59,53 +60,82 @@ class WindowFrame extends StatelessWidget {
 
     Widget topBarContent;
     if (isSettings) {
-      topBarContent = Row(
-        children: [
-          Container(
-            width: 260,
-            height: 42,
-            color: accentColor.withValues(alpha: 0.82),
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                _WindowControl(
-                  color: Colors.redAccent,
-                  onTap: onClose,
-                  icon: Icons.close,
+      topBarContent = ValueListenableBuilder<bool>(
+        valueListenable: FyrSettingsApp.isSidebarCollapsedNotifier,
+        builder: (context, isSidebarCollapsed, _) {
+          final double sidebarWidth = isSidebarCollapsed ? 72.0 : 260.0;
+          return Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: sidebarWidth,
+                height: 42,
+                color: accentColor.withValues(alpha: 0.82),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSidebarCollapsed ? 9.0 : 16.0,
                 ),
-                const SizedBox(width: 8),
-                _WindowControl(
-                  color: Colors.amber.shade300,
-                  onTap: onMinimize,
-                  icon: Icons.remove,
-                ),
-                const SizedBox(width: 8),
-                _WindowControl(
-                  color: Colors.greenAccent,
-                  onTap: onMaximize,
-                  icon: windowData.isMaximized
-                      ? Icons.close_fullscreen
-                      : Icons.fullscreen,
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  'Settings',
-                  style: GoogleFonts.inter(
-                    color: FyrTheme.onColor(accentColor),
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
+                child: ClipRect(
+                  child: OverflowBox(
+                    alignment: Alignment.centerLeft,
+                    maxWidth: 260,
+                    minWidth: 0,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _WindowControl(
+                          color: Colors.redAccent,
+                          onTap: onClose,
+                          icon: Icons.close,
+                        ),
+                        SizedBox(width: isSidebarCollapsed ? 6 : 8),
+                        _WindowControl(
+                          color: Colors.amber.shade300,
+                          onTap: onMinimize,
+                          icon: Icons.remove,
+                        ),
+                        SizedBox(width: isSidebarCollapsed ? 6 : 8),
+                        _WindowControl(
+                          color: Colors.greenAccent,
+                          onTap: onMaximize,
+                          icon: windowData.isMaximized
+                              ? Icons.close_fullscreen
+                              : Icons.fullscreen,
+                        ),
+                        if (!isSidebarCollapsed) ...[
+                          const SizedBox(width: 16),
+                          Text(
+                            'Settings',
+                            maxLines: 1,
+                            style: GoogleFonts.inter(
+                              color: FyrTheme.onColor(accentColor),
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Container(
-              height: 42,
-              color: FyrTheme.bgColor,
-            ),
-          ),
-        ],
+              ),
+              Expanded(
+                child: Container(
+                  height: 42,
+                  color: FyrTheme.bgColor,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: isTiled
+                      ? Icon(
+                          Icons.grid_view,
+                          size: 14,
+                          color: FyrTheme.textColorMuted,
+                        )
+                      : null,
+                ),
+              ),
+            ],
+          );
+        },
       );
     } else {
       topBarContent = Container(
@@ -164,6 +194,14 @@ class WindowFrame extends StatelessWidget {
       );
     }
 
+    final double radius = windowData.isMaximized ? 0.0 : 22.0;
+    final double borderWidth = windowData.isFocused ? 5.0 : 1.5;
+    final Color borderColor = windowData.isFocused
+        ? accentColor
+        : (isDark
+            ? Colors.white.withValues(alpha: 0.15)
+            : Colors.black.withValues(alpha: 0.15));
+
     Widget windowContent = Listener(
       behavior: HitTestBehavior.translucent,
       onPointerDown: (_) => onFocus(),
@@ -172,14 +210,7 @@ class WindowFrame extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
-          color: isSettings ? Colors.transparent : FyrTheme.surfaceColor,
-          borderRadius: BorderRadius.circular(windowData.isMaximized ? 0 : 22),
-          border: Border.all(
-            color: windowData.isFocused
-                ? accentColor
-                : (isDark ? Colors.white.withValues(alpha: 0.15) : Colors.black.withValues(alpha: 0.15)),
-            width: windowData.isFocused ? 5.0 : 1.5,
-          ),
+          borderRadius: BorderRadius.circular(radius),
           boxShadow: windowData.isMaximized
               ? []
               : [
@@ -197,40 +228,64 @@ class WindowFrame extends StatelessWidget {
                     ),
                 ],
         ),
-        clipBehavior: Clip.antiAlias,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
           child: Stack(
             children: [
-              Column(
-                children: [
-                  // Window Header / Titlebar - Natural continuation of the app
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onPanUpdate: (windowData.isMaximized || isTiled)
-                        ? null
-                        : (details) {
-                            onPositionChanged(
-                              windowData.position + details.delta,
-                            );
-                          },
-                    onDoubleTap: onMaximize,
-                    child: topBarContent,
+              // 1. Frosted background & Window App Content
+              Positioned.fill(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                  child: Container(
+                    color: isSettings ? Colors.transparent : FyrTheme.surfaceColor,
+                    child: Column(
+                      children: [
+                        // Window Header / Titlebar - Natural continuation of the app
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onPanUpdate: (windowData.isMaximized || isTiled)
+                              ? null
+                              : (details) {
+                                  onPositionChanged(
+                                    windowData.position + details.delta,
+                                  );
+                                },
+                          onDoubleTap: onMaximize,
+                          child: topBarContent,
+                        ),
+                        // Window Body - State preserved via KeyedSubtree
+                        Expanded(
+                          child: Container(
+                            color: isSettings ? Colors.transparent : FyrTheme.surfaceColor,
+                            child: KeyedSubtree(
+                              key: ValueKey('win_subtree_${windowData.id}'),
+                              child: windowData.content,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  // Window Body - State preserved via KeyedSubtree
-                  Expanded(
-                    child: Container(
-                      color: isSettings ? Colors.transparent : FyrTheme.surfaceColor,
-                      child: KeyedSubtree(
-                        key: ValueKey('win_subtree_${windowData.id}'),
-                        child: windowData.content,
+                ),
+              ),
+
+              // 2. Colored Window Border - Drawn ON TOP of content so corners NEVER leak out!
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(radius),
+                      border: Border.all(
+                        color: borderColor,
+                        width: borderWidth,
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
 
-              // Resize Handles (only active in floating mode and when not maximized)
+              // 3. Resize Handles (only active in floating mode and when not maximized)
               if (!windowData.isMaximized && !isTiled) ...[
                 // Top Edge Handle
                 Positioned(

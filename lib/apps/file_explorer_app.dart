@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../system_controller.dart';
+import '../system_settings.dart';
+import '../fyr_theme.dart';
 import 'resume_app.dart';
 import 'infra_monitor_app.dart';
 import 'code_editor_app.dart';
@@ -185,6 +187,8 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
 
   @override
   Widget build(BuildContext context) {
+    final systemSettings = context.watch<SystemSettings?>();
+    final accentColor = systemSettings?.accentColor ?? FyrTheme.accentColor;
     final files = _folders[_currentPath] ?? [];
     final isMobile = MediaQuery.of(context).size.width < 600;
 
@@ -282,7 +286,10 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
                     children: [
                       Icon(
                         file['icon'] as IconData,
-                        color: file['color'] as Color,
+                        color: (file['isFolder'] == true ||
+                                file['icon'] == Icons.folder)
+                            ? accentColor
+                            : (file['color'] as Color),
                         size: 48,
                       ),
                       const SizedBox(height: 8),

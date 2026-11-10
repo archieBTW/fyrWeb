@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../fyr_theme.dart';
 import '../system_controller.dart';
+import '../system_settings.dart';
 import 'package:provider/provider.dart';
 import 'grand_theft_ant/grand_theft_ant_app.dart';
 import 'resume_app.dart';
@@ -177,8 +178,9 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
 
   @override
   Widget build(BuildContext context) {
+    final systemSettings = context.watch<SystemSettings?>();
+    final accentColor = systemSettings?.accentColor ?? FyrTheme.accentColor;
     final files = _getCurrentFiles();
-    final accentColor = FyrTheme.accentColor;
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 650;
 
@@ -220,7 +222,7 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: _buildBreadcrumbs(),
+                      children: _buildBreadcrumbs(accentColor),
                     ),
                   ),
                 ),
@@ -393,7 +395,9 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
                                 style: TextStyle(color: FyrTheme.textColorMuted, fontSize: 16),
                               ),
                             )
-                          : (_isListView ? _buildListView(files, isMobile) : _buildGridView(files, isMobile)),
+                          : (_isListView
+                              ? _buildListView(files, isMobile, accentColor)
+                              : _buildGridView(files, isMobile, accentColor)),
                     ),
                   ],
                 ),
@@ -482,13 +486,13 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              _buildSidebarItem(Icons.home, 'Home', 'Home', isMobile),
-              _buildSidebarItem(Icons.desktop_mac, 'Desktop', 'Home/Desktop', isMobile),
-              _buildSidebarItem(Icons.library_music, 'Music', 'Home/Music', isMobile),
-              _buildSidebarItem(Icons.photo_library, 'Pictures', 'Home/Pictures', isMobile),
-              _buildSidebarItem(Icons.file_download, 'Downloads', 'Home/Downloads', isMobile),
-              _buildSidebarItem(Icons.delete, 'Trash', 'Home/Trash', isMobile),
-              _buildSidebarItem(Icons.computer, 'My Computer', 'Home/Root', isMobile),
+              _buildSidebarItem(Icons.home, 'Home', 'Home', accentColor, isMobile),
+              _buildSidebarItem(Icons.desktop_mac, 'Desktop', 'Home/Desktop', accentColor, isMobile),
+              _buildSidebarItem(Icons.library_music, 'Music', 'Home/Music', accentColor, isMobile),
+              _buildSidebarItem(Icons.photo_library, 'Pictures', 'Home/Pictures', accentColor, isMobile),
+              _buildSidebarItem(Icons.file_download, 'Downloads', 'Home/Downloads', accentColor, isMobile),
+              _buildSidebarItem(Icons.delete, 'Trash', 'Home/Trash', accentColor, isMobile),
+              _buildSidebarItem(Icons.computer, 'My Computer', 'Home/Root', accentColor, isMobile),
               Divider(color: FyrTheme.dividerColor),
               if (!_isSidebarCollapsed || isMobile)
                 Padding(
@@ -503,8 +507,8 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
                     ),
                   ),
                 ),
-              _buildSidebarItem(Icons.folder, 'Code', 'Home/Code', isMobile),
-              _buildSidebarItem(Icons.folder, 'FyrDAW', 'Home/FyrDAW', isMobile),
+              _buildSidebarItem(Icons.folder, 'Code', 'Home/Code', accentColor, isMobile),
+              _buildSidebarItem(Icons.folder, 'FyrDAW', 'Home/FyrDAW', accentColor, isMobile),
             ],
           ),
         ),
@@ -512,7 +516,7 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
     );
   }
 
-  List<Widget> _buildBreadcrumbs() {
+  List<Widget> _buildBreadcrumbs(Color accentColor) {
     final parts = _currentDirectory.split('/');
     final List<Widget> widgets = [];
 
@@ -536,7 +540,7 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
                 child: Text(
                   parts[i],
                   style: TextStyle(
-                    color: i == parts.length - 1 ? FyrTheme.accentColor : FyrTheme.textColor,
+                    color: i == parts.length - 1 ? accentColor : FyrTheme.textColor,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -551,7 +555,7 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
     return widgets;
   }
 
-  Widget _buildSidebarItem(IconData icon, String title, String path, [bool isMobile = false]) {
+  Widget _buildSidebarItem(IconData icon, String title, String path, Color accentColor, [bool isMobile = false]) {
     final isSelected = _currentDirectory == path;
 
     return InkWell(
@@ -563,12 +567,14 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        color: isSelected ? FyrTheme.accentColor.withValues(alpha: 0.15) : Colors.transparent,
+        color: isSelected ? accentColor.withValues(alpha: 0.15) : Colors.transparent,
         child: Row(
           children: [
             Icon(
               icon,
-              color: isSelected ? FyrTheme.accentColor : FyrTheme.textColor.withValues(alpha: 0.8),
+              color: isSelected
+                  ? accentColor
+                  : (icon == Icons.folder ? accentColor : FyrTheme.textColor.withValues(alpha: 0.8)),
               size: 18,
             ),
             if (!_isSidebarCollapsed || isMobile) ...[
@@ -577,7 +583,7 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
                 child: Text(
                   title,
                   style: TextStyle(
-                    color: isSelected ? FyrTheme.accentColor : FyrTheme.textColor,
+                    color: isSelected ? accentColor : FyrTheme.textColor,
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   ),
@@ -591,7 +597,7 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
     );
   }
 
-  Widget _buildGridView(List<Map<String, dynamic>> files, bool isMobile) {
+  Widget _buildGridView(List<Map<String, dynamic>> files, bool isMobile, Color accentColor) {
     return GridView.builder(
       padding: EdgeInsets.all(isMobile ? 12 : 24),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -629,17 +635,17 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
           onDoubleTap: !isMobile ? () => _openItem(item) : null,
           child: Container(
             decoration: BoxDecoration(
-              color: isSelected ? FyrTheme.accentColor.withValues(alpha: 0.2) : Colors.transparent,
+              color: isSelected ? accentColor.withValues(alpha: 0.2) : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected ? FyrTheme.accentColor : Colors.transparent,
+                color: isSelected ? accentColor : Colors.transparent,
                 width: 1.5,
               ),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildItemIcon(item, size: isMobile ? 38 : 56),
+                _buildItemIcon(item, accentColor, size: isMobile ? 38 : 56),
                 SizedBox(height: isMobile ? 6 : 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -663,7 +669,7 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
     );
   }
 
-  Widget _buildListView(List<Map<String, dynamic>> files, bool isMobile) {
+  Widget _buildListView(List<Map<String, dynamic>> files, bool isMobile, Color accentColor) {
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 16, vertical: 8),
       itemCount: files.length,
@@ -677,9 +683,9 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
           child: ListTile(
             dense: true,
             selected: isSelected,
-            selectedTileColor: FyrTheme.accentColor.withValues(alpha: 0.15),
+            selectedTileColor: accentColor.withValues(alpha: 0.15),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            leading: SizedBox(width: 28, height: 28, child: _buildItemIcon(item, size: 24)),
+            leading: SizedBox(width: 28, height: 28, child: _buildItemIcon(item, accentColor, size: 24)),
             title: Text(name, style: TextStyle(color: FyrTheme.textColor, fontSize: isMobile ? 12 : 13)),
             trailing: isMobile
                 ? Text(item['size'] ?? '', style: TextStyle(color: FyrTheme.textColorMuted, fontSize: 10))
@@ -705,12 +711,12 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
     );
   }
 
-  Widget _buildItemIcon(Map<String, dynamic> item, {double size = 56}) {
+  Widget _buildItemIcon(Map<String, dynamic> item, Color accentColor, {double size = 56}) {
     if (item['isDir'] == true) {
-      // Purple folder icon matching fyrfiles in fyrDE!
+      // Folder icon using dynamic accent color!
       return Icon(
         Icons.folder,
-        color: const Color(0xFFAB47BC), // Tela purple folder
+        color: accentColor,
         size: size,
       );
     }
