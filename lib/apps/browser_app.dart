@@ -26,14 +26,14 @@ class _BrowserAppState extends State<BrowserApp> {
 
   final List<Map<String, dynamic>> _portfolioProjects = [
     {
-      'title': 'archBTW. — Terminal-Themed Music & Media Platform',
+      'title': 'archBTW. — Terminal-Themed Music, 3D Games & ASCII Platform',
       'url': 'https://archBTW.sh',
       'displayUrl': 'archBTW.sh',
       'icon': Icons.album,
       'badge': 'Flutter Web • Nginx • Certbot • UFW • Terraform',
       'description':
-          'Immersive terminal-emulator web experience housing streaming audio, merchandise catalog, real-time ASCII animations, and automated TLS 1.3 encryption with Certbot on GCP.',
-      'highlights': ['Terminal Emulator', 'ASCII Art', 'Certbot TLS 1.3', 'Nginx'],
+          'Immersive terminal-emulator web experience housing streaming audio, merchandise catalog, interactive 3D minigames, real-time ASCII animations, and automated TLS 1.3 encryption with Certbot on GCP.',
+      'highlights': ['Terminal Emulator', '3D Minigames', 'ASCII Art', 'Certbot TLS 1.3'],
     },
     {
       'title': 'LibreTrac — Mood, Sleep, and Cognition Telemetry Dashboard',
@@ -46,14 +46,14 @@ class _BrowserAppState extends State<BrowserApp> {
       'highlights': ['Time-Series Charts', 'AI Analytics', 'Habit Tracking'],
     },
     {
-      'title': 'Beats by Arch — Lo-Fi & Instrumental Music Streaming Platform',
+      'title': 'Beats by Arch — Web Audio Binaural Beat Generator',
       'url': 'https://beats.archerwoods.dev',
       'displayUrl': 'beats.archerwoods.dev',
-      'icon': Icons.music_note,
-      'badge': 'Flutter Web • Audio Engine • Nginx • GCP',
+      'icon': Icons.graphic_eq,
+      'badge': 'Flutter Web • Web Audio API • Binaural Synthesis • GCP',
       'description':
-          'High-fidelity audio streaming application with real-time waveform visualization, playlist curation, and low-latency audio delivery on Arch Linux & Web. Automated zero-downtime Nginx reloads and Cloudflare DNS automation.',
-      'highlights': ['Audio Engine', 'Zero-Downtime', 'GCP', 'Flutter'],
+          'Real-time binaural beat generator and brainwave synthesis engine powered by Flutter Web and native Web Audio API oscillators. Features precision frequency controls across Delta, Theta, Alpha, Beta, and Gamma brainwave states with seamless background playback.',
+      'highlights': ['Binaural Beat Engine', 'Web Audio API', 'Brainwave States', 'GCP'],
     },
     {
       'title': 'bybl — AI-Powered Bible Study Platform & Research Assistant',

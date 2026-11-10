@@ -216,14 +216,14 @@
     {
       "id": "archbtw",
       "title": "archBTW.",
-      "subtitle": "A Terminal-themed Music Site for archBTW",
+      "subtitle": "A Terminal-Themed Music, 3D Minigames & ASCII Experience",
       "url": "https://archBTW.sh",
       "icon": "album",
       "color": "0xFF9C27B0",
       "architectureBadge": "Flutter Web • Nginx • Certbot • UFW",
       "caseStudy": [
-        "Immersive Thematic UI: Designed and deployed a highly stylized web experience in Flutter utilizing a strict terminal-emulator aesthetic to house music streaming, biographical content, and a merchandise store.",
-        "Custom Asset Handling: Engineered custom audio player states designed as shell script executions and integrated unique visual assets, including real-time ASCII animations, to create a cohesive brand identity."
+        "Immersive Thematic UI: Designed and deployed a highly stylized web experience in Flutter utilizing a strict terminal-emulator aesthetic to house interactive 3D minigames, streaming audio, biographical content, and a merchandise store.",
+        "Custom Asset & Interactive Media: Engineered custom audio player states designed as shell script executions, integrating interactive 3D minigames alongside real-time ASCII animations to create a cohesive brand identity."
       ],
       "devopsStudy": [
         "Automated Web Compilation: Flutter Web compiled with canvaskit renderer and synced to /var/www/archbtw.sh/html via WE-IAC.",

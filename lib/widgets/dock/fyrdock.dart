@@ -30,10 +30,18 @@ class _FyrDockState extends State<FyrDock> {
   void initState() {
     super.initState();
     _pinnedAppIds = [
+      'resume',
+
+      // System built-in apps
       'browser',
       'terminal',
       'files',
       'code',
+      'music',
+      'photos',
+      'settings',
+
+      // Portfolio apps / case studies
       'pycontui',
       'archbtw',
       'bybl',
@@ -45,10 +53,6 @@ class _FyrDockState extends State<FyrDock> {
       'we_iac',
       'infra_monitor',
       'grand_theft_ant',
-      'resume',
-      'music',
-      'photos',
-      'settings',
     ];
   }
 
