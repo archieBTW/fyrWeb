@@ -187,6 +187,8 @@ dynamic _getIconData(String iconName) {
       return Icons.speed_rounded;
     case 'graphic_eq':
       return Icons.graphic_eq_rounded;
+    case 'school':
+      return Icons.school_rounded;
     default:
       return Icons.apps;
   }

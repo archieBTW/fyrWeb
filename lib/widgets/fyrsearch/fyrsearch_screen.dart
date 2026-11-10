@@ -64,7 +64,16 @@ class _FyrSearchScreenState extends State<FyrSearchScreen> {
     final query = _searchController.text.toLowerCase().trim();
     final filteredApps = query.isEmpty
         ? allApps
-        : allApps.where((a) => a.title.toLowerCase().contains(query)).toList();
+        : allApps.where((a) {
+            final titleLower = a.title.toLowerCase();
+            final cleanQuery = query.replaceAll(' ', '');
+            final cleanTitle = titleLower.replaceAll(' ', '');
+            return titleLower.contains(query) ||
+                cleanTitle.contains(cleanQuery) ||
+                a.id.toLowerCase().contains(cleanQuery) ||
+                (a.subtitle?.toLowerCase().contains(query) ?? false) ||
+                (a.tags?.any((t) => t.toLowerCase().contains(query)) ?? false);
+          }).toList();
 
     final int pageCount = filteredApps.isEmpty
         ? 1

@@ -32,6 +32,21 @@ void main() {
     expect(beatsApp.url, equals('https://beats.archerwoods.dev'));
   });
 
+  test('Config contains welledumacated and verifies title, url, and case study', () async {
+    final String configString = await rootBundle.loadString('assets/config.json');
+    final configJson = jsonDecode(configString);
+    final config = AppConfig.fromJson(configJson);
+
+    expect(config.apps.any((a) => a.id == 'welledumacated'), isTrue);
+
+    final apps = getApps(config);
+    final wellApp = apps.firstWhere((a) => a.id == 'welledumacated');
+    expect(wellApp.title, equals('well edumacated'));
+    expect(wellApp.url, equals('https://welledumacated.dev'));
+    expect(wellApp.caseStudy, isNotNull);
+    expect(wellApp.caseStudy, isNotEmpty);
+  });
+
   test('SystemSettings.setDarkMode synchronizes with FyrTheme and notifies listeners', () async {
     final settings = SystemSettings();
     bool notified = false;

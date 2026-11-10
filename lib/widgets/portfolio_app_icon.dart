@@ -244,23 +244,32 @@ class PortfolioAppIcon extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF11998E), Color(0xFF38EF7D)],
+          colors: [Color(0xFFBF00FF), Color(0xFF7B00FF), Color(0xFF1F0033)],
         ),
         borderRadius: BorderRadius.circular(s * 0.26),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1.2),
+        border: Border.all(color: const Color(0xFFE0AAFF).withValues(alpha: 0.4), width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF11998E).withValues(alpha: 0.45),
+            color: const Color(0xFFBF00FF).withValues(alpha: 0.45),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Center(
-        child: Icon(
-          Icons.school_rounded,
-          color: Colors.white,
-          size: s * 0.55,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(s * 0.2),
+          child: Image.asset(
+            'assets/icons/welledumacated.png',
+            width: s * 0.72,
+            height: s * 0.72,
+            fit: BoxFit.contain,
+            errorBuilder: (_, _, _) => Icon(
+              Icons.school_rounded,
+              color: Colors.white,
+              size: s * 0.55,
+            ),
+          ),
         ),
       ),
     );

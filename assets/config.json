@@ -167,6 +167,29 @@
       ]
     },
     {
+      "id": "welledumacated",
+      "title": "well edumacated",
+      "subtitle": "Retro Early-Web Creative Portal & Music Showcase",
+      "url": "https://welledumacated.dev",
+      "icon": "school",
+      "color": "0xFFBF00FF",
+      "architectureBadge": "Flutter Web • Audioplayers • Dynamic Particles • Retro CSS",
+      "caseStudy": [
+        "Nostalgic Early-Web Aesthetic: Engineered a 2000s MySpace-inspired creative portal and music showcase featuring classic marquee banners, Courier monospace typography, dynamic particle physics, and retro content cards.",
+        "Interactive Particle Physics: Built dynamic real-time cursor particle emitters that react to mouse pointer velocities and click bursts with fluid physics.",
+        "Vintage Audio Streaming Engine: Integrated vintage media player controls powered by web audio streaming for singles and full album releases."
+      ],
+      "devopsStudy": [
+        "Automated Production Pipeline: Continuous Flutter Web releases compiled with HTML/CanvasKit renderers and synchronized via WE-IAC Ansible automation.",
+        "Automated TLS 1.3 Encryption: Zero-downtime Let's Encrypt certificates provisioned via Certbot with systemd auto-renewal timers.",
+        "Reverse Proxy Optimization: Nginx leaky-bucket rate limiting and high inode cache retention for static web audio assets."
+      ],
+      "sysadminStudy": [
+        "e2-micro Memory Tuning: Deployed alongside multi-tenant apps on lightweight GCP VM with tuned sysctl cache pressure and swap management.",
+        "UFW & Fail2ban Isolation: Default DENY firewall policy with Fail2ban monitoring HTTP rate limits and malicious scanning bots."
+      ]
+    },
+    {
       "id": "pycontui",
       "title": "PyConTUI",
       "subtitle": "Keyboard-Driven Terminal UI for Docker Management",
