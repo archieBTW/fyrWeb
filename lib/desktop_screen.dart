@@ -789,6 +789,54 @@ class _DesktopScreenState extends State<DesktopScreen> {
     final dockBottomMargin = (screenHeight * 0.02).clamp(10.0, 20.0);
     final dockTotalBottom = dockHeight + dockBottomMargin + 8.0;
 
+    // Mobile homescreen layout: Section 1 (built-in apps + gta, github, contact), then Section 2 (portfolio apps / case studies)
+    const mobilePriorityIds = [
+      'resume',
+
+      // Built-in apps (Section 1)
+      'browser',
+      'terminal',
+      'files',
+      'code',
+      'music',
+      'photos',
+      'settings',
+      'grand_theft_ant',
+      'github',
+      'contact',
+
+      // Portfolio apps / case studies (Section 2)
+      'infra_monitor',
+      'we_iac',
+      'archbtw',
+      'bybl',
+      'libretrac',
+      'fyr',
+      'carlyle',
+      'friendly',
+      'beats_by_arch',
+      'theolivebranch',
+      'welledumacated',
+    ];
+
+    final orderedMobileApps = <AppInfo>[];
+    for (final id in mobilePriorityIds) {
+      final match = apps.where((a) => a.id == id).firstOrNull;
+      if (match != null) {
+        orderedMobileApps.add(match);
+      }
+    }
+
+    final remainingApps = apps.where((a) =>
+      !mobilePriorityIds.contains(a.id) &&
+      a.id != 'pycontui',
+    ).toList();
+
+    final mobileHomeScreenApps = [
+      ...orderedMobileApps,
+      ...remainingApps,
+    ];
+
     return Stack(
       children: [
         if (focusedWindow == null) ...[
@@ -797,7 +845,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
             left: 0,
             right: 0,
             bottom: dockTotalBottom,
-            child: _buildMobileHomeScreen(context, system, apps),
+            child: _buildMobileHomeScreen(context, system, mobileHomeScreenApps),
           ),
           Positioned(
             bottom: dockBottomMargin,
@@ -909,7 +957,11 @@ class _DesktopScreenState extends State<DesktopScreen> {
     List<AppInfo> apps,
     double height,
   ) {
-    final dockApps = apps.take(4).toList();
+    const dockIds = ['browser', 'terminal', 'files', 'code'];
+    final dockApps = dockIds
+        .map((id) => apps.where((a) => a.id == id).firstOrNull)
+        .whereType<AppInfo>()
+        .toList();
     final iconBoxSize = (height * 0.64).clamp(36.0, 54.0);
 
     return ClipRRect(

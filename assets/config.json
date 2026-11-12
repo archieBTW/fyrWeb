@@ -104,13 +104,6 @@
   ],
   "apps": [
     {
-      "id": "github",
-      "title": "GitHub",
-      "url": "https://github.com/archieBTW",
-      "icon": "github",
-      "color": "0xFF24292E"
-    },
-    {
       "id": "we_iac",
       "title": "WE-IAC",
       "subtitle": "GCP Infrastructure as Code & Multi-Site Deployment Engine",
@@ -136,81 +129,6 @@
         "Multi-Jail Intrusion Prevention: Fail2ban jails monitoring sshd brute-force attempts and nginx-limit-req rate-limit violations with automated 2-hour IP bans.",
         "Isolated Container Bridge: PostgreSQL container resides exclusively on Docker app-network (172.20.0.0/16); zero public host ports mapped.",
         "Secret Hardening: Ansible Vault encrypted credentials deploying to root-owned 0600 mode environment files."
-      ]
-    },
-    {
-      "id": "friendly",
-      "title": "friend.ly",
-      "subtitle": "Retro MySpace Customization, Modern Reels & Trust/Safety SQL Sandbox",
-      "url": "https://friendly.archerwoods.dev",
-      "icon": "people",
-      "color": "0xFF00E5FF",
-      "architectureBadge": "Blazor WASM • Spring Boot 3 • PostgreSQL 16 • S3/GCS • Ansible",
-      "caseStudy": [
-        "Full-Stack Social Architecture: Engineered an interview-ready social platform blending vintage 2005 MySpace CSS/HTML profile customization with modern TikTok-style vertical snap-scrolling video reels (/reels) and real-time watch telemetry.",
-        "Multi-Tier Clean Architecture: Developed with C# .NET 8 Blazor WebAssembly standalone SPA on the frontend and Java 21 / Spring Boot 3 on the backend utilizing Spring Data JPA for CRUD and JdbcTemplate for high-performance native queries.",
-        "Trust & Safety Anti-Abuse Engine: Implemented strict Jsoup HTML sanitization preserving retro markup (<marquee>, <blink>, <table>) while stripping XSS vectors. Built scoped CSS parsing targeting .friendly-profile-canvas to neutralize CSS exfiltration and javascript: URIs.",
-        "S3 Object Storage & Media Quarantine: Multi-bucket pipeline (friendly-media-quarantine, friendly-media-public, friendly-profile-songs) using AWS SDK v2 with GCP Cloud Storage HMAC interoperability and local MinIO development parity. Unapproved uploads remain in private quarantine until automated GCP Vision SafeSearch validation.",
-        "Advanced Relational Modeling: 15 normalized PostgreSQL tables supporting 10,000 users, 300,000+ telemetry rows, hierarchical comments (WITH RECURSIVE), COPPA age-gating triggers, and polymorphic reactions."
-      ],
-      "devopsStudy": [
-        "Automated Ansible Deployment: Authored 2-stage automated production playbook (deploy.yml) managing local fat-JAR packaging (mvn clean package), Docker image export/compression, Blazor WASM compilation (dotnet publish), and remote rsync distribution to Carlyle Auto server.",
-        "Host Nginx Reverse Proxy & WASM Optimization: Configured host Nginx with Brotli and Gzip compression tuned specifically for .wasm and .bin binaries (application/wasm, application/octet-stream). Fronted Blazor SPA at friendly.archerwoods.dev and reverse-proxied Spring Boot API at api.friendly.archerwoods.dev (127.0.0.1:8070).",
-        "Multi-Zone Rate Limiting: Configured leaky-bucket Nginx rate limiting zones (limit_req_zone $binary_remote_addr zone=friendly_req:10m rate=30r/s) with burst=50 nodelay to protect API endpoints against bot scrape clusters.",
-        "Dual-Provider S3 Cloud Storage: Seamless infrastructure toggle between local MinIO Docker service (minio-client provisioning buckets and anonymous download policies) and Google Cloud Storage using HMAC service account credentials without code changes."
-      ],
-      "sysadminStudy": [
-        "PostgreSQL 16 Engine Tuning: Deployed postgres:16-alpine on isolated bridge network (friendly-social-network). Tuned shared buffers and memory parameters to support complex analytical CTEs across 300,000+ telemetry events.",
-        "Database Index Optimization (50x Speedup): Designed composite and partial indexes (idx_posts_reels_recency, idx_media_approved, idx_telemetry_post) reducing FYP algorithm query times from 15.54ms to 0.307ms and buffer hits from 1,556 to 182 shared hits via EXPLAIN ANALYZE.",
-        "Automated Incident Remediation: Authored atomic SQL batch remediation transaction (WITH detected_bots ... UPDATE ... RETURNING) banning coordinated botnets (198.51.100.42), quarantining media assets, soft-deleting posts/comments, and recording JSONB audit incident logs in a single statement.",
-        "Zero-Trust Service Boundary: Database and backend containers communicate across internal Docker network with zero public database port exposure. UFW and Fail2ban enforce host protection with automated IP bans for repeat rate-limit violators."
-      ]
-    },
-    {
-      "id": "welledumacated",
-      "title": "well edumacated",
-      "subtitle": "Retro Early-Web Creative Portal & Music Showcase",
-      "url": "https://welledumacated.dev",
-      "icon": "school",
-      "color": "0xFFBF00FF",
-      "architectureBadge": "Flutter Web • Audioplayers • Dynamic Particles • Retro CSS",
-      "caseStudy": [
-        "Nostalgic Early-Web Aesthetic: Engineered a 2000s MySpace-inspired creative portal and music showcase featuring classic marquee banners, Courier monospace typography, dynamic particle physics, and retro content cards.",
-        "Interactive Particle Physics: Built dynamic real-time cursor particle emitters that react to mouse pointer velocities and click bursts with fluid physics.",
-        "Vintage Audio Streaming Engine: Integrated vintage media player controls powered by web audio streaming for singles and full album releases."
-      ],
-      "devopsStudy": [
-        "Automated Production Pipeline: Continuous Flutter Web releases compiled with HTML/CanvasKit renderers and synchronized via WE-IAC Ansible automation.",
-        "Automated TLS 1.3 Encryption: Zero-downtime Let's Encrypt certificates provisioned via Certbot with systemd auto-renewal timers.",
-        "Reverse Proxy Optimization: Nginx leaky-bucket rate limiting and high inode cache retention for static web audio assets."
-      ],
-      "sysadminStudy": [
-        "e2-micro Memory Tuning: Deployed alongside multi-tenant apps on lightweight GCP VM with tuned sysctl cache pressure and swap management.",
-        "UFW & Fail2ban Isolation: Default DENY firewall policy with Fail2ban monitoring HTTP rate limits and malicious scanning bots."
-      ]
-    },
-    {
-      "id": "pycontui",
-      "title": "PyConTUI",
-      "subtitle": "Keyboard-Driven Terminal UI for Docker Management",
-      "url": "https://github.com/archieBTW",
-      "icon": "terminal",
-      "color": "0xFF4CAF50",
-      "architectureBadge": "Python • Textual • Docker SDK • ANSI",
-      "caseStudy": [
-        "Pure Terminal Navigation: Designed a keyboard-first terminal user interface for Docker container lifecycle orchestration built in Python using Textual.",
-        "Vim-Style Efficiency: Implemented full Vim keybindings (j, k, g, G, Ctrl+D/U) with modal search filtering (/) and zero mouse dependencies.",
-        "Async Engine Integration: Coupled with the Docker Engine SDK to deliver real-time container metrics, live stdout/stderr log following, and interactive exec shell connections."
-      ],
-      "devopsStudy": [
-        "Real-Time Container Telemetry: Pure text meter bars tracking CPU percentage, RAM allocation, network I/O, and block I/O throughput.",
-        "Lifecycle Control: Instant hotkeys for Start (s), Stop (t), Restart (r), Pause (p), Resume (u), and Container Pruning (P).",
-        "Volume & Network Orchestration: Interactive creation, inspection, and pruning of Docker bridge networks and named storage volumes."
-      ],
-      "sysadminStudy": [
-        "Headless Server Administration: Zero GUI overhead tool designed for remote SSH sessions, lightweight cloud VMs, and terminal purists.",
-        "Interactive Shell Hooks: Connects directly to sh/bash or custom entrypoints with ANSI text rendering and process PID inspection.",
-        "Disk & Artifact Reclamation: Dangling image and unused volume garbage collection directly from the terminal console."
       ]
     },
     {
@@ -303,27 +221,6 @@
       ]
     },
     {
-      "id": "theolivebranch",
-      "title": "The Olive Branch",
-      "subtitle": "A Customizable News Aggregator",
-      "url": "https://theolivebranch.press",
-      "icon": "newspaper",
-      "color": "0xFF607D8B",
-      "architectureBadge": "Flutter Web • Nginx RSS Proxy • State Management",
-      "caseStudy": [
-        "API Consumption & Parsing: Created a streamlined, production-ready news aggregator that effectively consumes, parses, and formats multiple third-party feeds into a clean, unified reading experience.",
-        "Persistent State Management: Implemented global state handling for persistent user preferences, including dynamic primary color theming, dark mode toggles, and customized active feed filtering."
-      ],
-      "devopsStudy": [
-        "Custom Nginx Reverse Proxy: Secure /proxy/ location block rewriting RSS feed requests with DNS resolvers (1.1.1.1, 8.8.8.8) to bypass client-side CORS.",
-        "Targeted Ansible Tag: Continuous deployment automated via WE-IAC static_sites role."
-      ],
-      "sysadminStudy": [
-        "Proxy Rate-Limiting: Prevents outbound SSRF abuse through strict URI pattern matching.",
-        "Automated TLS 1.3: ACME challenges automated via Certbot."
-      ]
-    },
-    {
       "id": "carlyle",
       "title": "Carlyle",
       "subtitle": "AI Automotive Diagnostics & Tuning Platform",
@@ -343,6 +240,34 @@
       "sysadminStudy": [
         "Certbot TLS 1.3 Security: HTTPS encryption with automated certificate renewal.",
         "Host Firewall Hardening: Default DENY with rate-limited HTTP/HTTPS."
+      ]
+    },
+    {
+      "id": "friendly",
+      "title": "friend.ly",
+      "subtitle": "Retro MySpace Customization, Modern Reels & Trust/Safety SQL Sandbox",
+      "url": "https://friendly.archerwoods.dev",
+      "icon": "people",
+      "color": "0xFF00E5FF",
+      "architectureBadge": "Blazor WASM • Spring Boot 3 • PostgreSQL 16 • S3/GCS • Ansible",
+      "caseStudy": [
+        "Full-Stack Social Architecture: Engineered an interview-ready social platform blending vintage 2005 MySpace CSS/HTML profile customization with modern TikTok-style vertical snap-scrolling video reels (/reels) and real-time watch telemetry.",
+        "Multi-Tier Clean Architecture: Developed with C# .NET 8 Blazor WebAssembly standalone SPA on the frontend and Java 21 / Spring Boot 3 on the backend utilizing Spring Data JPA for CRUD and JdbcTemplate for high-performance native queries.",
+        "Trust & Safety Anti-Abuse Engine: Implemented strict Jsoup HTML sanitization preserving retro markup (<marquee>, <blink>, <table>) while stripping XSS vectors. Built scoped CSS parsing targeting .friendly-profile-canvas to neutralize CSS exfiltration and javascript: URIs.",
+        "S3 Object Storage & Media Quarantine: Multi-bucket pipeline (friendly-media-quarantine, friendly-media-public, friendly-profile-songs) using AWS SDK v2 with GCP Cloud Storage HMAC interoperability and local MinIO development parity. Unapproved uploads remain in private quarantine until automated GCP Vision SafeSearch validation.",
+        "Advanced Relational Modeling: 15 normalized PostgreSQL tables supporting 10,000 users, 300,000+ telemetry rows, hierarchical comments (WITH RECURSIVE), COPPA age-gating triggers, and polymorphic reactions."
+      ],
+      "devopsStudy": [
+        "Automated Ansible Deployment: Authored 2-stage automated production playbook (deploy.yml) managing local fat-JAR packaging (mvn clean package), Docker image export/compression, Blazor WASM compilation (dotnet publish), and remote rsync distribution to Carlyle Auto server.",
+        "Host Nginx Reverse Proxy & WASM Optimization: Configured host Nginx with Brotli and Gzip compression tuned specifically for .wasm and .bin binaries (application/wasm, application/octet-stream). Fronted Blazor SPA at friendly.archerwoods.dev and reverse-proxied Spring Boot API at api.friendly.archerwoods.dev (127.0.0.1:8070).",
+        "Multi-Zone Rate Limiting: Configured leaky-bucket Nginx rate limiting zones (limit_req_zone $binary_remote_addr zone=friendly_req:10m rate=30r/s) with burst=50 nodelay to protect API endpoints against bot scrape clusters.",
+        "Dual-Provider S3 Cloud Storage: Seamless infrastructure toggle between local MinIO Docker service (minio-client provisioning buckets and anonymous download policies) and Google Cloud Storage using HMAC service account credentials without code changes."
+      ],
+      "sysadminStudy": [
+        "PostgreSQL 16 Engine Tuning: Deployed postgres:16-alpine on isolated bridge network (friendly-social-network). Tuned shared buffers and memory parameters to support complex analytical CTEs across 300,000+ telemetry events.",
+        "Database Index Optimization (50x Speedup): Designed composite and partial indexes (idx_posts_reels_recency, idx_media_approved, idx_telemetry_post) reducing FYP algorithm query times from 15.54ms to 0.307ms and buffer hits from 1,556 to 182 shared hits via EXPLAIN ANALYZE.",
+        "Automated Incident Remediation: Authored atomic SQL batch remediation transaction (WITH detected_bots ... UPDATE ... RETURNING) banning coordinated botnets (198.51.100.42), quarantining media assets, soft-deleting posts/comments, and recording JSONB audit incident logs in a single statement.",
+        "Zero-Trust Service Boundary: Database and backend containers communicate across internal Docker network with zero public database port exposure. UFW and Fail2ban enforce host protection with automated IP bans for repeat rate-limit violators."
       ]
     },
     {
@@ -367,6 +292,57 @@
         "Hardened Nginx Host: Static caching headers, gzip/brotli asset compression, and leaky-bucket rate limiting (50 r/s burst).",
         "Edge Firewall Isolation: Ingress strictly gated through Cloudflare CDN/proxy with automated TLS renewal."
       ]
+    },
+    {
+      "id": "theolivebranch",
+      "title": "The Olive Branch",
+      "subtitle": "A Customizable News Aggregator",
+      "url": "https://theolivebranch.press",
+      "icon": "newspaper",
+      "color": "0xFF607D8B",
+      "architectureBadge": "Flutter Web • Nginx RSS Proxy • State Management",
+      "caseStudy": [
+        "API Consumption & Parsing: Created a streamlined, production-ready news aggregator that effectively consumes, parses, and formats multiple third-party feeds into a clean, unified reading experience.",
+        "Persistent State Management: Implemented global state handling for persistent user preferences, including dynamic primary color theming, dark mode toggles, and customized active feed filtering."
+      ],
+      "devopsStudy": [
+        "Custom Nginx Reverse Proxy: Secure /proxy/ location block rewriting RSS feed requests with DNS resolvers (1.1.1.1, 8.8.8.8) to bypass client-side CORS.",
+        "Targeted Ansible Tag: Continuous deployment automated via WE-IAC static_sites role."
+      ],
+      "sysadminStudy": [
+        "Proxy Rate-Limiting: Prevents outbound SSRF abuse through strict URI pattern matching.",
+        "Automated TLS 1.3: ACME challenges automated via Certbot."
+      ]
+    },
+    {
+      "id": "welledumacated",
+      "title": "well edumacated",
+      "subtitle": "Retro Early-Web Creative Portal & Music Showcase",
+      "url": "https://welledumacated.dev",
+      "icon": "school",
+      "color": "0xFFBF00FF",
+      "architectureBadge": "Flutter Web • Audioplayers • Dynamic Particles • Retro CSS",
+      "caseStudy": [
+        "Nostalgic Early-Web Aesthetic: Engineered a 2000s MySpace-inspired creative portal and music showcase featuring classic marquee banners, Courier monospace typography, dynamic particle physics, and retro content cards.",
+        "Interactive Particle Physics: Built dynamic real-time cursor particle emitters that react to mouse pointer velocities and click bursts with fluid physics.",
+        "Vintage Audio Streaming Engine: Integrated vintage media player controls powered by web audio streaming for singles and full album releases."
+      ],
+      "devopsStudy": [
+        "Automated Production Pipeline: Continuous Flutter Web releases compiled with HTML/CanvasKit renderers and synchronized via WE-IAC Ansible automation.",
+        "Automated TLS 1.3 Encryption: Zero-downtime Let's Encrypt certificates provisioned via Certbot with systemd auto-renewal timers.",
+        "Reverse Proxy Optimization: Nginx leaky-bucket rate limiting and high inode cache retention for static web audio assets."
+      ],
+      "sysadminStudy": [
+        "e2-micro Memory Tuning: Deployed alongside multi-tenant apps on lightweight GCP VM with tuned sysctl cache pressure and swap management.",
+        "UFW & Fail2ban Isolation: Default DENY firewall policy with Fail2ban monitoring HTTP rate limits and malicious scanning bots."
+      ]
+    },
+    {
+      "id": "github",
+      "title": "GitHub",
+      "url": "https://github.com/archieBTW",
+      "icon": "github",
+      "color": "0xFF24292E"
     }
   ],
   "experience": [

@@ -32,7 +32,7 @@ class _FyrDockState extends State<FyrDock> {
     _pinnedAppIds = [
       'resume',
 
-      // System built-in apps
+      // System built-in apps (Section 1)
       'browser',
       'terminal',
       'files',
@@ -40,19 +40,22 @@ class _FyrDockState extends State<FyrDock> {
       'music',
       'photos',
       'settings',
+      'grand_theft_ant',
+      'github',
+      'contact',
 
-      // Portfolio apps / case studies
-      'pycontui',
+      // Portfolio apps / case studies (Section 2)
+      'infra_monitor',
+      'we_iac',
       'archbtw',
       'bybl',
       'libretrac',
-      'beats_by_arch',
-      'friendly',
-      'welledumacated',
+      'fyr',
       'carlyle',
-      'we_iac',
-      'infra_monitor',
-      'grand_theft_ant',
+      'friendly',
+      'beats_by_arch',
+      'theolivebranch',
+      'welledumacated',
     ];
   }
 
