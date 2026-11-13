@@ -41,6 +41,7 @@ class _FyrDockState extends State<FyrDock> {
       'photos',
       'settings',
       'grand_theft_ant',
+      'pencils_up',
       'github',
       'contact',
 
@@ -99,10 +100,13 @@ class _FyrDockState extends State<FyrDock> {
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                       // All Apps button
                       _AllAppsButton(onTap: () {
                         setState(() => _tooltipAppId = null);
@@ -194,6 +198,7 @@ class _FyrDockState extends State<FyrDock> {
                   ),
                 ),
               ),
+            ),
             ],
           ),
         );

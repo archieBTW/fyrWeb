@@ -8,6 +8,7 @@ import 'resume_app.dart';
 import 'infra_monitor_app.dart';
 import 'code_editor_app.dart';
 import 'grand_theft_ant/grand_theft_ant_app.dart';
+import 'pencils_up/pencils_up_app.dart';
 
 class FileExplorerApp extends StatefulWidget {
   const FileExplorerApp({super.key});
@@ -61,6 +62,13 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
         'color': const Color(0xFF7FA650),
         'isFolder': false,
         'openGame': true,
+      },
+      {
+        'name': 'pencils_up.game',
+        'icon': Icons.edit_note_rounded,
+        'color': const Color(0xFFE0B020),
+        'isFolder': false,
+        'openPencilsUp': true,
       },
       {
         'name': 'libretrac.html',
@@ -257,6 +265,13 @@ class _FileExplorerAppState extends State<FileExplorerApp> {
                         'Grand Theft Ant',
                         const GrandTheftAntApp(),
                         Icons.sports_esports_rounded,
+                      );
+                    } else if (file['openPencilsUp'] == true) {
+                      context.read<SystemController>().openApp(
+                        'pencils_up',
+                        'Pencils Up!',
+                        const PencilsUpApp(),
+                        Icons.edit_note_rounded,
                       );
                     } else if (file['openInfra'] == true) {
                       context.read<SystemController>().openApp(

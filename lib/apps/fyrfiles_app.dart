@@ -4,6 +4,7 @@ import '../system_controller.dart';
 import '../system_settings.dart';
 import 'package:provider/provider.dart';
 import 'grand_theft_ant/grand_theft_ant_app.dart';
+import 'pencils_up/pencils_up_app.dart';
 import 'resume_app.dart';
 
 class FyrFilesApp extends StatefulWidget {
@@ -62,6 +63,7 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
     'Home/Code': [
       {'name': 'friend.ly', 'isDir': false, 'type': 'web', 'url': 'https://friendly.archerwoods.dev', 'date': '2026-09-12', 'size': '1.2 MB'},
       {'name': 'grand_theft_ant.game', 'isDir': false, 'type': 'game', 'date': '2026-10-04', 'size': '18 MB'},
+      {'name': 'pencils_up.game', 'isDir': false, 'type': 'pencils_up', 'date': '2026-11-13', 'size': '2.4 MB'},
       {'name': 'libretrac', 'isDir': false, 'type': 'web', 'url': 'https://libretrac.site', 'date': '2026-08-20', 'size': '3.4 MB'},
       {'name': 'welledumacated', 'isDir': false, 'type': 'web', 'url': 'https://welledumacated.dev', 'date': '2026-07-15', 'size': '4.1 MB'},
       {'name': 'bybl', 'isDir': false, 'type': 'web', 'url': 'https://bybl.dev', 'date': '2026-09-01', 'size': '2.8 MB'},
@@ -126,6 +128,8 @@ class _FyrFilesAppState extends State<FyrFilesApp> {
         system.openApp('resume', 'Resume', const ResumeApp(), Icons.picture_as_pdf);
       } else if (item['type'] == 'game') {
         system.openApp('grand_theft_ant', 'Grand Theft Ant', const GrandTheftAntApp(), Icons.sports_esports_rounded);
+      } else if (item['type'] == 'pencils_up') {
+        system.openApp('pencils_up', 'Pencils Up!', const PencilsUpApp(), Icons.edit_note_rounded);
       } else if (item['type'] == 'web' && item['url'] != null) {
         system.openApp(item['name'], item['name'], null, Icons.html, url: item['url']);
       } else if (item['type'] == 'image') {

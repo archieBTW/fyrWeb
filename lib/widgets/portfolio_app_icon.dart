@@ -85,6 +85,8 @@ class PortfolioAppIcon extends StatelessWidget {
         return _buildInfraMonitorLogo(size);
       case 'grand_theft_ant':
         return _buildGrandTheftAntLogo(size);
+      case 'pencils_up':
+        return _buildPencilsUpLogo(size);
       case 'resume':
         return _buildResumeLogo(size);
       case 'contact':
@@ -390,6 +392,36 @@ class PortfolioAppIcon extends StatelessWidget {
           Icons.pest_control_rounded,
           color: const Color(0xFF7FA650),
           size: s * 0.55,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPencilsUpLogo(double s) {
+    return Container(
+      width: s,
+      height: s,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFFBF8EF), Color(0xFFE8DFC8)],
+        ),
+        borderRadius: BorderRadius.circular(s * 0.26),
+        border: Border.all(color: const Color(0xFFE0B020).withValues(alpha: 0.6), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFE0B020).withValues(alpha: 0.35),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Icon(
+          Icons.edit_note_rounded,
+          color: const Color(0xFF3A3A3F),
+          size: s * 0.6,
         ),
       ),
     );

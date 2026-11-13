@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:billyrigdon/models/config_model.dart';
 import 'package:billyrigdon/app_data.dart';
 import 'package:billyrigdon/system_settings.dart';
@@ -17,8 +18,9 @@ import 'package:provider/provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences.setMockInitialValues({});
 
-  test('Config contains beats_by_arch and loads apps properly', () async {
+  testWidgets('Config contains beats_by_arch and loads apps properly', (tester) async {
     final String configString = await rootBundle.loadString('assets/config.json');
     final configJson = jsonDecode(configString);
     final config = AppConfig.fromJson(configJson);
@@ -32,7 +34,7 @@ void main() {
     expect(beatsApp.url, equals('https://beats.archerwoods.dev'));
   });
 
-  test('Config contains welledumacated and verifies title, url, and case study', () async {
+  testWidgets('Config contains welledumacated and verifies title, url, and case study', (tester) async {
     final String configString = await rootBundle.loadString('assets/config.json');
     final configJson = jsonDecode(configString);
     final config = AppConfig.fromJson(configJson);
@@ -47,7 +49,7 @@ void main() {
     expect(wellApp.caseStudy, isNotEmpty);
   });
 
-  test('SystemSettings.setDarkMode synchronizes with FyrTheme and notifies listeners', () async {
+  testWidgets('SystemSettings.setDarkMode synchronizes with FyrTheme and notifies listeners', (tester) async {
     final settings = SystemSettings();
     bool notified = false;
     settings.addListener(() {

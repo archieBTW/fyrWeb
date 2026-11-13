@@ -10,6 +10,7 @@ import 'apps/code_editor_app.dart';
 import 'apps/photo_album_app.dart';
 import 'apps/music_player_app.dart';
 import 'apps/grand_theft_ant/grand_theft_ant_app.dart';
+import 'apps/pencils_up/pencils_up_app.dart';
 import 'apps/case_study_app.dart';
 import 'apps/infra_monitor_app.dart';
 import 'models/config_model.dart';
@@ -121,6 +122,14 @@ List<AppInfo> getApps(AppConfig config) {
       contentBuilder: () => const GrandTheftAntApp(),
       icon: Icons.sports_esports_rounded,
       color: const Color(0xFF7FA650),
+    ),
+    AppInfo(
+      id: 'pencils_up',
+      title: 'Pencils Up!',
+      subtitle: 'Hand-Drawn Pencil RPG Adventure',
+      contentBuilder: () => const PencilsUpApp(),
+      icon: Icons.edit_note_rounded,
+      color: const Color(0xFFE0B020),
     ),
     AppInfo(
       id: 'contact',

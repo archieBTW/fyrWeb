@@ -56,7 +56,12 @@ class WindowFrame extends StatelessWidget {
                             windowData.title.toLowerCase().contains('settings');
     final bool isBrowser = appId == 'browser' ||
                            windowData.title.toLowerCase().contains('browser');
-    final Color topBarColor = isBrowser ? const Color(0xFF1F1F23) : FyrTheme.surfaceColor;
+    final bool isPencilsUp = appId == 'pencils_up' ||
+                           windowData.id.toLowerCase() == 'pencils_up' ||
+                           windowData.title.toLowerCase().contains('pencils');
+    final Color topBarColor = isBrowser
+        ? const Color(0xFF1F1F23)
+        : (isPencilsUp ? const Color(0xFFFBF8EF) : FyrTheme.surfaceColor);
 
     Widget topBarContent;
     if (isSettings) {
@@ -173,11 +178,17 @@ class WindowFrame extends StatelessWidget {
               child: Text(
                 windowData.title,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.inter(
-                  color: FyrTheme.textColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: isPencilsUp
+                    ? GoogleFonts.patrickHand(
+                        color: const Color(0xFF3A3A3F),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      )
+                    : GoogleFonts.inter(
+                        color: FyrTheme.textColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
               ),
             ),
             if (isTiled)
@@ -186,7 +197,9 @@ class WindowFrame extends StatelessWidget {
                 child: Icon(
                   Icons.grid_view,
                   size: 14,
-                  color: FyrTheme.textColorMuted,
+                  color: isPencilsUp
+                      ? const Color(0xFF8A8A92)
+                      : FyrTheme.textColorMuted,
                 ),
               ),
           ],
@@ -237,7 +250,9 @@ class WindowFrame extends StatelessWidget {
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
                   child: Container(
-                    color: isSettings ? Colors.transparent : FyrTheme.surfaceColor,
+                    color: isSettings
+                        ? Colors.transparent
+                        : (isPencilsUp ? const Color(0xFFFBF8EF) : FyrTheme.surfaceColor),
                     child: Column(
                       children: [
                         // Window Header / Titlebar - Natural continuation of the app
@@ -256,7 +271,9 @@ class WindowFrame extends StatelessWidget {
                         // Window Body - State preserved via KeyedSubtree
                         Expanded(
                           child: Container(
-                            color: isSettings ? Colors.transparent : FyrTheme.surfaceColor,
+                            color: isSettings
+                                ? Colors.transparent
+                                : (isPencilsUp ? const Color(0xFFFBF8EF) : FyrTheme.surfaceColor),
                             child: KeyedSubtree(
                               key: ValueKey('win_subtree_${windowData.id}'),
                               child: windowData.content,

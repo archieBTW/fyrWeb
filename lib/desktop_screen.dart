@@ -802,6 +802,7 @@ class _DesktopScreenState extends State<DesktopScreen> {
       'photos',
       'settings',
       'grand_theft_ant',
+      'pencils_up',
       'github',
       'contact',
 
@@ -837,6 +838,12 @@ class _DesktopScreenState extends State<DesktopScreen> {
       ...remainingApps,
     ];
 
+    final isPencilsUpFocused = focusedWindow != null &&
+        (focusedWindow.appId.toLowerCase() == 'pencils_up' ||
+         focusedWindow.id.toLowerCase() == 'pencils_up' ||
+         focusedWindow.title.toLowerCase().contains('pencils'));
+    final mobileTopBarTextColor = isPencilsUpFocused ? const Color(0xFF3A3A3F) : onSurfaceColor;
+
     return Stack(
       children: [
         if (focusedWindow == null) ...[
@@ -865,11 +872,14 @@ class _DesktopScreenState extends State<DesktopScreen> {
         if (focusedWindow != null)
           Positioned.fill(
             child: Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
+              color: isPencilsUpFocused
+                  ? const Color(0xFFFBF8EF)
+                  : Theme.of(context).scaffoldBackgroundColor,
               child: Column(
                 children: [
                   Container(
                     height: 80,
+                    color: isPencilsUpFocused ? const Color(0xFFFBF8EF) : Colors.transparent,
                     padding: const EdgeInsets.only(
                       top: 40,
                       left: 20,
@@ -878,20 +888,31 @@ class _DesktopScreenState extends State<DesktopScreen> {
                     child: Row(
                       children: [
                         IconButton(
-                          icon: Icon(Icons.close, color: onSurfaceColor),
+                          icon: Icon(Icons.close, color: mobileTopBarTextColor),
                           onPressed: () =>
                               _closeMobileWindow(focusedWindow.id, windowManager),
                         ),
                         const SizedBox(width: 4),
-                        PortfolioAppIcon(appId: focusedWindow.id, size: 22),
+                        PortfolioAppIcon(
+                          appId: focusedWindow.appId.isNotEmpty
+                              ? focusedWindow.appId
+                              : focusedWindow.id,
+                          size: 22,
+                        ),
                         const SizedBox(width: 10),
                         Text(
                           focusedWindow.title,
-                          style: GoogleFonts.inter(
-                            color: onSurfaceColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
+                          style: isPencilsUpFocused
+                              ? GoogleFonts.patrickHand(
+                                  color: mobileTopBarTextColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                )
+                              : GoogleFonts.inter(
+                                  color: onSurfaceColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                         ),
                       ],
                     ),
@@ -902,13 +923,13 @@ class _DesktopScreenState extends State<DesktopScreen> {
                     child: Container(
                       height: 30,
                       width: double.infinity,
-                      color: Colors.transparent,
+                      color: isPencilsUpFocused ? const Color(0xFFFBF8EF) : Colors.transparent,
                       alignment: Alignment.center,
                       child: Container(
                         width: 140,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: onSurfaceColor.withValues(alpha: 0.2),
+                          color: mobileTopBarTextColor.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -931,16 +952,16 @@ class _DesktopScreenState extends State<DesktopScreen> {
                 Text(
                   TimeOfDay.now().format(context),
                   style: GoogleFonts.inter(
-                    color: onSurfaceColor,
+                    color: mobileTopBarTextColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
                 ),
                 Row(
                   children: [
-                    Icon(Icons.wifi, size: 16, color: onSurfaceColor),
+                    Icon(Icons.wifi, size: 16, color: mobileTopBarTextColor),
                     const SizedBox(width: 6),
-                    Icon(Icons.battery_full, size: 16, color: onSurfaceColor),
+                    Icon(Icons.battery_full, size: 16, color: mobileTopBarTextColor),
                   ],
                 ),
               ],
